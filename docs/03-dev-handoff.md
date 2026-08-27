@@ -8,6 +8,7 @@ Use this order:
 2. Check this `docs/` folder for current assumptions and traceability.
 3. Use original artifacts only when deeper detail is needed.
 4. Ask PM only if the requirement cannot be inferred from BRD/user stories/BPMN.
+5. For backend foundation work, follow `docs/07-backend-module-boundaries.md` before creating module structure, interfaces or migrations.
 
 ## Source of Truth Priority
 
@@ -85,6 +86,24 @@ Dev must define:
 | `smart-chu` | Owner mobile app implementation. |
 | `smart-admin` | Admin web implementation. |
 
+## Backend Foundation Decision
+
+Do not place product runtime backend code in `smart-platform`. This repository is for documentation, skills and memory.
+
+For GLI-12, use a backend platform services repository such as `smart-platform-services` or `smart-services`. The backend should be a NestJS modular monorepo with renter, owner and admin API entrypoints plus shared domain modules.
+
+The required core domain modules are:
+
+- identity
+- property
+- booking
+- contract
+- billing
+- payment
+- audit
+
+Dev must enforce the boundary rules in `docs/07-backend-module-boundaries.md`. Cross-module access must use public query services, policy services, command services or events only. Direct repository/entity/schema imports across modules are forbidden.
+
 ## Branch and Commit Rule
 
 Use the task ID in branch and commit naming.
@@ -114,4 +133,3 @@ A task is ready for implementation when it has:
 - Acceptance criteria or testable expected result.
 
 If any of these are missing, Dev should infer from BRD/user stories first, then notify PM if the gap is risky.
-

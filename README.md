@@ -13,6 +13,7 @@ Read these files first:
 5. `docs/04-qa-handoff.md`
 6. `docs/05-assumptions-and-open-questions.md`
 7. `docs/06-board-task-map.md`
+8. `docs/07-backend-module-boundaries.md`
 
 ## Source Artifacts
 
@@ -41,4 +42,3 @@ Read these files first:
 ## Agent Working Rule
 
 If a requirement is unclear, agents should infer the expected behavior from BRD and user stories first, then document the assumption. Ask PM before implementing or testing high-risk logic such as payment, contract validity, authorization, data deletion or irreversible state transitions.
-

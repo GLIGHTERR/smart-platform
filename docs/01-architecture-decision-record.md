@@ -39,6 +39,8 @@ The current project resources include four repositories:
 
 Use a modular monolith backend first, not true microservices.
 
+The backend should be a platform services monorepo with separate API entrypoints for renter, owner and admin audiences. It must not be treated as one undifferentiated backend app for all clients.
+
 Recommended NestJS module boundaries:
 
 - `auth`: phone login, OTP, OAuth2, JWT, RBAC.
@@ -51,6 +53,8 @@ Recommended NestJS module boundaries:
 - `notifications`: push, SMS, owner/renter notifications.
 - `media`: image upload and document storage.
 - `admin`: moderation, user/account controls and reporting endpoints.
+
+Detailed module ownership, dependency, CRUD and public interface rules are defined in `docs/07-backend-module-boundaries.md`.
 
 ## Rationale
 
@@ -68,6 +72,7 @@ Risks:
 - Backend can become too large if module boundaries are not enforced.
 - Payment and realtime logic need strict ownership to avoid coupling.
 - Shared DTO/API contracts must be documented early to avoid FE/BE drift.
+- Module boundaries must be enforced with public query, policy, command and event interfaces only. Direct repository/entity/schema imports across modules are forbidden.
 
 ## Required Dev Assessment Output
 
@@ -79,4 +84,3 @@ The Dev assessment should confirm or revise:
 4. Payment gateway abstraction and webhook handling strategy.
 5. File storage approach for public images vs private contract PDFs.
 6. Initial CI/CD and environment strategy.
-
