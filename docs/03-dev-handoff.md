@@ -9,6 +9,7 @@ Use this order:
 3. Use original artifacts only when deeper detail is needed.
 4. Ask PM only if the requirement cannot be inferred from BRD/user stories/BPMN.
 5. For backend foundation work, follow `docs/07-backend-module-boundaries.md` before creating module structure, interfaces or migrations.
+6. For token/model routing experiments, follow `docs/08-9router-poc-and-token-budget.md`; do not change production agent routing without PM approval.
 
 ## Source of Truth Priority
 
@@ -103,6 +104,17 @@ The required core domain modules are:
 - audit
 
 Dev must enforce the boundary rules in `docs/07-backend-module-boundaries.md`. Cross-module access must use public query services, policy services, command services or events only. Direct repository/entity/schema imports across modules are forbidden.
+
+## Model Routing and Token Budget
+
+9Router is currently in PoC only. Do not assume that a small task will automatically use a cheap model just because it goes through 9Router.
+
+Before applying routing to normal Dev work:
+
+- Check the run usage metadata for the actual model and token counts.
+- Keep auth, payment, contract, data deletion, migrations and production deployment on a deep/strong route.
+- Avoid broad project-context tasks when a narrow repo/file/task scope is enough.
+- Do not paste API keys, provider secrets or router secrets into issue comments or repository files.
 
 ## Branch and Commit Rule
 

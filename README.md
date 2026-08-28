@@ -14,6 +14,7 @@ Read these files first:
 6. `docs/05-assumptions-and-open-questions.md`
 7. `docs/06-board-task-map.md`
 8. `docs/07-backend-module-boundaries.md`
+9. `docs/08-9router-poc-and-token-budget.md`
 
 ## Source Artifacts
 
@@ -42,3 +43,5 @@ Read these files first:
 ## Agent Working Rule
 
 If a requirement is unclear, agents should infer the expected behavior from BRD and user stories first, then document the assumption. Ask PM before implementing or testing high-risk logic such as payment, contract validity, authorization, data deletion or irreversible state transitions.
+
+Do not apply 9Router to Codex PM, Codex DEV or Gemini QA until the PoC in `docs/08-9router-poc-and-token-budget.md` meets its adoption criteria.
