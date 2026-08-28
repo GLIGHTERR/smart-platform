@@ -21,18 +21,26 @@ What has been verified:
 - Direct `POST /v1/responses` with `cx/gpt-5.4-mini` returns HTTP 200.
 - Direct smoke output returned `PONG`.
 - Direct smoke usage was about 2.5k total tokens.
+- 9Router API catalog exposes `cx/gpt-5.4-mini` and `cx/gpt-5.3-codex-spark`, even when the UI combo list is empty.
+- An unprojected minimal agent task pinned to `cx/gpt-5.4-mini` completed successfully with no auth/runtime error.
 - No API key or provider secret was committed or posted.
 
 What remains risky:
 
 - Agent task runs can still inject large system/project/skill context.
 - A small read-only task through an experimental agent still reported `cx/gpt-5.6-sol` and about 259k input tokens before the agent model was pinned.
+- Even after pinning a minimal unprojected agent task to `cx/gpt-5.4-mini`, the run still used about 74.7k input tokens and 41.5k cache-read tokens.
 - Skills and project resources can dominate token usage even when the user-facing task is small.
 - Runtime metadata may not expose the exact upstream route selected by 9Router.
+- The current Codex default model in `~/.codex/config.toml` is `cx/gpt-5.6-sol`; agents with an empty model inherit that default.
+- 9Router Combo UI is currently empty, so no UI-level fallback aliases have been configured yet.
 
 ## Experimental Agent
 
-Agent name: `Router PoC Agent`
+Agents:
+
+- `Router PoC Agent`
+- `Codex DEV Lite (9Router PoC)`
 
 Rules:
 
@@ -42,6 +50,7 @@ Rules:
 - Use custom env through stdin/file only.
 - Keep max concurrency at `1`.
 - Keep model pinned to a low-cost route while measuring small tasks, currently `cx/gpt-5.4-mini`.
+- Do not change Codex PM, Codex DEV or Gemini QA until the adoption criteria are met.
 
 ## Routing Policy Draft
 
@@ -51,6 +60,16 @@ Rules:
 | `dev-fast` | Repo inventory, package script review, small lint/config fixes, simple scaffold checks. | Database migrations, auth, payment, contract, cross-module design. |
 | `dev-deep` | Backend module boundaries, schema design, complex debugging, data consistency, high-risk refactors. | Routine comments or read-only summaries. |
 | `qa-fast` | Test checklist drafts, smoke test notes, simple AC mapping. | Final release decision, security review, payment/contract regression sign-off. |
+
+Recommended model mapping during PoC:
+
+| Profile | Model | Use Now? |
+| --- | --- | --- |
+| `lite` | `cx/gpt-5.4-mini` | Yes, for controlled PoC agents only. |
+| `normal` | `cx/gpt-5.4` or `cx/gpt-5.5` | Not yet; define after lite overhead is reduced. |
+| `deep` | `cx/gpt-5.6-sol` | Keep for high-risk work and current defaults. |
+
+Do not use the OpenAI-compatible `gpt/*` path as the primary fallback while its provider connection is reporting quota/backoff errors.
 
 ## Hard Safety Rules
 
@@ -88,12 +107,14 @@ For each test task, record:
 
 ## Current Recommendation
 
-Continue the PoC, but narrow the next tests.
+Continue the PoC, but change the next objective from "model selection" to "context reduction".
 
-The next useful test is not another broad project issue. It should be a minimal, non-project-bound agent task with:
+`cx/gpt-5.4-mini` works and is cheaper, but agent overhead remains high. The next useful test is a minimal, non-project-bound agent task with:
 
 - No repository checkout.
 - No attachment inspection.
 - No document skill loading.
 - A pinned low-cost model.
 - A final run usage comparison against the direct smoke result.
+
+If the run still starts above roughly 50k input tokens for a trivial task, do not roll out 9Router to PM, DEV or QA. First reduce injected context, default enabled plugins, or skill loading for the low-cost agent profile.
