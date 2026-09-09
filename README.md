@@ -15,6 +15,7 @@ Read these files first:
 7. `docs/06-board-task-map.md`
 8. `docs/07-backend-module-boundaries.md`
 9. `docs/08-9router-poc-and-token-budget.md`
+10. `docs/09-viewing-appointment-mvp-rules.md`
 
 ## Source Artifacts
 

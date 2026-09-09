@@ -29,7 +29,7 @@ Prioritize tests by business risk:
 | Area | Required Test Types |
 | --- | --- |
 | Auth/RBAC | Functional, negative, security, role access. |
-| Booking | State transition, conflict, notification, regression. |
+| Viewing Appointment | State transition, expiry/end worker, duplicate/merge/conflict, multi-room, room-status reaction, notification and Property/Room regression. |
 | Contract | State transition, permission, document access, cancellation. |
 | Payment | API, webhook, idempotency, rollback/refund, notification, regression. |
 | Room/property | Functional, validation, image/media, permission. |
@@ -52,17 +52,21 @@ QA must cover:
 - Rollback/refund rule is testable and logged.
 - Renter and owner receive the correct notifications.
 
-## Booking QA Focus
+## Viewing Appointment QA Focus
 
 QA must cover:
 
 - Renter can view available rooms.
 - Renter can view room detail.
-- Renter can request viewing schedule.
+- Renter can request a 1-10 room viewing appointment for one property.
 - Renter cannot select invalid/past time.
-- Schedule conflict behavior.
+- Effective duplicate, exact-time merge and half-open schedule conflict behavior.
+- Owner approval checks renter, owner and every room transactionally.
+- Room-status changes remove only affected rooms and cancel only when none remains.
+- `requested` expires and `approved` ends within the worker SLA; no `consumed` state exists.
 - Owner receives booking/viewing notification.
-- Owner can respond or continue to contract flow.
+- Per-room renter decisions remain isolated; one appointment may source several contracts.
+- Contract creation never changes the appointment lifecycle.
 - Existing active contract behavior is handled.
 - Deposit generation occurs only after valid contract/signing trigger.
 
@@ -98,4 +102,3 @@ A task is ready for QA test case design when it has:
 - Test data requirements.
 - Role/permission rule.
 - Known out-of-scope items.
-

@@ -10,6 +10,7 @@ Use this order:
 4. Ask PM only if the requirement cannot be inferred from BRD/user stories/BPMN.
 5. For backend foundation work, follow `docs/07-backend-module-boundaries.md` before creating module structure, interfaces or migrations.
 6. For token/model routing experiments, follow `docs/08-9router-poc-and-token-budget.md`; do not change production agent routing without PM approval.
+7. For `GLI-15` and its children, follow `docs/09-viewing-appointment-mvp-rules.md`; do not use the obsolete one-booking/one-contract/`consumed` foundation assumption.
 
 ## Source of Truth Priority
 
@@ -57,13 +58,13 @@ Minimum recommended states:
 - `payment_request.refund_pending`
 - `payment_request.refunded`
 
-### Booking and Contract
+### Viewing Appointment and Contract
 
 Dev must define:
 
-- Booking request state model.
-- Viewing schedule conflict rule.
-- Contract creation trigger.
+- Viewing Appointment state model and multi-room aggregate.
+- Duplicate, merge, room/renter/owner conflict and bookability rules.
+- Contract source boundary without mutating/consuming the appointment.
 - Contract active/inactive/cancel flow.
 - Constraint for existing active contracts.
 - Deposit generation trigger.

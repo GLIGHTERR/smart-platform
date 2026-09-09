@@ -12,7 +12,7 @@
 | GLI-13 | SMA | Web admin foundation | Dev | SmartAdmin base web shell. |
 | GLI-16 | SMC | Owner property and room management | Dev | SmartChu owner property/room workflows. |
 | GLI-17 | SMT | Renter room discovery and detail | Dev | SmartTro room search/detail/favorite flow. |
-| GLI-15 | SPF | Booking room proposed flow | Dev | Cross-system booking workflow. |
+| GLI-15 | SPF | Viewing Appointment MVP parent specification/integration | PM/Dev/QA | Multi-room viewing schedule only; no hold, Contract or Payment state. |
 | GLI-18 | SPF | Contract lifecycle and e-signature | Dev | Contract workflow and document handling. |
 | GLI-20 | SPF | Payment proposed flow and billing ledger | Dev | Payment workflow, ledger and webhook. |
 | GLI-22 | SPF | Automatic payment, reminders and notifications | Dev | Scheduled payment and notification behavior. |
@@ -28,10 +28,18 @@
 
 1. GLI-10, GLI-27.
 2. GLI-12, GLI-11, GLI-14.
-3. GLI-16, GLI-17.
-4. GLI-15, GLI-18.
-5. GLI-20, GLI-22.
-6. GLI-19, GLI-23.
-7. GLI-21, GLI-24, GLI-25.
-8. GLI-26, GLI-28 should run in parallel once enough implementation detail exists.
+3. GLI-43 (Property/Room backend), then GLI-44 and GLI-17 as their contracts become available.
+4. GLI-45 (Viewing Appointment backend), then GLI-46 and GLI-47.
+5. Post-merge GLI-15 integration/QA; then GLI-18 after its source-appointment requirement is updated.
+6. GLI-20, GLI-22 after the Contract/deposit trigger is explicit.
+7. GLI-19, GLI-23.
+8. GLI-21, GLI-24, GLI-25.
+9. GLI-26, GLI-28 should run in parallel once enough implementation detail exists.
 
+## GLI-15 Child Order
+
+1. `GLI-43`: required Property/Room bookability snapshot, ownership policy and room-status event.
+2. `GLI-45`: schema migration and Viewing Appointment lifecycle/API.
+3. `GLI-46`: renter multi-room viewing UI and per-room decision UI.
+4. `GLI-47`: owner review/partial-room handling and notification integration.
+5. QA after merged code is deployed to Develop/Staging with the exact merge SHAs.

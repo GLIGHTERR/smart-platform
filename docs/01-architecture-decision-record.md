@@ -46,7 +46,7 @@ Recommended NestJS module boundaries:
 - `auth`: phone login, OTP, OAuth2, JWT, RBAC.
 - `users`: renter, owner, admin profile basics.
 - `properties`: owner properties and rooms.
-- `booking`: viewing requests and booking state transitions.
+- `viewing`: multi-room viewing appointments, schedule transitions and room-status reactions; it never owns Contract or Payment state.
 - `contracts`: contract lifecycle, signature, cancellation and PDF generation.
 - `billing`: invoices, payment requests, payment history and ledger.
 - `payment`: payment method linking, gateway redirect, webhook and retry.
