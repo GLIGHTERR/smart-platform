@@ -17,7 +17,7 @@ Recommended repository role:
 
 | Module | Owns | Does Not Own |
 | --- | --- | --- |
-| identity | users, roles, sessions, auth, permissions, actor profile basics | property, viewing appointment, contract, invoice or payment lifecycle |
+| identity | immutable user ID, normalized unique email credential, email verification attempts, roles, sessions, auth, permissions, identity links and actor profile basics | property, viewing appointment, contract, invoice or payment lifecycle |
 | property | properties, rooms, room inventory, owner-room ownership, room status | viewing appointment lifecycle, contracts, invoices, payments |
 | viewing | multi-room viewing appointment, schedule lifecycle and per-room rental decision | room status, contract lifecycle, invoice/debt, payment transaction |
 | contract | rental contract, official renter-owner-room binding, rent/deposit terms | invoice lifecycle, payment transaction, room master data |
@@ -130,7 +130,9 @@ Recommended repository role:
 
 - Query: `IdentityQueryService.getActorSnapshot()`, `getActorsSnapshot()`
 - Policy: `IdentityAccessService.assertRenter()`, `assertOwner()`, `assertAdmin()`, `assertPermission()`
-- Events: `UserRegistered`, `UserRoleChanged`, `LoginSucceeded`, `LoginFailed`
+- Commands: request/verify email OTP, create account after verification, authenticate email/password, refresh/logout sessions and link a future external identity without creating a duplicate user.
+- Events: `EmailVerificationRequested`, `EmailVerified`, `UserRegistered`, `UserRoleChanged`, `LoginSucceeded`, `LoginFailed`
+- MVP invariant: normalized email is the unique login identifier; phone is optional contact data and normal Sign In does not require OTP.
 
 ### property
 

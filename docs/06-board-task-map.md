@@ -7,7 +7,7 @@
 | GLI-10 | SPF | Tech assessment FE/BE architecture | Dev | Validate architecture before implementation. |
 | GLI-27 | SPF | Requirement traceability and scope cleanup | PM | Normalize requirements and assumptions. |
 | GLI-12 | SPF | Backend foundation and database schema | Dev | Backend modules, database schema and migrations. |
-| GLI-11 | SPF | Auth, OAuth2, OTP and RBAC | Dev | Shared authentication and authorization. |
+| GLI-11 | SPF | Email identity, OTP activation, OAuth2 and RBAC | Dev | Shared identity/authentication: unique normalized email, 6-digit email OTP for activation, email/password Sign In and safe future provider linking. |
 | GLI-14 | SPF | App foundations for SmartTro and SmartChu | Dev | Shared mobile foundations for both apps. |
 | GLI-13 | SMA | Web admin foundation | Dev | SmartAdmin base web shell. |
 | GLI-16 | SMC | Owner property and room management | Dev | SmartChu owner property/room workflows. |

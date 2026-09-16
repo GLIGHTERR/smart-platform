@@ -28,7 +28,7 @@ Prioritize tests by business risk:
 
 | Area | Required Test Types |
 | --- | --- |
-| Auth/RBAC | Functional, negative, security, role access. |
+| Auth/RBAC | Email normalization/unique identity, 6-digit email OTP activation, email/password Sign In without OTP on every login, state restore, duplicate-account prevention, negative/security and role access. |
 | Viewing Appointment | State transition, expiry/end worker, duplicate/merge/conflict, multi-room, room-status reaction, notification and Property/Room regression. |
 | Contract | State transition, permission, document access, cancellation. |
 | Payment | API, webhook, idempotency, rollback/refund, notification, regression. |
@@ -82,6 +82,20 @@ QA must cover:
 - Contract cancellation request can be approved/rejected.
 - Cancellation request expiration behavior.
 - User cannot have invalid concurrent active contracts.
+
+## Auth QA Focus
+
+QA must use `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` as the current baseline and cover:
+
+- Email trim, lowercase/normalization and duplicate-account prevention.
+- Sign Up: request OTP, input exactly 6 digits, invalid/expired/resend behavior and successful transition to password.
+- App background/foreground while the user opens the email app: restore attempt, email, step and absolute countdown without persisting OTP/password.
+- Registration success returns to Sign In and does not auto-login.
+- Sign In uses email + password and does not ask for OTP in the normal flow.
+- Generic credential errors do not reveal whether an email exists.
+- Unverified account resumes activation rather than creating a duplicate account.
+- Password/OTP do not appear in logs, route parameters or persistent storage.
+- The environment under test uses the exact merged SHA and actual auth/mock contract, not an isolated happy-case setup.
 
 ## Requirement Ambiguity Rule for QA
 

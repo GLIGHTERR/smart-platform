@@ -10,7 +10,7 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 
 | Requirement Group | SmartTro IDs | SmartChu IDs | Board Task |
 | --- | --- | --- | --- |
-| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14` |
+| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; SmartTrọ MVP baseline is email OTP Sign Up and email/password Sign In per `docs/10` and `docs/11` |
 | Room/property discovery and management | SM013-SM016 | SM053-SM061 | `GLI-16`, `GLI-17` |
 | Viewing appointment / room-viewing schedule | SM017 | SM062-SM064 | `GLI-15` |
 | Messaging and interaction | SM018-SM020 | SM065-SM068 | `GLI-19`, `GLI-21` |
@@ -35,7 +35,7 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | `GLI-10` | Validate proposed FE/BE architecture before implementation. | Architecture recommendation, risks, implementation order. | QA risk notes for high-risk areas. |
 | `GLI-27` | Normalize requirements and assumptions before Dev/QA starts. | Requirement mapping and open questions. | Testability notes for ambiguous requirements. |
 | `GLI-12` | Establish backend and database foundation. | NestJS modules, schema, migrations, seed roles. | DB/API smoke test scope. |
-| `GLI-11` | Support auth and role access. | Auth APIs, JWT/OAuth2/RBAC, OTP behavior. | Auth happy/negative/security test cases. |
+| `GLI-11` | Support auth and role access. | Identity APIs with normalized unique email, email OTP account activation, email/password Sign In without OTP on every login, JWT/OAuth2/RBAC and future identity linking. | Auth happy/negative/security tests, anti-enumeration, state restore and duplicate-account prevention. |
 | `GLI-15` | Schedule one-property, multi-room viewing appointments without holding rooms. | Viewing Appointment API/state model, renter and owner UI integration, room-status reaction hooks. | Lifecycle, duplicate/conflict, multi-room, bookability and Property/Room regression tests. |
 | `GLI-18` | Support contract lifecycle and signature. | Contract APIs, PDF generation, signature/cancel flow. | Contract state, authorization and document test cases. |
 | `GLI-20` | Digitize payment flow. | Payment method, invoice/debt payment, webhook, ledger. | Payment state, webhook idempotency and rollback test cases. |
@@ -49,3 +49,4 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | Payment flow has high business risk. | Incorrect payment status may affect money and trust. | Require explicit states: pending, success, failed, expired, refunded/rolled back where applicable. |
 | Booking proposed flow combines multiple domains. | A one-booking/one-contract model would incorrectly couple viewing, contract and payment. | Keep `GLI-15` as the parent specification; execute `GLI-43` then backend `GLI-45`, clients `GLI-46`/`GLI-47`, and post-merge integration/QA. Contract/deposit remain `GLI-18`/`GLI-20`. |
 | BPMN is image-only. | Dev cannot diff or edit source BPMN. | Use image as source of behavior; future update should store editable BPMN/drawio if possible. |
+| Legacy auth artifacts still use phone or OTP on every login. | Dev may implement contradictory identity and authentication flows. | Use `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` as the current baseline; update each affected artifact before its task is handed to Dev. |

@@ -1,0 +1,34 @@
+@startuml
+title Đăng nhập bằng email và mật khẩu
+
+|Renter|
+start
+:Mở app SmartTrọ;
+:Nhập email và mật khẩu;
+:Chọn Đăng nhập;
+
+|System|
+:Trim và chuẩn hóa email;
+:Xác thực credential;
+if (Credential hợp lệ?) then (Có)
+  if (Email đã xác minh?) then (Có)
+    :Tạo phiên đăng nhập;
+    :Trả kết quả thành công;
+    |Renter|
+    :Đi tới Trang chủ;
+    stop
+  else (Chưa)
+    :Hướng dẫn tiếp tục/resend activation OTP;
+    stop
+  endif
+else (Không)
+  :Hiển thị lỗi generic;
+  :Không tiết lộ email có tồn tại;
+  stop
+endif
+
+note right
+Sign In thông thường không yêu cầu OTP.
+MFA/risk-based OTP là scope riêng.
+end note
+@enduml

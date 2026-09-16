@@ -16,6 +16,9 @@ Read these files first:
 8. `docs/07-backend-module-boundaries.md`
 9. `docs/08-9router-poc-and-token-budget.md`
 10. `docs/09-viewing-appointment-mvp-rules.md`
+11. `docs/10-smarttro-sign-up-ui-implementation-spec.md`
+12. `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`
+13. `markdown/README.md` for agent-readable mirrors of the current SmartTrọ source documents.
 
 ## Source Artifacts
 
@@ -27,6 +30,7 @@ Read these files first:
 | `User_Stories/` | User stories and acceptance criteria. |
 | `SRS/` | Software Requirements Specifications. |
 | `FRS/` | Functional Requirements Specifications. |
+| `markdown/` | Agent-readable mirrors of selected DOCX/XLSX sources, with source hashes and conversion status in `markdown/README.md`. |
 | `Business_Processes/` | Current/proposed business process images. |
 | `Activity_Diagrams/` | Activity diagrams by feature. |
 | `Use_Case_Diagrams/` | Use case diagrams by feature group. |

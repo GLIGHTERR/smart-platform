@@ -1,0 +1,45 @@
+@startuml
+title Đăng ký bằng email
+
+|Renter|
+start
+:Mở app SmartTrọ;
+:Chọn Đăng ký;
+:Nhập email và chọn Gửi OTP;
+
+|System|
+:Trim và chuẩn hóa email;
+:Kiểm tra định dạng và unique;
+if (Có thể tiếp tục?) then (Có)
+  :Tạo signup attempt;
+  :Gửi OTP 6 chữ số qua email;
+else (Không)
+  :Không tạo tài khoản trùng;
+  :Hiển thị hướng dẫn phù hợp;
+  stop
+endif
+
+|Renter|
+:Nhập OTP 6 chữ số;
+:Chọn Tiếp tục;
+
+|System|
+if (OTP hợp lệ?) then (Có)
+  :Cho phép tạo mật khẩu;
+else (Không)
+  :Hiển thị lỗi sai/hết hạn;
+  |Renter|
+  :Nhập lại hoặc gửi lại OTP;
+  stop
+endif
+
+|Renter|
+:Nhập mật khẩu và xác nhận mật khẩu;
+:Chọn Đăng ký;
+
+|System|
+:Tạo tài khoản với email đã xác minh;
+:Thông báo đăng ký thành công;
+:Chuyển về Sign In, không auto-login;
+stop
+@enduml

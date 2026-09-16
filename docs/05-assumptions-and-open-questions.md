@@ -4,6 +4,7 @@
 
 | ID | Assumption | Impact | Owner |
 | --- | --- | --- | --- |
+| AUTH-001 | SmartTrọ MVP uses normalized email as the unique login identifier. Sign Up uses a 6-digit email OTP; normal Sign In uses email + password without OTP on every login. Phone is optional contact data. | All future recovery, profile, SmartChủ auth, social linking, messaging/contact, contract and payment tasks must pass the impact gate in `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` before PM hands them to Dev. | PO/PM |
 | ASM-001 | `smart-platform` is a documentation, skills and memory repository, not a runtime app. | Dev should not put product code here unless it is documentation tooling. | PM |
 | ASM-002 | SmartTro and SmartChu are separate mobile apps but should share backend API contracts and UX patterns where possible. | FE foundations should align on auth, API client and validation patterns. | Dev |
 | ASM-003 | The backend should start as a NestJS modular monolith for MVP. | Simplifies deployment and cross-domain transactions. | Dev |

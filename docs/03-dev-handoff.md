@@ -11,6 +11,7 @@ Use this order:
 5. For backend foundation work, follow `docs/07-backend-module-boundaries.md` before creating module structure, interfaces or migrations.
 6. For token/model routing experiments, follow `docs/08-9router-poc-and-token-budget.md`; do not change production agent routing without PM approval.
 7. For `GLI-15` and its children, follow `docs/09-viewing-appointment-mvp-rules.md`; do not use the obsolete one-booking/one-contract/`consumed` foundation assumption.
+8. For SmartTrọ auth, follow `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`; do not implement legacy phone-as-login or OTP-on-every-login behavior.
 
 ## Source of Truth Priority
 
@@ -74,10 +75,12 @@ Dev must define:
 Dev must define:
 
 - Roles: `renter`, `owner`, `admin`.
+- Normalized email as the MVP unique login identifier; phone remains optional contact data.
+- Email OTP for Sign Up/account activation and email/password for normal Sign In.
 - OTP expiration and retry behavior.
 - Failed login lockout behavior.
 - JWT refresh/logout behavior.
-- Social login linking behavior for Facebook, Google and Apple.
+- Social/phone identity linking behavior that prevents duplicate user accounts.
 
 ## Repository Responsibilities
 
