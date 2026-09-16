@@ -9,7 +9,7 @@
 | Định danh tài khoản MVP | Email normalized, unique toàn hệ thống identity |
 | Số điện thoại | Dữ liệu liên hệ tùy chọn; không dùng để login/unique trong MVP |
 | Ngày chốt | 2026-09-16 |
-| Trạng thái bàn giao Dev | Chưa giao — cần đồng bộ Figma/capture và Activity Diagram |
+| Trạng thái bàn giao Dev | FE mock **Ready**; backend auth vẫn chờ chốt security/OTP policy |
 
 Tài liệu này là nguồn chuẩn cho Sign In và quyết định định danh tài khoản MVP. Nó đồng thời là “impact gate”: trước khi PM giao một task mới có sử dụng email, số điện thoại, user identity, OTP hoặc account linking, PM phải kiểm tra bảng ảnh hưởng ở mục 8 và cập nhật requirement liên quan trước.
 
@@ -87,11 +87,17 @@ Policy khóa sau 5 lần sai trong 72 giờ đang có trong User Story cũ nhưn
 | Requirement List SmartTrọ | `SM001`, `SM002` | Đã đổi tên requirement sang email |
 | User Story SmartTrọ | `1.0`, `2.0` | Đã đổi Sign Up/Sign In sang email; bỏ OTP bắt buộc sau mỗi Sign In |
 | SRS SmartTrọ | UC-1, UC-2 | Đã đổi heading/logic trọng yếu sang email |
-| FRS SmartTrọ | Không tìm thấy section auth có thể truy vết rõ trong bản hiện tại | Không sửa trong đợt này; khi FRS auth được bổ sung phải theo baseline này |
+| FRS SmartTrọ | Bản hiện tại không có đặc tả auth đủ chi tiết | Đã tạo mirror `markdown/FRS/FRS - SmartTrọ.md`; khi bổ sung auth phải theo baseline này |
 | Activity Diagram Sign Up by Email | PNG + source `.puml` | Đã cập nhật theo email OTP 6 chữ số |
 | Activity Diagram Sign In by Email | PNG + source `.puml` | Đã cập nhật; Sign In thông thường không còn OTP |
-| Figma SmartTrọ Sign Up | Nodes `237:1161`, `237:1137`, `237:1185` | Stale copy/capture; layout được giữ |
-| Figma SmartTrọ Sign In | Node cần PM/Designer xác định | Chưa kiểm tra/capture trong đợt này |
+| Figma SmartTrọ Sign Up | Nodes `237:1161`, `237:1137`, `237:1185` | Đã xác minh copy email và xuất 3 capture mới |
+| Figma SmartTrọ Sign In | Node `237:822` | Đã xác minh `Email` + `Mật khẩu` và xuất capture mới |
+
+### 7.1. Capture Sign In SmartTrọ
+
+![SmartTrọ Sign In — email và mật khẩu](assets/smarttro-auth/sign-in-email.png)
+
+Capture này chỉ là baseline UI. Quy tắc validation, anti-enumeration, failed-login handling và session policy trong tài liệu này có ưu tiên cao hơn copy/state chưa thể hiện trên frame tĩnh.
 
 ## 8. MVP auth identity impact register
 
@@ -99,7 +105,7 @@ Policy khóa sau 5 lần sai trong 72 giờ đang có trong User Story cũ nhưn
 
 | Khu vực tương lai | Ảnh hưởng của email-as-identity | Gate trước bàn giao PM |
 | --- | --- | --- |
-| Quên mật khẩu / account recovery | Tài liệu hiện dùng OTP qua SĐT | Chốt recovery bằng OTP email, expiry/attempt/rate limit và update `SM004`, US `3.0`, SRS/diagram |
+| Quên mật khẩu / account recovery | Figma đã có 3 bước Email → OTP → mật khẩu mới; policy vận hành chưa được PO duyệt | Chốt các quyết định tại `docs/12-smarttro-forgot-password-email-otp-decisions.md`, rồi update `SM004`, US `3.0`, SRS/diagram |
 | Đổi email | Email là credential unique, không còn là profile field sửa tự do | Tạo flow re-auth + verify email mới + duplicate check + session/audit policy |
 | Cập nhật hồ sơ | SĐT có thể sửa như contact; email phải hiển thị trạng thái verified và không update trực tiếp | Sửa requirement/profile AC trước task Profile |
 | SmartChủ auth | Cần cùng identity service và cùng rule unique | Audit `SM038+`, SmartChủ US/SRS/Figma trước foundation auth |

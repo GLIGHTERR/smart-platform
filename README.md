@@ -18,7 +18,8 @@ Read these files first:
 10. `docs/09-viewing-appointment-mvp-rules.md`
 11. `docs/10-smarttro-sign-up-ui-implementation-spec.md`
 12. `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`
-13. `markdown/README.md` for agent-readable mirrors of the current SmartTrọ source documents.
+13. `docs/12-smarttro-forgot-password-email-otp-decisions.md`
+14. `markdown/README.md` for agent-readable mirrors of the current SmartTrọ source documents.
 
 ## Source Artifacts
 

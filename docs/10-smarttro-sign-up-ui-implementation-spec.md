@@ -5,7 +5,7 @@
 | Thuộc tính | Giá trị |
 | --- | --- |
 | Trạng thái nghiệp vụ | **Approved** |
-| Trạng thái bàn giao PM | **Chưa bàn giao — chờ cập nhật Figma/capture từ số điện thoại sang email** |
+| Trạng thái bàn giao PM | **Ready — đã xác minh Figma và xuất capture email ngày 2026-09-16** |
 | Phạm vi | Luồng đăng ký SmartTrọ bằng email, OTP email và mật khẩu |
 | Nền tảng | React Native + Expo cho iOS, Android và Expo Web preview |
 | Dữ liệu ở giai đoạn UI | Mock trong bộ nhớ; chưa gọi API và chưa gửi email thật |
@@ -15,7 +15,7 @@
 
 Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
 
-Dev chưa được nhận task triển khai từ tài liệu này cho đến khi phần chữ trên Figma và capture được cập nhật khớp với luồng email. Các quyết định về bố cục, accessibility và kỹ thuật đã được duyệt vẫn giữ nguyên.
+Tài liệu và capture hiện đã khớp với luồng email. PM có thể dùng tài liệu này để chuẩn bị task FE Sign Up SmartTrọ; backend OTP production vẫn phải chờ chốt các policy còn mở trong `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
 
 ## 2. Mục tiêu và kết quả mong đợi
 
@@ -44,17 +44,29 @@ Figma file `Smart Platform`, file key `rsjbGO3ul8lzKKKTj38r0t`, page `SmartTrọ
 
 | Bước | Figma node hiện có | Trạng thái sử dụng |
 | --- | --- | --- |
-| Nhập email | `237:1161` — hiện tên/text vẫn là `Input Phone` | Chỉ dùng bố cục; phải sửa label, helper, keyboard và validation sang email |
-| Nhập OTP | `237:1137` | Dùng bố cục; phải sửa helper thành email đã mask |
-| Tạo mật khẩu | `237:1185` | Dùng bố cục và kiểm tra lại copy trước khi capture mới |
+| Nhập email | `237:1161` — `Sign Up (Input Email) - iPhone` | **Ready** — label `Email`, action `Gửi OTP` |
+| Nhập OTP | `237:1137` — `Sign Up (Input OTP) - iPhone` | **Ready** — OTP và resend đã hiển thị |
+| Tạo mật khẩu | `237:1185` — `Sign Up (Input Password) - iPhone` | **Ready** — mật khẩu, xác nhận mật khẩu và action đăng ký |
 
-Các capture hiện có tại `docs/assets/smarttro-sign-up/` là baseline bố cục cũ, **không còn là baseline nội dung**:
+Capture baseline đã xuất từ đúng page `SmartTrọ` ngày 2026-09-16 và đặt tại `docs/assets/smarttro-auth/`:
 
-- `sign-up-phone.png`: stale vì dùng số điện thoại.
-- `sign-up-otp.png`: stale nếu helper/copy nhắc số điện thoại hoặc SMS.
-- `sign-up-password.png`: cần capture lại cùng revision Figma để giữ một bộ baseline đồng nhất.
+- `sign-up-email.png`.
+- `sign-up-otp.png`.
+- `sign-up-password.png`.
 
-Trước khi bàn giao PM, phải xuất lại ba capture và cập nhật bảng này thành trạng thái `Ready`.
+Các file cũ trong `docs/assets/smarttro-sign-up/` chỉ là lịch sử và không còn là baseline nội dung.
+
+#### Capture 1 — Nhập email
+
+![SmartTrọ Sign Up — nhập email](assets/smarttro-auth/sign-up-email.png)
+
+#### Capture 2 — Nhập OTP email
+
+![SmartTrọ Sign Up — nhập OTP email](assets/smarttro-auth/sign-up-otp.png)
+
+#### Capture 3 — Tạo mật khẩu
+
+![SmartTrọ Sign Up — tạo mật khẩu](assets/smarttro-auth/sign-up-password.png)
 
 ### 3.2. Nguồn requirement
 
