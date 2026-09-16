@@ -15,7 +15,7 @@
 
 Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
 
-Tài liệu và capture hiện đã khớp với luồng email. PM có thể dùng tài liệu này để chuẩn bị task FE Sign Up SmartTrọ; backend OTP production vẫn phải chờ chốt các policy còn mở trong `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+Tài liệu và capture hiện đã khớp với luồng email. PM, Dev và QA phải dùng trực tiếp tài liệu UC này cho Sign Up SmartTrọ. Các policy backend còn mở được ghi ngay trong UC này; không dùng một tài liệu quyết định Auth Identity trung gian.
 
 ## 2. Mục tiêu và kết quả mong đợi
 
@@ -58,20 +58,20 @@ Các file cũ trong `docs/assets/smarttro-sign-up/` chỉ là lịch sử và kh
 
 #### Capture 1 — Nhập email
 
-![SmartTrọ Sign Up — nhập email](assets/smarttro-auth/sign-up-email.png)
+![SmartTrọ Sign Up — nhập email](../../assets/smarttro-auth/sign-up-email.png)
 
 #### Capture 2 — Nhập OTP email
 
-![SmartTrọ Sign Up — nhập OTP email](assets/smarttro-auth/sign-up-otp.png)
+![SmartTrọ Sign Up — nhập OTP email](../../assets/smarttro-auth/sign-up-otp.png)
 
 #### Capture 3 — Tạo mật khẩu
 
-![SmartTrọ Sign Up — tạo mật khẩu](assets/smarttro-auth/sign-up-password.png)
+![SmartTrọ Sign Up — tạo mật khẩu](../../assets/smarttro-auth/sign-up-password.png)
 
 ### 3.2. Nguồn requirement
 
 - Quyết định PO ngày 2026-09-16 trong tài liệu này.
-- `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+- `docs/use-cases/smarttro/UC-02-sign-in.md` cho hành vi điều hướng và đăng nhập sau khi đăng ký.
 - `Requirement_List/Requirements List - SmartTrọ.xlsx`, `SM001`.
 - `User_Stories/User Story - SmartTrọ.xlsx`, sheet `Đăng kýĐăng nhập`, User Story `1.0`.
 - `SRS/SRS (SmartTrọ).docx`, UC Sign Up sau khi cập nhật.
@@ -81,7 +81,7 @@ Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong
 ### 3.3. Quy tắc khi có mâu thuẫn
 
 1. Quyết định PO mới nhất trong task/comment.
-2. `docs/10-smarttro-sign-up-ui-implementation-spec.md` và `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+2. Tài liệu UC hiện tại; với hành vi chuyển sang Sign In, dùng thêm `docs/use-cases/smarttro/UC-02-sign-in.md`.
 3. Markdown handoff mới nhất trong `docs/`.
 4. Requirement List, User Story và SRS đã cập nhật.
 5. Figma cho phần trình bày trực quan.
@@ -89,7 +89,9 @@ Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong
 
 Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giải quyết được, PM phải comment vào task và tag PO để chốt trước khi giao Dev.
 
-## 4. Quyết định đã phê duyệt
+## 4. Quyết định và câu hỏi của UC
+
+### 4.1. Quyết định đã phê duyệt
 
 | ID | Quyết định | Trạng thái |
 | --- | --- | --- |
@@ -101,8 +103,18 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 | SIGNUP-D06 | Áp dụng toàn bộ sai khác accessibility `UI-D01` đến `UI-D07` | Approved |
 | SIGNUP-D07 | Định danh Sign Up MVP đổi từ số điện thoại sang email; email normalized là unique login identifier | Approved |
 | SIGNUP-D08 | OTP gồm 6 chữ số và gửi qua email; không dùng verification link trong MVP | Approved |
+| SIGNUP-D09 | OTP hết hạn sau 10 phút | Approved 2026-09-16 |
+| SIGNUP-D10 | Mỗi OTP cho phép tối đa 5 lần nhập sai; sau đó challenge bị vô hiệu hóa và người dùng phải yêu cầu OTP mới | Approved 2026-09-16 |
+| SIGNUP-D11 | Resend cách nhau tối thiểu 60 giây, tối đa 5 lần/giờ/email; backend phải có thêm giới hạn IP/device chống abuse | Approved 2026-09-16 |
+| SIGNUP-D12 | Endpoint công khai dùng response generic, không xác nhận riêng email đã tồn tại; UI cung cấp lối sang Sign In | Approved 2026-09-16 |
+| SIGNUP-D13 | Email provider được bọc sau adapter; chưa khóa vendor trong requirement nghiệp vụ | Approved 2026-09-16 |
 
-Các giá trị backend chưa được PO chốt trong lần duyệt này — OTP expiry, số lần verify sai tối đa, rate limit theo email/IP/device và chính sách khóa — phải là config và được PM/PO chốt trước task backend. Dev FE không được hard-code chúng thành business rule, ngoài cooldown review 60 giây đã duyệt.
+### 4.2. Thứ tự triển khai đã phê duyệt
+
+1. Triển khai FE bằng mock gateway.
+2. Deploy preview để PO kiểm tra UI, responsive behavior và flow.
+3. Chỉ sau khi PO phê duyệt preview mới bắt đầu task backend production.
+4. Khi triển khai backend, các giá trị `SIGNUP-D09` đến `SIGNUP-D13` phải được đưa vào API contract/config và test; FE không được dùng mock để thay thế policy production.
 
 ## 5. Luồng nghiệp vụ chuẩn
 
@@ -252,7 +264,7 @@ Mock gateway tối thiểu:
 - create account thành công/thất bại.
 - resend cooldown 60 giây.
 
-## 10. Accessibility và khác biệt có chủ đích với Figma cũ
+## 10. Accessibility và khác biệt có chủ đích với Figma
 
 | ID | Vấn đề của frame cũ | Quyết định triển khai |
 | --- | --- | --- |
@@ -279,10 +291,10 @@ Tối thiểu phải có:
 - Không có OTP/password trong route params, log hoặc storage.
 - Accessibility label, focus order, keyboard behavior và vùng chạm.
 
-## 12. Out of scope của task FE Sign Up đầu tiên
+## 12. Out of scope của UC hiện tại
 
 - Email provider thật và template email production.
-- Backend OTP policy/rate limit/anti-abuse hoàn chỉnh.
+- Backend OTP/email provider production trước khi PO duyệt FE preview.
 - Social/OAuth account linking.
 - Đổi email, quên mật khẩu và account recovery.
 - Xác thực số điện thoại.
@@ -300,15 +312,28 @@ Tối thiểu phải có:
 
 ## 14. Gate trước khi bàn giao PM
 
+### 14.1. FE mock và preview
+
 Chỉ chuyển trạng thái tài liệu thành `Ready for PM` khi đủ:
 
-- [ ] Figma node đầu tiên đổi từ Phone sang Email.
-- [ ] OTP helper đổi từ SMS/số điện thoại sang email đã mask.
-- [ ] Ba capture mới được xuất cùng một revision Figma và nhúng lại vào tài liệu.
+- [x] Figma node đầu tiên đổi từ Phone sang Email.
+- [x] OTP helper đổi từ SMS/số điện thoại sang email đã mask.
+- [x] Ba capture mới được xuất cùng một revision Figma và nhúng lại vào tài liệu.
 - [x] Requirement List `SM001` dùng email.
 - [x] User Story `1.0` dùng email OTP 6 chữ số.
 - [x] SRS heading/logic Sign Up dùng email.
 - [x] Activity Diagram Sign Up by Email không còn bước/text số điện thoại; có source `.puml`.
-- [x] Quyết định identity/Sign In được ghi tại `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+- [x] Hành vi sau đăng ký và các ràng buộc liên UC được truy vết tới `docs/use-cases/smarttro/UC-02-sign-in.md`.
 
-Khi chưa đủ gate, PM chỉ được cập nhật knowledge/requirement; chưa enqueue Dev triển khai UI.
+- [ ] FE mock được triển khai và unit/component tests pass.
+- [ ] Preview được deploy từ đúng merge SHA.
+- [ ] PO review và phê duyệt preview.
+
+### 14.2. Backend production
+
+- [x] `SIGNUP-D09` đến `SIGNUP-D13` đã được PO chốt.
+- [ ] FE preview đã được PO phê duyệt.
+- [ ] API contract, provider adapter, rate limit và OTP policy được cập nhật theo quyết định đã chốt.
+- [ ] QA có test data và environment contract thực tế.
+
+PM được phép giao FE mock/deploy preview ngay. PM không được giao backend production trước khi toàn bộ gate 14.2 hoàn tất.

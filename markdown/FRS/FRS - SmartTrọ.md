@@ -3,7 +3,7 @@
 > Bản Markdown được đồng bộ từ [`FRS - SmartTrọ.docx`](../../FRS/FRS%20-%20SmartTro%CC%A3.docx) ngày 2026-09-16.
 > SHA-256 nguồn: `782c1e18ef1dfb5934c0d22177ff45f89a0f3cc029642aa1f4255c30d55caaef`.
 > File DOCX gốc vẫn là nguồn định dạng chính thức; bản này phục vụ agent tìm kiếm, đọc requirement và truy vết use case.
-> Lưu ý: đây là bản chuyển đổi nguyên trạng. Các nội dung auth cũ nếu xuất hiện không được dùng để ghi đè baseline tại `docs/10-smarttro-sign-up-ui-implementation-spec.md` và `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+> Lưu ý: đây là bản chuyển đổi nguyên trạng. Các nội dung auth cũ nếu xuất hiện không được dùng để ghi đè tài liệu của UC tương ứng tại `docs/use-cases/smarttro/`.
 
 ![image2.png](assets/frs-smarttro/image-001.png)
 

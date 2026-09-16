@@ -3,7 +3,7 @@
 > Bản Markdown được đồng bộ từ [`Requirements List - SmartTrọ.xlsx`](../../Requirement_List/Requirements%20List%20-%20SmartTro%CC%A3.xlsx) ngày 2026-09-16.
 > SHA-256 nguồn: `bbe7698a13132ecf3a3bf1195fd2f9ee8255578aea5da7181d8589ec7a492321`.
 > Công thức Excel được giữ ở dạng văn bản. File XLSX gốc vẫn là nguồn dữ liệu và định dạng chính thức.
-> Các Change Request cũ có thể nhắc số điện thoại hoặc social login để mô tả lịch sử. Baseline auth MVP hiện tại nằm trong `docs/10-smarttro-sign-up-ui-implementation-spec.md` và `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`.
+> Các Change Request cũ có thể nhắc số điện thoại hoặc social login để mô tả lịch sử. Baseline triển khai hiện tại nằm trong tài liệu của đúng UC tại `docs/use-cases/smarttro/`.
 
 ## Requirements List
 

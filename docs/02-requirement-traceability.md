@@ -10,7 +10,7 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 
 | Requirement Group | SmartTro IDs | SmartChu IDs | Board Task |
 | --- | --- | --- | --- |
-| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; SmartTrọ MVP baseline is email OTP Sign Up and email/password Sign In per `docs/10` and `docs/11` |
+| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; mỗi flow dùng tài liệu UC riêng trong `docs/use-cases/smarttro/` |
 | Room/property discovery and management | SM013-SM016 | SM053-SM061 | `GLI-16`, `GLI-17` |
 | Viewing appointment / room-viewing schedule | SM017 | SM062-SM064 | `GLI-15` |
 | Messaging and interaction | SM018-SM020 | SM065-SM068 | `GLI-19`, `GLI-21` |
@@ -49,4 +49,4 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | Payment flow has high business risk. | Incorrect payment status may affect money and trust. | Require explicit states: pending, success, failed, expired, refunded/rolled back where applicable. |
 | Booking proposed flow combines multiple domains. | A one-booking/one-contract model would incorrectly couple viewing, contract and payment. | Keep `GLI-15` as the parent specification; execute `GLI-43` then backend `GLI-45`, clients `GLI-46`/`GLI-47`, and post-merge integration/QA. Contract/deposit remain `GLI-18`/`GLI-20`. |
 | BPMN is image-only. | Dev cannot diff or edit source BPMN. | Use image as source of behavior; future update should store editable BPMN/drawio if possible. |
-| Legacy auth artifacts still use phone or OTP on every login. | Dev may implement contradictory identity and authentication flows. | Use `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` as the current baseline; update each affected artifact before its task is handed to Dev. |
+| Legacy auth artifacts still use phone or OTP on every login. | Dev may implement contradictory identity and authentication flows. | Dùng đúng tài liệu UC trong `docs/use-cases/smarttro/`; cập nhật từng artifact bị ảnh hưởng trước khi UC tương ứng được giao Dev. |

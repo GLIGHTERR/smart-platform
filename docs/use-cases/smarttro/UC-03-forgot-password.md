@@ -1,4 +1,4 @@
-# SmartTrọ — Quên mật khẩu bằng Email OTP: đề xuất quyết định
+# SmartTrọ — UC-03 Quên mật khẩu bằng Email OTP: đề xuất quyết định
 
 ## 1. Trạng thái tài liệu
 
@@ -31,15 +31,15 @@ Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng no
 
 ### Capture 1 — Nhập email
 
-![SmartTrọ Quên mật khẩu — nhập email](assets/smarttro-auth/forgot-password-email.png)
+![SmartTrọ Quên mật khẩu — nhập email](../../assets/smarttro-auth/forgot-password-email.png)
 
 ### Capture 2 — Nhập OTP email
 
-![SmartTrọ Quên mật khẩu — nhập OTP](assets/smarttro-auth/forgot-password-otp.png)
+![SmartTrọ Quên mật khẩu — nhập OTP](../../assets/smarttro-auth/forgot-password-otp.png)
 
 ### Capture 3 — Đặt mật khẩu mới
 
-![SmartTrọ Quên mật khẩu — đặt mật khẩu mới](assets/smarttro-auth/forgot-password-new-password.png)
+![SmartTrọ Quên mật khẩu — đặt mật khẩu mới](../../assets/smarttro-auth/forgot-password-new-password.png)
 
 ## 4. Các quyết định cần PO chốt
 
@@ -79,7 +79,7 @@ Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng no
 | `SRS/SRS (SmartTrọ).docx` | UC Quên mật khẩu, pre/post-condition, exceptions và security rules |
 | `FRS/FRS - SmartTrọ.docx` | Bổ sung đặc tả flow/API/state nếu FRS được mở rộng auth |
 | `Activity_Diagrams/` | Thay flow phone/SMS bằng email OTP; thêm expiry/resend/attempt/rate-limit branches |
-| `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` | Chuyển impact register từ Pending sang Approved/Implemented theo revision |
+| `docs/use-cases/smarttro/UC-02-sign-in.md` | Cập nhật điều hướng từ Sign In sang UC-03 và contract sau khi đặt lại mật khẩu |
 | `markdown/` | Đồng bộ lại mirror và SHA-256 sau khi file nguồn thay đổi |
 
 ## 7. Gate bàn giao PM/Dev
@@ -90,4 +90,3 @@ PM chỉ giao task implementation sau khi:
 2. Requirement List, User Story, SRS và Activity Diagram đã cập nhật cùng một rule set.
 3. API contract thể hiện challenge ID, expiry, resend, attempt, reset token, generic response và session revocation.
 4. QA có test matrix cho happy path, expired/replayed OTP, brute force, enumeration, resend race, app resume và session revocation.
-

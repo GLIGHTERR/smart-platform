@@ -9,7 +9,7 @@ Thư mục này chứa bản Markdown của các tài liệu DOCX/XLSX để age
 - Nếu bản Markdown và file gốc khác nhau, ưu tiên quyết định PO mới nhất rồi tới file gốc đã được cập nhật.
 - Ảnh nhúng từ DOCX được trích xuất vào thư mục `assets/` cùng nhóm tài liệu.
 - Công thức Excel được giữ dưới dạng văn bản; bản Markdown không thay thế workbook để tính toán.
-- Các Change Request lịch sử có thể chứa flow cũ. Với auth SmartTrọ MVP, dùng `docs/10-smarttro-sign-up-ui-implementation-spec.md` và `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` làm baseline.
+- Các Change Request lịch sử có thể chứa flow cũ. Với auth SmartTrọ MVP, dùng tài liệu của đúng UC trong `docs/use-cases/smarttro/` làm baseline.
 
 ## Trạng thái chuyển đổi
 

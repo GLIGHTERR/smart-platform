@@ -11,7 +11,7 @@ Use this order:
 5. For backend foundation work, follow `docs/07-backend-module-boundaries.md` before creating module structure, interfaces or migrations.
 6. For token/model routing experiments, follow `docs/08-9router-poc-and-token-budget.md`; do not change production agent routing without PM approval.
 7. For `GLI-15` and its children, follow `docs/09-viewing-appointment-mvp-rules.md`; do not use the obsolete one-booking/one-contract/`consumed` foundation assumption.
-8. For SmartTrọ auth, follow `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md`; do not implement legacy phone-as-login or OTP-on-every-login behavior.
+8. For SmartTrọ auth, follow the exact UC specification in `docs/use-cases/smarttro/`; do not implement one UC from a generic auth decision document or legacy phone-as-login/OTP-on-every-login behavior.
 
 ## Source of Truth Priority
 

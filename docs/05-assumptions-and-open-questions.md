@@ -4,7 +4,6 @@
 
 | ID | Assumption | Impact | Owner |
 | --- | --- | --- | --- |
-| AUTH-001 | SmartTrọ MVP uses normalized email as the unique login identifier. Sign Up uses a 6-digit email OTP; normal Sign In uses email + password without OTP on every login. Phone is optional contact data. | All future recovery, profile, SmartChủ auth, social linking, messaging/contact, contract and payment tasks must pass the impact gate in `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` before PM hands them to Dev. | PO/PM |
 | ASM-001 | `smart-platform` is a documentation, skills and memory repository, not a runtime app. | Dev should not put product code here unless it is documentation tooling. | PM |
 | ASM-002 | SmartTro and SmartChu are separate mobile apps but should share backend API contracts and UX patterns where possible. | FE foundations should align on auth, API client and validation patterns. | Dev |
 | ASM-003 | The backend should start as a NestJS modular monolith for MVP. | Simplifies deployment and cross-domain transactions. | Dev |
@@ -20,7 +19,6 @@
 | OQ-002 | What is the exact rollback/refund rule when payment times out or gateway fails? | Money movement requires precise expected result. | Mark transaction failed/pending first; do not mark invoice paid until verified success webhook. |
 | OQ-003 | Does deposit payment happen before or after both parties sign the electronic contract? | Booking proposed BPMN combines contract and deposit. | Generate deposit request after contract is valid for signing; finalize room booking after required payment success. |
 | OQ-004 | What is the exact rule for a renter who already has an active contract? | Booking proposed BPMN checks existing active contract. | Allow new contract only after current contract cancellation is approved or old contract is inactive. |
-| OQ-005 | Are social login CRs included in MVP or later release? | Affects auth scope and app store configuration. | Treat as priority 3 unless PM promotes it. |
 | OQ-006 | Does SmartAdmin need full MVP implementation now or only foundation/moderation support? | Affects scope and timeline. | Start with foundation and moderation/reporting needed by SmartTro/SmartChu flows. |
 
 ## Resolved Viewing Appointment Decisions

@@ -85,7 +85,7 @@ QA must cover:
 
 ## Auth QA Focus
 
-QA must use `docs/10-smarttro-sign-up-ui-implementation-spec.md` and `docs/11-smarttro-sign-in-and-auth-identity-mvp.md` as the current baseline and cover:
+QA must use the exact UC specification in `docs/use-cases/smarttro/` as the current baseline. For UC-01 and UC-02, cover:
 
 - Email trim, lowercase/normalization and duplicate-account prevention.
 - Sign Up: request OTP, input exactly 6 digits, invalid/expired/resend behavior and successful transition to password.
