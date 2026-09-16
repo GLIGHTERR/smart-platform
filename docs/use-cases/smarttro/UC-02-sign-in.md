@@ -12,6 +12,7 @@
 | Dữ liệu ở giai đoạn UI | Mock gateway; chưa phát hành session/token production |
 | Ngày chốt email identity | 2026-09-16 |
 | Ngày chuẩn hóa theo UC | 2026-09-16 |
+| Phê duyệt visual/responsive | PO đã duyệt `SIGNIN-D13` đến `SIGNIN-D19` ngày 2026-09-16 |
 
 Tài liệu này là nguồn triển khai và kiểm thử trực tiếp cho PM, Dev và QA của `UC-02`. Không tồn tại tài liệu “Auth Identity MVP” trung gian. Quyết định nào tác động đến Sign In phải được ghi, phê duyệt và kiểm thử ngay trong UC này.
 
@@ -65,6 +66,8 @@ Capture là baseline trình bày. Requirement về validation, lỗi, loading, s
 4. Figma cho phần trình bày trực quan.
 5. Code foundation cho convention kỹ thuật.
 
+Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, capture Figma tại mục 3.1 là baseline bắt buộc. Foundation chỉ được ưu tiên khi Figma không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
+
 Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ thông tin, PM phải comment ngay trên task và tag PO để chốt trước khi giao Dev. Không tạo một tài liệu quyết định tổng hợp để thay thế việc chốt trong UC.
 
 ## 4. Quyết định và câu hỏi của UC
@@ -85,6 +88,13 @@ Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ t
 | SIGNIN-D10 | Access token 15 phút; refresh session 30 ngày; refresh token phải rotation | Approved 2026-09-16 |
 | SIGNIN-D11 | Logout mặc định kết thúc thiết bị hiện tại; hỗ trợ logout toàn bộ thiết bị; reset mật khẩu revoke toàn bộ session cũ | Approved 2026-09-16 |
 | SIGNIN-D12 | Account chưa xác minh trả `ACCOUNT_UNVERIFIED` và chuyển về bước OTP của UC-01 với email prefill; không tạo account mới | Approved 2026-09-16 |
+| SIGNIN-D13 | Capture Figma là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16 |
+| SIGNIN-D14 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
+| SIGNIN-D15 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
+| SIGNIN-D16 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
+| SIGNIN-D17 | Poppins và brand icon phải dùng asset/package được quản lý trong repo; không dùng emoji, ký tự thay thế hoặc icon gần giống | Approved 2026-09-16 |
+| SIGNIN-D18 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
+| SIGNIN-D19 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
 
 ### 4.2. Thứ tự triển khai đã phê duyệt
 
@@ -168,20 +178,33 @@ Không persist hoặc đưa vào route parameters/log:
 - Safe area thật; không dựng lại OS chrome từ frame Figma.
 - Nội dung scroll được khi bàn phím mở hoặc thiết bị có chiều cao thấp.
 - Logo/heading `SmartTrọ xin chào!` theo visual baseline.
-- Input, button và text action dùng design token/component từ foundation hiện có.
+- Nền màn hình là orange brand surface toàn màn như capture; không bọc form trong white card, không thêm kicker, subtitle hoặc decorative component ngoài baseline nếu chưa được PO duyệt.
+- Heading, hai input, CTA, separator `Hoặc`, social buttons, `Quên mật khẩu` và account link phải giữ đúng thứ tự, alignment và visual hierarchy của capture.
+- Input, button và text action dùng component foundation nếu component đó có thể skin đúng Figma; nếu không, cập nhật variant/token Auth thay vì dùng nguyên visual mặc định khác phong cách.
+- Quy tắc chiều rộng mobile:
+  - viewport `320–359 px`: padding ngang `20 px`;
+  - viewport `360–399 px`: padding ngang `40 px`;
+  - viewport `400–430 px`: padding ngang `48 px`;
+  - form/social stack rộng `100%` trong vùng trên và không vượt `334 px`.
+- `375 × 812` là baseline screenshot. Bắt buộc kiểm tra thêm `320 × 568`, `390 × 844` và `430 × 932`; không được clip CTA, link hoặc nội dung khi font scaling mặc định và khi bàn phím mở.
+- Với Expo Web có viewport lớn hơn `430 px`, canvas mobile rộng tối đa `430 px`, `min-height: 100dvh` và căn giữa. Phần ngoài canvas chỉ dùng neutral backdrop hoặc cùng orange surface; không kéo form thành desktop layout.
+- Landscape/tablet ngoài baseline chỉ cần giữ một cột dễ đọc, căn giữa, không overflow; desktop/tablet composition riêng nằm ngoài scope.
 
 ### 7.2. Form Sign In
 
 - Field `Email`: keyboard email, tắt auto-capitalization, hỗ trợ autofill phù hợp.
 - Field `Mật khẩu`: secure entry, có show/hide và hỗ trợ password manager/content type phù hợp.
+- Happy path không hiển thị external label; placeholder lần lượt là `Email` và `Mật khẩu` theo capture, còn screen reader dùng accessibility label riêng.
 - Primary action `Đăng nhập`: disabled khi input chưa hợp lệ hoặc request đang chạy.
+- Happy-path CTA giữ white surface + blue outline + orange action text theo capture; không đổi thành solid rust button hoặc button visual mặc định của foundation.
 - Link `Quên mật khẩu` và `Đăng ký` có vùng chạm tối thiểu 48 px.
 - Error inline/summary phải được screen reader đọc và focus hợp lý.
 
 ### 7.3. Social buttons trên frame
 
 - Facebook/Google/Apple chưa thuộc UC này.
-- Review build có thể hiển thị visual-only nếu cần so sánh Figma, nhưng không được giả lập đăng nhập thành công.
+- Review build phải hiển thị visual-only để so sánh Figma, theo đúng thứ tự Facebook, Google, Apple và dùng brand asset chuẩn; không được giả lập đăng nhập thành công.
+- Khi người dùng nhấn ở review build, chỉ hiển thị feedback an toàn `Chức năng chưa khả dụng trong bản preview`; không điều hướng và không tạo mock session.
 - Production mặc định ẩn bằng feature flag cho đến khi có requirement, provider configuration, account-linking rule và test riêng.
 
 ## 8. Validation và error contract tối thiểu
@@ -248,6 +271,9 @@ Tối thiểu phải có:
 - Không có password/token trong log, route parameters hoặc storage không an toàn.
 - Accessibility label, focus order, keyboard, password manager và vùng chạm.
 - Social action không hoạt động ở production khi chưa có feature riêng.
+- Visual regression/manual screenshot ở `375 × 812`, đối chiếu trực tiếp capture tại mục 3.1.
+- Responsive smoke test ở `320 × 568`, `390 × 844`, `430 × 932` và web viewport lớn hơn `430 px`; không clip, không horizontal scroll, không kéo canvas thành desktop form.
+- Social buttons hiển thị đúng asset/thứ tự ở review build, không thực hiện OAuth và bị ẩn khi production flag tắt.
 
 QA chỉ test sau khi PR đã merge và môi trường review/develop chạy đúng merge SHA. QA phải dùng dữ liệu và contract thực của môi trường đó, không tự dựng một happy-case environment tách rời.
 
@@ -263,7 +289,9 @@ QA chỉ test sau khi PR đã merge và môi trường review/develop chạy đ�
 ## 13. Definition of Done
 
 - Sign In hoạt động đúng với mock gateway trên mobile và Expo Web preview.
-- UI bám capture Figma và các khác biệt `UI-SI01` đến `UI-SI06`.
+- UI bám capture Figma, các quyết định `SIGNIN-D13` đến `SIGNIN-D19` và các khác biệt `UI-SI01` đến `UI-SI06`.
+- Có screenshot evidence ở `375 × 812`; sai lệch spacing/alignment/radius trong happy path không vượt quá `4 px`, trừ khác biệt safe-area/OS chrome và accessibility đã ghi rõ.
+- Responsive checks `320 × 568`, `390 × 844`, `430 × 932` pass.
 - Không yêu cầu OTP trong happy path Sign In.
 - Unit/component tests cho logic mới đạt 100% coverage và tất cả test pass.
 - Lint/typecheck pass.
@@ -280,6 +308,12 @@ QA chỉ test sau khi PR đã merge và môi trường review/develop chạy đ�
 - [x] User Story `2.0` dùng email + mật khẩu và không yêu cầu OTP trong Sign In thông thường.
 - [x] SRS `UC-2` và Activity Diagram đã bỏ OTP bắt buộc sau Sign In.
 - [x] Hành vi liên kết `UC-01` và `UC-03` được ghi rõ.
+
+- [ ] FE mock được điều chỉnh theo visual baseline và unit/component tests pass.
+- [ ] Preview được deploy từ đúng merge SHA.
+- [ ] Preview bám visual baseline tại `375 × 812` và pass responsive matrix đã chốt.
+- [ ] PO review và phê duyệt preview.
+- [ ] Chỉ sau PO approval mới chuẩn bị Android APK preview; không tự đưa APK/Google Drive vào task visual hiện tại.
 
 ### 14.2. Backend production
 

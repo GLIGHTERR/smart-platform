@@ -11,7 +11,7 @@
 | Dữ liệu ở giai đoạn UI | Mock trong bộ nhớ; chưa gọi API và chưa gửi email thật |
 | Ngày lập | 2026-09-15 |
 | Ngày cập nhật quyết định email | 2026-09-16 |
-| Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D08` |
+| Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D20` |
 
 Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
 
@@ -87,6 +87,8 @@ Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong
 5. Figma cho phần trình bày trực quan.
 6. Code foundation cho convention kỹ thuật.
 
+Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, capture Figma tại mục 3.1 là baseline bắt buộc. Foundation chỉ được ưu tiên khi Figma không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
+
 Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giải quyết được, PM phải comment vào task và tag PO để chốt trước khi giao Dev.
 
 ## 4. Quyết định và câu hỏi của UC
@@ -96,7 +98,7 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 | ID | Quyết định | Trạng thái |
 | --- | --- | --- |
 | SIGNUP-D01 | Dùng font Poppins tương thích Expo, có system fallback | Approved |
-| SIGNUP-D02 | Dùng palette accessible đã duyệt: primary `#B84D00`, text action `#A84300` | Approved |
+| SIGNUP-D02 | Dùng palette accessible đã duyệt: `#A84300` cho text/action trên nền sáng; `#B84D00` chỉ là filled-primary fallback khi một state thực sự cần button nền đặc. Happy-path Auth giữ white CTA + outline + orange text theo Figma | Approved, refined 2026-09-16 |
 | SIGNUP-D03 | Social sign-up chỉ visual-only ở review build; production mặc định ẩn đến khi có task riêng | Approved |
 | SIGNUP-D04 | Resend OTP ở UI mock có cooldown 60 giây; backend là nguồn policy thật | Approved |
 | SIGNUP-D05 | Đăng ký thành công quay về Sign In; không auto-login | Approved |
@@ -108,6 +110,13 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 | SIGNUP-D11 | Resend cách nhau tối thiểu 60 giây, tối đa 5 lần/giờ/email; backend phải có thêm giới hạn IP/device chống abuse | Approved 2026-09-16 |
 | SIGNUP-D12 | Endpoint công khai dùng response generic, không xác nhận riêng email đã tồn tại; UI cung cấp lối sang Sign In | Approved 2026-09-16 |
 | SIGNUP-D13 | Email provider được bọc sau adapter; chưa khóa vendor trong requirement nghiệp vụ | Approved 2026-09-16 |
+| SIGNUP-D14 | Capture Figma là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16 |
+| SIGNUP-D15 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
+| SIGNUP-D16 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
+| SIGNUP-D17 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
+| SIGNUP-D18 | Poppins và brand icon phải dùng asset/package được quản lý trong repo; không dùng emoji, ký tự thay thế hoặc icon gần giống | Approved 2026-09-16 |
+| SIGNUP-D19 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
+| SIGNUP-D20 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
 
 ### 4.2. Thứ tự triển khai đã phê duyệt
 
@@ -198,35 +207,48 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 - Container chính scroll được khi bàn phím mở và trên màn hình thấp.
 - Primary button có chiều cao/vùng chạm tối thiểu 48 px.
 - Poppins là font ưu tiên; có system fallback nếu font chưa tải xong.
-- Không dùng màu cam cũ có contrast thấp cho text/action.
+- Không dùng màu cam cũ có contrast thấp cho text/action. Happy-path CTA giữ white surface + outline + orange action text theo capture; không đổi thành solid rust button.
+- Nền màn hình là orange brand surface toàn màn như capture; không bọc form trong white card, không thêm kicker, subtitle hoặc decorative component ngoài baseline nếu chưa được PO duyệt.
+- Title, input, CTA, separator `Hoặc`, social buttons và account link phải giữ đúng thứ tự, alignment và visual hierarchy của capture.
+- Quy tắc chiều rộng mobile:
+  - viewport `320–359 px`: padding ngang `20 px`;
+  - viewport `360–399 px`: padding ngang `40 px`;
+  - viewport `400–430 px`: padding ngang `48 px`;
+  - form/social stack rộng `100%` trong vùng trên và không vượt `334 px`.
+- `375 × 812` là baseline screenshot. Bắt buộc kiểm tra thêm `320 × 568`, `390 × 844` và `430 × 932`; không được clip CTA, link hoặc nội dung khi font scaling mặc định và khi bàn phím mở.
+- Với Expo Web có viewport lớn hơn `430 px`, canvas mobile rộng tối đa `430 px`, `min-height: 100dvh` và căn giữa. Phần ngoài canvas chỉ dùng neutral backdrop hoặc cùng orange surface; không kéo form thành desktop layout.
+- Landscape/tablet ngoài baseline chỉ cần giữ một cột dễ đọc, căn giữa, không overflow; desktop/tablet composition riêng nằm ngoài scope.
 
 ### 7.2. Bước Email
 
-- Title: `Tạo tài khoản`.
-- Label: `Email`.
-- Placeholder: `Nhập email của bạn`.
+- Title hiển thị: `Đăng ký`.
+- Không hiển thị external label ở happy path; dùng placeholder `Email` theo capture và accessibility label riêng cho screen reader.
+- Placeholder: `Email`.
 - Keyboard/content type: email address; tắt auto-capitalize; cho phép paste.
-- Primary action: `Gửi mã OTP`.
+- Primary action hiển thị: `Gửi OTP`.
 - Link phụ: `Đã có tài khoản? Đăng nhập`.
+- Sau primary action phải có separator `Hoặc`, ba social buttons theo đúng thứ tự Facebook, Google, Apple rồi mới tới account link.
 - Inline error tối thiểu: trống, sai định dạng, email đã tồn tại, lỗi gửi mã.
 - Không dùng thông báo khác nhau để tiết lộ email đã tồn tại ở endpoint công khai nếu backend chọn generic anti-enumeration response; contract cụ thể phải được chốt ở task backend.
 
 ### 7.3. Bước OTP
 
-- Title: `Xác thực email`.
+- Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Xác thực email`.
 - Helper: `Nhập mã 6 chữ số đã gửi tới <email đã mask>`.
 - OTP chỉ nhận chữ số, tối đa 6 ký tự, cho phép paste toàn bộ mã.
 - Primary action: `Tiếp tục` disabled khi chưa đủ 6 số hoặc đang verify.
 - Secondary action: `Gửi lại mã` cùng countdown.
+- Happy-path composition vẫn giữ title `Đăng ký`, OTP input, action `Gửi lại mã OTP`, action `Tiếp tục`, separator/social stack và account link như capture; helper/error/countdown được chèn gần OTP field mà không đổi style tổng thể.
 - Lỗi tối thiểu: mã sai, mã hết hạn, vượt giới hạn thử, resend thất bại.
 
 ### 7.4. Bước Mật khẩu
 
-- Title: `Tạo mật khẩu`.
+- Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Tạo mật khẩu`.
 - Hai field: `Mật khẩu` và `Xác nhận mật khẩu`.
 - Có show/hide password và accessibility label.
 - Hiển thị rule mật khẩu trước khi submit; không chỉ báo lỗi sau cùng.
 - Primary action: `Đăng ký`.
+- Happy-path composition giữ title `Đăng ký`, hai field, primary action, separator/social stack và account link theo capture.
 - Không lưu password khi back, close hoặc app bị kill.
 
 ## 8. Validation và error contract tối thiểu
@@ -269,7 +291,7 @@ Mock gateway tối thiểu:
 | ID | Vấn đề của frame cũ | Quyết định triển khai |
 | --- | --- | --- |
 | UI-D01 | Button thấp hơn vùng chạm an toàn | Vùng chạm tối thiểu 48 px |
-| UI-D02 | Chữ trắng trên cam cũ contrast thấp | Dùng `#B84D00` cho primary background |
+| UI-D02 | Chữ trắng trên cam cũ contrast thấp | Happy-path Auth dùng white CTA + outline + `#A84300` text như capture; `#B84D00` chỉ dùng cho filled-primary fallback đã kiểm tra contrast |
 | UI-D03 | Text cam cũ trên nền trắng contrast thấp | Dùng `#A84300` cho text/action |
 | UI-D04 | OTP không nói mã gửi tới đâu | Hiển thị email đã mask |
 | UI-D05 | Thiếu resend/error/loading state | Bổ sung đầy đủ state vận hành |
@@ -290,6 +312,9 @@ Tối thiểu phải có:
 - Duplicate email và retry sau network failure.
 - Không có OTP/password trong route params, log hoặc storage.
 - Accessibility label, focus order, keyboard behavior và vùng chạm.
+- Visual regression/manual screenshot ở `375 × 812` cho đủ ba bước, đối chiếu trực tiếp với ba capture tại mục 3.1.
+- Responsive smoke test ở `320 × 568`, `390 × 844`, `430 × 932` và web viewport lớn hơn `430 px`; không clip, không horizontal scroll, không kéo canvas thành desktop form.
+- Social buttons hiển thị đúng asset/thứ tự ở review build, không thực hiện OAuth và bị ẩn khi production flag tắt.
 
 ## 12. Out of scope của UC hiện tại
 
@@ -303,7 +328,9 @@ Tối thiểu phải có:
 ## 13. Definition of Done
 
 - Ba bước hoạt động đúng với mock gateway trên mobile và Expo Web preview.
-- UI bám capture Figma mới đã đổi sang email và các khác biệt `UI-D01` đến `UI-D07`.
+- UI bám capture Figma mới đã đổi sang email, các quyết định `SIGNUP-D14` đến `SIGNUP-D20` và các khác biệt `UI-D01` đến `UI-D07`.
+- Có screenshot evidence ở `375 × 812`; sai lệch spacing/alignment/radius trong happy path không vượt quá `4 px`, trừ khác biệt safe-area/OS chrome và accessibility đã ghi rõ.
+- Responsive checks `320 × 568`, `390 × 844`, `430 × 932` pass.
 - State restore không làm lộ hoặc persist OTP/password.
 - Unit/component tests cho logic mới đạt 100% coverage và tất cả test pass.
 - Lint/typecheck pass.
@@ -327,7 +354,9 @@ Chỉ chuyển trạng thái tài liệu thành `Ready for PM` khi đủ:
 
 - [ ] FE mock được triển khai và unit/component tests pass.
 - [ ] Preview được deploy từ đúng merge SHA.
+- [ ] Preview bám visual baseline tại `375 × 812` và pass responsive matrix đã chốt.
 - [ ] PO review và phê duyệt preview.
+- [ ] Chỉ sau PO approval mới chuẩn bị Android APK preview; không tự đưa APK/Google Drive vào task visual hiện tại.
 
 ### 14.2. Backend production
 
