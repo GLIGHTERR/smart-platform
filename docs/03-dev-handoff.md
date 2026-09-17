@@ -12,6 +12,7 @@ Use this order:
 6. For token/model routing experiments, follow `docs/08-9router-poc-and-token-budget.md`; do not change production agent routing without PM approval.
 7. For `GLI-15` and its children, follow `docs/09-viewing-appointment-mvp-rules.md`; do not use the obsolete one-booking/one-contract/`consumed` foundation assumption.
 8. For SmartTrọ auth, follow the exact UC specification in `docs/use-cases/smarttro/`; do not implement one UC from a generic auth decision document or legacy phone-as-login/OTP-on-every-login behavior.
+9. For every UI implementation or visual correction task, follow `docs/10-ui-implementation-and-review-playbook.md`; do not start from a frame name, a generic “follow Figma” instruction or conversational memory alone.
 
 ## Source of Truth Priority
 
@@ -147,5 +148,15 @@ A task is ready for implementation when it has:
 - State transitions if workflow-based.
 - Permission rule.
 - Acceptance criteria or testable expected result.
+
+For UI tasks, it must additionally have:
+
+- Exact target repository, app, UC, screen and states.
+- Exact Figma file/page/node IDs or approved captures for the target app.
+- Approved typography, managed assets and visual invariants.
+- Baseline viewport and responsive matrix.
+- Mock/review-only/production behavior boundary and out-of-scope items.
+- Feature flag values and preview/deploy target, including base path where applicable.
+- Required screenshot evidence and PR comparison criteria.
 
 If any of these are missing, Dev should infer from BRD/user stories first, then notify PM if the gap is risky.

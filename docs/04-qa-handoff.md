@@ -11,6 +11,8 @@ QA should validate that implemented behavior matches:
 5. BPMN/Activity/Use Case diagrams.
 6. BRD business goals.
 
+For UI tasks, QA must also follow `docs/10-ui-implementation-and-review-playbook.md` and the exact design node/capture named in the UC/task. A generic frame name or a locally reconstructed happy-case screen is not valid visual evidence.
+
 ## Test Planning Priority
 
 Prioritize tests by business risk:
@@ -116,3 +118,14 @@ A task is ready for QA test case design when it has:
 - Test data requirements.
 - Role/permission rule.
 - Known out-of-scope items.
+
+For UI execution after merge, QA must additionally receive:
+
+- Merged PR and exact merge SHA.
+- Deployed environment/preview URL running that SHA.
+- Exact Figma file/page/node or approved capture.
+- Required states and responsive viewport matrix.
+- Feature flag/environment contract and real test-data source.
+- Known mock/review-only behavior and approved deviations.
+
+QA must compare the deployed build side-by-side with the approved source, verify typography and Vietnamese rendering visually, and capture evidence for each required state/viewport. Do not report backend behavior as passed when the delivered scope is FE mock only.

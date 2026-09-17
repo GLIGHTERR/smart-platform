@@ -11,6 +11,7 @@
 | Dữ liệu ở giai đoạn UI | Mock trong bộ nhớ; chưa gọi API và chưa gửi email thật |
 | Ngày lập | 2026-09-15 |
 | Ngày cập nhật quyết định email | 2026-09-16 |
+| Ngày cập nhật typography sau GLI-48 | 2026-09-17 |
 | Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D20` |
 
 Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
@@ -97,7 +98,7 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 
 | ID | Quyết định | Trạng thái |
 | --- | --- | --- |
-| SIGNUP-D01 | Dùng font Poppins tương thích Expo, có system fallback | Approved |
+| SIGNUP-D01 | Dùng Be Vietnam Pro cho SmartTrọ Auth: `400Regular` cho input/placeholder/body/helper/notice/error và `600SemiBold` cho title/action/link/separator/social label | Approved, revised after GLI-48 on 2026-09-17 |
 | SIGNUP-D02 | Dùng palette accessible đã duyệt: `#A84300` cho text/action trên nền sáng; `#B84D00` chỉ là filled-primary fallback khi một state thực sự cần button nền đặc. Happy-path Auth giữ white CTA + outline + orange text theo Figma | Approved, refined 2026-09-16 |
 | SIGNUP-D03 | Social sign-up chỉ visual-only ở review build; production mặc định ẩn đến khi có task riêng | Approved |
 | SIGNUP-D04 | Resend OTP ở UI mock có cooldown 60 giây; backend là nguồn policy thật | Approved |
@@ -114,7 +115,7 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 | SIGNUP-D15 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
 | SIGNUP-D16 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
 | SIGNUP-D17 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
-| SIGNUP-D18 | Poppins và brand icon phải dùng asset/package được quản lý trong repo; không dùng emoji, ký tự thay thế hoặc icon gần giống | Approved 2026-09-16 |
+| SIGNUP-D18 | Be Vietnam Pro và brand icon phải dùng asset/package được quản lý trong repo; chỉ import weight thực sự dùng; không dùng emoji, ký tự thay thế, icon gần giống hoặc system-font fallback cho application content | Approved 2026-09-16, revised after GLI-48 on 2026-09-17 |
 | SIGNUP-D19 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
 | SIGNUP-D20 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
 
@@ -206,7 +207,7 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 - Dùng `SafeAreaView`/safe-area thật; không vẽ status bar hoặc home indicator giả.
 - Container chính scroll được khi bàn phím mở và trên màn hình thấp.
 - Primary button có chiều cao/vùng chạm tối thiểu 48 px.
-- Poppins là font ưu tiên; có system fallback nếu font chưa tải xong.
+- Be Vietnam Pro là font đã duyệt cho SmartTrọ Auth: `400Regular` cho input/placeholder/body/helper/notice/error và `600SemiBold` cho title/action/link/separator/social label. UI phải chờ font load trước khi render evidence; không dùng system fallback cho application content trong screenshot review.
 - Không dùng màu cam cũ có contrast thấp cho text/action. Happy-path CTA giữ white surface + outline + orange action text theo capture; không đổi thành solid rust button.
 - Nền màn hình là orange brand surface toàn màn như capture; không bọc form trong white card, không thêm kicker, subtitle hoặc decorative component ngoài baseline nếu chưa được PO duyệt.
 - Title, input, CTA, separator `Hoặc`, social buttons và account link phải giữ đúng thứ tự, alignment và visual hierarchy của capture.

@@ -13,6 +13,7 @@
 | Ngày chốt email identity | 2026-09-16 |
 | Ngày chuẩn hóa theo UC | 2026-09-16 |
 | Phê duyệt visual/responsive | PO đã duyệt `SIGNIN-D13` đến `SIGNIN-D19` ngày 2026-09-16 |
+| Ngày cập nhật typography sau GLI-48 | 2026-09-17 |
 
 Tài liệu này là nguồn triển khai và kiểm thử trực tiếp cho PM, Dev và QA của `UC-02`. Không tồn tại tài liệu “Auth Identity MVP” trung gian. Quyết định nào tác động đến Sign In phải được ghi, phê duyệt và kiểm thử ngay trong UC này.
 
@@ -92,7 +93,7 @@ Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ t
 | SIGNIN-D14 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
 | SIGNIN-D15 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
 | SIGNIN-D16 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
-| SIGNIN-D17 | Poppins và brand icon phải dùng asset/package được quản lý trong repo; không dùng emoji, ký tự thay thế hoặc icon gần giống | Approved 2026-09-16 |
+| SIGNIN-D17 | Dùng Be Vietnam Pro cho SmartTrọ Auth: `400Regular` cho input/placeholder/body/helper/notice/error và `600SemiBold` cho title/action/link/separator/social label; font và brand icon phải dùng asset/package được quản lý trong repo, không dùng emoji, ký tự thay thế, icon gần giống hoặc system-font fallback cho application content | Approved 2026-09-16, revised after GLI-48 on 2026-09-17 |
 | SIGNIN-D18 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
 | SIGNIN-D19 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
 
