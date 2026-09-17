@@ -7,7 +7,7 @@
 | ASM-001 | `smart-platform` is a documentation, skills and memory repository, not a runtime app. | Dev should not put product code here unless it is documentation tooling. | PM |
 | ASM-002 | SmartTro and SmartChu are separate mobile apps but should share backend API contracts and UX patterns where possible. | FE foundations should align on auth, API client and validation patterns. | Dev |
 | ASM-003 | The backend should start as a NestJS modular monolith for MVP. | Simplifies deployment and cross-domain transactions. | Dev |
-| ASM-004 | Payment, booking and contract are cross-system SPF workflows first. | Split into SMT/SMC/SMA subtasks after API/state contract is stable. | PM |
+| ASM-004 | Viewing Appointment, Contract and Payment are separate cross-system SPF workflows. | GLI-15 must not reserve rooms, consume appointments or implement Contract/Payment state. | PM |
 | ASM-005 | BPMN images are valid behavior sources even without editable BPMN files. | Dev/QA should read the image behavior and PM will translate if needed. | PM |
 | ASM-006 | Latest Requirement Lists are the implementation ID source when BRD IDs conflict. | Prevents duplicate/legacy BRD IDs from blocking task execution. | PM |
 
@@ -19,8 +19,19 @@
 | OQ-002 | What is the exact rollback/refund rule when payment times out or gateway fails? | Money movement requires precise expected result. | Mark transaction failed/pending first; do not mark invoice paid until verified success webhook. |
 | OQ-003 | Does deposit payment happen before or after both parties sign the electronic contract? | Booking proposed BPMN combines contract and deposit. | Generate deposit request after contract is valid for signing; finalize room booking after required payment success. |
 | OQ-004 | What is the exact rule for a renter who already has an active contract? | Booking proposed BPMN checks existing active contract. | Allow new contract only after current contract cancellation is approved or old contract is inactive. |
-| OQ-005 | Are social login CRs included in MVP or later release? | Affects auth scope and app store configuration. | Treat as priority 3 unless PM promotes it. |
 | OQ-006 | Does SmartAdmin need full MVP implementation now or only foundation/moderation support? | Affects scope and timeline. | Start with foundation and moderation/reporting needed by SmartTro/SmartChu flows. |
+
+## Resolved Viewing Appointment Decisions
+
+The Expiry, Duplicate, Bookable, multi-room and RoomStatus questions for `GLI-15` were resolved by
+the PO on 2026-09-09. `docs/09-viewing-appointment-mvp-rules.md` is the detailed source for Dev/QA.
+
+- Approved viewing appointments end with `ended`; they do not expire or become `consumed`.
+- One appointment can contain 1-10 rooms in one property and can source separate contracts.
+- Only property `active` plus room `available` is bookable.
+- Viewing appointments never set room `reserved`/`occupied`.
+- The exact downstream trigger for `reserved`, deposit and activation remains an open Contract/Payment
+  decision in `GLI-18`/`GLI-20`; it does not block `GLI-45`.
 
 ## PM Analysis of Dev-Flagged Requirement Gaps
 

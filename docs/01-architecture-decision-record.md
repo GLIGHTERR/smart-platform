@@ -33,7 +33,7 @@ The current project resources include four repositories:
 | Redis | Cache, queue, sessions | Use for jobs, retry queues, rate limits and temporary state. |
 | Storage | S3 or Cloudinary | Store room images and contract PDFs. |
 | Realtime/push | Socket.IO + FCM + SMS provider | Socket.IO for realtime app channels; FCM/SMS for offline notifications. |
-| Auth | JWT + OAuth2 + RBAC | Support phone login, social login hooks and role-based access. |
+| Auth | JWT + OAuth2 + RBAC | MVP uses normalized email as the unique login identifier, email OTP for account activation, email/password for normal Sign In, future social/phone linking hooks and role-based access. |
 
 ## MVP Architecture Recommendation
 
@@ -43,10 +43,10 @@ The backend should be a platform services monorepo with separate API entrypoints
 
 Recommended NestJS module boundaries:
 
-- `auth`: phone login, OTP, OAuth2, JWT, RBAC.
+- `auth`: email/password login, email OTP activation, identity linking hooks, OAuth2, JWT and RBAC. Phone is optional contact data in MVP, not a login identifier.
 - `users`: renter, owner, admin profile basics.
 - `properties`: owner properties and rooms.
-- `booking`: viewing requests and booking state transitions.
+- `viewing`: multi-room viewing appointments, schedule transitions and room-status reactions; it never owns Contract or Payment state.
 - `contracts`: contract lifecycle, signature, cancellation and PDF generation.
 - `billing`: invoices, payment requests, payment history and ledger.
 - `payment`: payment method linking, gateway redirect, webhook and retry.

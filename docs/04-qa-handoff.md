@@ -11,6 +11,8 @@ QA should validate that implemented behavior matches:
 5. BPMN/Activity/Use Case diagrams.
 6. BRD business goals.
 
+For UI tasks, QA must also follow `docs/10-ui-implementation-and-review-playbook.md` and the exact design node/capture named in the UC/task. A generic frame name or a locally reconstructed happy-case screen is not valid visual evidence.
+
 ## Test Planning Priority
 
 Prioritize tests by business risk:
@@ -28,8 +30,8 @@ Prioritize tests by business risk:
 
 | Area | Required Test Types |
 | --- | --- |
-| Auth/RBAC | Functional, negative, security, role access. |
-| Booking | State transition, conflict, notification, regression. |
+| Auth/RBAC | Email normalization/unique identity, 6-digit email OTP activation, email/password Sign In without OTP on every login, state restore, duplicate-account prevention, negative/security and role access. |
+| Viewing Appointment | State transition, expiry/end worker, duplicate/merge/conflict, multi-room, room-status reaction, notification and Property/Room regression. |
 | Contract | State transition, permission, document access, cancellation. |
 | Payment | API, webhook, idempotency, rollback/refund, notification, regression. |
 | Room/property | Functional, validation, image/media, permission. |
@@ -52,17 +54,21 @@ QA must cover:
 - Rollback/refund rule is testable and logged.
 - Renter and owner receive the correct notifications.
 
-## Booking QA Focus
+## Viewing Appointment QA Focus
 
 QA must cover:
 
 - Renter can view available rooms.
 - Renter can view room detail.
-- Renter can request viewing schedule.
+- Renter can request a 1-10 room viewing appointment for one property.
 - Renter cannot select invalid/past time.
-- Schedule conflict behavior.
+- Effective duplicate, exact-time merge and half-open schedule conflict behavior.
+- Owner approval checks renter, owner and every room transactionally.
+- Room-status changes remove only affected rooms and cancel only when none remains.
+- `requested` expires and `approved` ends within the worker SLA; no `consumed` state exists.
 - Owner receives booking/viewing notification.
-- Owner can respond or continue to contract flow.
+- Per-room renter decisions remain isolated; one appointment may source several contracts.
+- Contract creation never changes the appointment lifecycle.
 - Existing active contract behavior is handled.
 - Deposit generation occurs only after valid contract/signing trigger.
 
@@ -78,6 +84,20 @@ QA must cover:
 - Contract cancellation request can be approved/rejected.
 - Cancellation request expiration behavior.
 - User cannot have invalid concurrent active contracts.
+
+## Auth QA Focus
+
+QA must use the exact UC specification in `docs/use-cases/smarttro/` as the current baseline. For UC-01 and UC-02, cover:
+
+- Email trim, lowercase/normalization and duplicate-account prevention.
+- Sign Up: request OTP, input exactly 6 digits, invalid/expired/resend behavior and successful transition to password.
+- App background/foreground while the user opens the email app: restore attempt, email, step and absolute countdown without persisting OTP/password.
+- Registration success returns to Sign In and does not auto-login.
+- Sign In uses email + password and does not ask for OTP in the normal flow.
+- Generic credential errors do not reveal whether an email exists.
+- Unverified account resumes activation rather than creating a duplicate account.
+- Password/OTP do not appear in logs, route parameters or persistent storage.
+- The environment under test uses the exact merged SHA and actual auth/mock contract, not an isolated happy-case setup.
 
 ## Requirement Ambiguity Rule for QA
 
@@ -99,3 +119,13 @@ A task is ready for QA test case design when it has:
 - Role/permission rule.
 - Known out-of-scope items.
 
+For UI execution after merge, QA must additionally receive:
+
+- Merged PR and exact merge SHA.
+- Deployed environment/preview URL running that SHA.
+- Exact Figma file/page/node or approved capture.
+- Required states and responsive viewport matrix.
+- Feature flag/environment contract and real test-data source.
+- Known mock/review-only behavior and approved deviations.
+
+QA must compare the deployed build side-by-side with the approved source, verify typography and Vietnamese rendering visually, and capture evidence for each required state/viewport. Do not report backend behavior as passed when the delivered scope is FE mock only.

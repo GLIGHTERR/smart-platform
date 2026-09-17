@@ -10,9 +10,9 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 
 | Requirement Group | SmartTro IDs | SmartChu IDs | Board Task |
 | --- | --- | --- | --- |
-| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14` |
+| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; mỗi flow dùng tài liệu UC riêng trong `docs/use-cases/smarttro/` |
 | Room/property discovery and management | SM013-SM016 | SM053-SM061 | `GLI-16`, `GLI-17` |
-| Booking room / viewing schedule | SM017 | SM062-SM064 | `GLI-15` |
+| Viewing appointment / room-viewing schedule | SM017 | SM062-SM064 | `GLI-15` |
 | Messaging and interaction | SM018-SM020 | SM065-SM068 | `GLI-19`, `GLI-21` |
 | Incident management | SM022-SM026 | SM069-SM076 | `GLI-24` |
 | Contract lifecycle | SM010-SM012 | SM047-SM052 | `GLI-18` |
@@ -26,7 +26,7 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | Process | Current Artifact | Proposed Artifact | Primary Task | Notes |
 | --- | --- | --- | --- | --- |
 | Payment | `Business_Processes/BP_Payment_Current.png` | `Business_Processes/BP_Payment_Proposed.png` | `GLI-20` | Proposed flow requires payment method linking, gateway redirect, webhook callback, success/failure handling and notification. |
-| Booking Room | `Business_Processes/BP_Booking Room_Current.png` | `Business_Processes/BP_Booking Room_Proposed.png` | `GLI-15`, `GLI-18`, `GLI-20` | Proposed flow combines room discovery, viewing schedule, contract creation/signing and deposit generation. |
+| Booking Room | `Business_Processes/BP_Booking Room_Current.png` | `Business_Processes/BP_Booking Room_Proposed.png` | `GLI-15`, `GLI-18`, `GLI-20` | Split the image flow by domain: GLI-15 owns multi-room viewing appointments only; GLI-18 owns one contract per selected room; GLI-20 owns deposit/payment. See `09-viewing-appointment-mvp-rules.md`. |
 
 ## Implementation Trace
 
@@ -35,8 +35,8 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | `GLI-10` | Validate proposed FE/BE architecture before implementation. | Architecture recommendation, risks, implementation order. | QA risk notes for high-risk areas. |
 | `GLI-27` | Normalize requirements and assumptions before Dev/QA starts. | Requirement mapping and open questions. | Testability notes for ambiguous requirements. |
 | `GLI-12` | Establish backend and database foundation. | NestJS modules, schema, migrations, seed roles. | DB/API smoke test scope. |
-| `GLI-11` | Support auth and role access. | Auth APIs, JWT/OAuth2/RBAC, OTP behavior. | Auth happy/negative/security test cases. |
-| `GLI-15` | Digitize booking room flow. | Booking APIs, state model, FE hooks/screens. | State transition test cases. |
+| `GLI-11` | Support auth and role access. | Identity APIs with normalized unique email, email OTP account activation, email/password Sign In without OTP on every login, JWT/OAuth2/RBAC and future identity linking. | Auth happy/negative/security tests, anti-enumeration, state restore and duplicate-account prevention. |
+| `GLI-15` | Schedule one-property, multi-room viewing appointments without holding rooms. | Viewing Appointment API/state model, renter and owner UI integration, room-status reaction hooks. | Lifecycle, duplicate/conflict, multi-room, bookability and Property/Room regression tests. |
 | `GLI-18` | Support contract lifecycle and signature. | Contract APIs, PDF generation, signature/cancel flow. | Contract state, authorization and document test cases. |
 | `GLI-20` | Digitize payment flow. | Payment method, invoice/debt payment, webhook, ledger. | Payment state, webhook idempotency and rollback test cases. |
 | `GLI-26` | Create QA test plan. | N/A | Test plan and regression scope. |
@@ -47,6 +47,6 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | --- | --- | --- |
 | Some requirement IDs in previous BRD versions were duplicated or inconsistent. | Dev/QA may reference wrong IDs. | Use latest Requirement Lists as implementation IDs. Keep BRD IDs as business context only if inconsistent. |
 | Payment flow has high business risk. | Incorrect payment status may affect money and trust. | Require explicit states: pending, success, failed, expired, refunded/rolled back where applicable. |
-| Booking proposed flow combines multiple domains. | Large task may be hard to estimate and test. | Keep `GLI-15` as process/API contract task, then split UI/API subtasks if needed. |
+| Booking proposed flow combines multiple domains. | A one-booking/one-contract model would incorrectly couple viewing, contract and payment. | Keep `GLI-15` as the parent specification; execute `GLI-43` then backend `GLI-45`, clients `GLI-46`/`GLI-47`, and post-merge integration/QA. Contract/deposit remain `GLI-18`/`GLI-20`. |
 | BPMN is image-only. | Dev cannot diff or edit source BPMN. | Use image as source of behavior; future update should store editable BPMN/drawio if possible. |
-
+| Legacy auth artifacts still use phone or OTP on every login. | Dev may implement contradictory identity and authentication flows. | Dùng đúng tài liệu UC trong `docs/use-cases/smarttro/`; cập nhật từng artifact bị ảnh hưởng trước khi UC tương ứng được giao Dev. |

@@ -9,7 +9,7 @@ Recommended repository role:
 - Repository name: `smart-platform-services` or `smart-services`.
 - Runtime style: NestJS modular monorepo.
 - API entrypoints: renter API, owner API, admin API and worker.
-- Core modules: identity, property, booking, contract, billing, payment and audit.
+- Core modules: identity, property, viewing, contract, billing, payment and audit.
 
 `smart-platform` remains the documentation, skills and memory repository. Product runtime code must not be added to `smart-platform` unless PM explicitly changes its role.
 
@@ -17,9 +17,9 @@ Recommended repository role:
 
 | Module | Owns | Does Not Own |
 | --- | --- | --- |
-| identity | users, roles, sessions, auth, permissions, actor profile basics | property, booking, contract, invoice or payment lifecycle |
-| property | properties, rooms, room inventory, owner-room ownership, room status | booking lifecycle, contracts, invoices, payments |
-| booking | booking request and booking lifecycle | contract lifecycle, invoice/debt, payment transaction |
+| identity | immutable user ID, normalized unique email credential, email verification attempts, roles, sessions, auth, permissions, identity links and actor profile basics | property, viewing appointment, contract, invoice or payment lifecycle |
+| property | properties, rooms, room inventory, owner-room ownership, room status | viewing appointment lifecycle, contracts, invoices, payments |
+| viewing | multi-room viewing appointment, schedule lifecycle and per-room rental decision | room status, contract lifecycle, invoice/debt, payment transaction |
 | contract | rental contract, official renter-owner-room binding, rent/deposit terms | invoice lifecycle, payment transaction, room master data |
 | billing | invoices, invoice items, debt/outstanding balance, billing cycle, payment allocation | payment gateway transaction, provider callback, contract terms source |
 | payment | payment intent, payment transaction, provider integration, webhook, reconciliation | invoice amount source, debt calculation, contract terms |
@@ -46,7 +46,7 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | identity | identity | Internal only | Internal only | Internal only | Internal only |
 | identity | property | Forbidden | Forbidden | Forbidden | Forbidden |
-| identity | booking | Forbidden | Forbidden | Forbidden | Forbidden |
+| identity | viewing | Forbidden | Forbidden | Forbidden | Forbidden |
 | identity | contract | Forbidden | Forbidden | Forbidden | Forbidden |
 | identity | billing | Forbidden | Forbidden | Forbidden | Forbidden |
 | identity | payment | Forbidden | Forbidden | Forbidden | Forbidden |
@@ -58,23 +58,23 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | property | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertOwner()`; `IdentityAccessService.assertAdmin()` | Forbidden | Forbidden | Forbidden |
 | property | property | Internal only | Internal only | Internal only | Internal only |
-| property | booking | Forbidden | Forbidden | Forbidden | Forbidden |
+| property | viewing | Forbidden | Forbidden | Forbidden | Forbidden |
 | property | contract | Forbidden | Forbidden | Forbidden | Forbidden |
 | property | billing | Forbidden | Forbidden | Forbidden | Forbidden |
 | property | payment | Forbidden | Forbidden | Forbidden | Forbidden |
 | property | audit | N/A | `AuditLogService.recordBusinessEvent()`; events: `PropertyCreated`, `RoomCreated`, `RoomStatusChanged` | Forbidden | Forbidden |
 
-### Caller: booking
+### Caller: viewing
 
 | Caller | Callee | R | C | U | D |
 | --- | --- | --- | --- | --- | --- |
-| booking | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertRenter()`; `assertOwner()`; `assertAdmin()` | Forbidden | Forbidden | Forbidden |
-| booking | property | `PropertyQueryService.getRoomBookableSnapshot()`; `PropertyPolicyService.assertRoomBookable()`; `assertOwnerOwnsRoom()` | Forbidden | Forbidden | Forbidden |
-| booking | booking | Internal only | Internal only | Internal only | Internal only |
-| booking | contract | Forbidden | Event only: `BookingApprovedEvent` for contract flow | Forbidden | Forbidden |
-| booking | billing | Forbidden | Forbidden | Forbidden | Forbidden |
-| booking | payment | Forbidden | Forbidden | Forbidden | Forbidden |
-| booking | audit | N/A | `AuditLogService.recordBusinessEvent()`; events: `BookingRequested`, `BookingApproved`, `BookingRejected`, `BookingCancelled`, `BookingExpired` | Forbidden | Forbidden |
+| viewing | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertRenter()`; `assertOwner()`; `assertAdmin()` | Forbidden | Forbidden | Forbidden |
+| viewing | property | `PropertyQueryService.getRoomsBookableSnapshot()`; `PropertyPolicyService.assertRoomsBookable()`; `assertOwnerOwnsRooms()` | Forbidden | Event subscription only: `RoomStatusChanged`, `RoomDeleted`, `PropertyStatusChanged`, `PropertyDeleted` | Forbidden |
+| viewing | viewing | Internal only | Internal only | Internal only | Internal only |
+| viewing | contract | Forbidden | Forbidden; appointment does not create or consume Contract state | Forbidden | Forbidden |
+| viewing | billing | Forbidden | Forbidden | Forbidden | Forbidden |
+| viewing | payment | Forbidden | Forbidden | Forbidden | Forbidden |
+| viewing | audit | N/A | `AuditLogService.recordBusinessEvent()`; events: `ViewingAppointmentRequested`, `ViewingAppointmentApproved`, `ViewingAppointmentRejected`, `ViewingAppointmentCancelled`, `ViewingAppointmentExpired`, `ViewingAppointmentEnded`, `ViewingAppointmentRoomUnavailable`, `ViewingAppointmentRoomDecisionChanged` | Forbidden | Forbidden |
 
 ### Caller: contract
 
@@ -82,7 +82,7 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | contract | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertRenter()`; `assertOwner()`; `assertAdmin()` | Forbidden | Forbidden | Forbidden |
 | contract | property | `PropertyQueryService.getRoomContractSnapshot()`; `PropertyPolicyService.assertRoomAssignableToContract()`; `assertOwnerOwnsRoom()` | Forbidden | Event only: `ContractActivatedEvent`, `ContractTerminatedEvent`; property updates room occupancy | Forbidden |
-| contract | booking | `BookingQueryService.getApprovedBookingSnapshot()`; `BookingPolicyService.assertCanCreateContractFromBooking()` | Forbidden | `BookingCommandService.markBookingConsumedByContract()` or `ContractCreatedEvent` | Forbidden |
+| contract | viewing | `ViewingAppointmentQueryService.getSelectedRoomSource()`; `ViewingAppointmentPolicyService.assertRoomEligibleAsContractSource()` | Forbidden | Forbidden; Contract never mutates/consumes the appointment | Forbidden |
 | contract | contract | Internal only | Internal only | Internal only | Internal only |
 | contract | billing | Forbidden | Event only: `ContractActivatedEvent` for invoice schedule/first invoice | Event only: `ContractRentChangedEvent`, `ContractTerminatedEvent` | Forbidden |
 | contract | payment | Forbidden | Forbidden | Forbidden | Forbidden |
@@ -94,7 +94,7 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | billing | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertRenter()`; `assertOwner()`; `assertAdmin()` | Forbidden | Forbidden | Forbidden |
 | billing | property | `PropertyQueryService.getRoomBillingSnapshot()` | Forbidden | Forbidden | Forbidden |
-| billing | booking | Forbidden | Forbidden | Forbidden | Forbidden |
+| billing | viewing | Forbidden | Forbidden | Forbidden | Forbidden |
 | billing | contract | `ContractQueryService.getContractBillingTerms()`; `ContractPolicyService.assertContractBillable()` | Forbidden | Forbidden | Forbidden |
 | billing | billing | Internal only | Internal only | Internal only | Internal only |
 | billing | payment | `PaymentQueryService.getPaymentSnapshot()`; `PaymentQueryService.getPaymentStatus()` | `PaymentIntentService.createForInvoice()` or event `InvoiceIssuedEvent` if using event-driven intent creation | Forbidden | Forbidden |
@@ -106,7 +106,7 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | payment | identity | `IdentityQueryService.getActorSnapshot()`; `IdentityAccessService.assertPayer()`; `assertAdmin()` | Forbidden | Forbidden | Forbidden |
 | payment | property | Forbidden | Forbidden | Forbidden | Forbidden |
-| payment | booking | Forbidden | Forbidden | Forbidden | Forbidden |
+| payment | viewing | Forbidden | Forbidden | Forbidden | Forbidden |
 | payment | contract | Forbidden | Forbidden | Forbidden | Forbidden |
 | payment | billing | `BillingQueryService.getInvoicePayableSnapshot()`; `BillingPolicyService.assertInvoicePayable()`; `assertActorCanPayInvoice()` | Forbidden | `BillingPaymentService.allocateSuccessfulPayment()`; `BillingPaymentService.markPaymentFailedForInvoice()` | Forbidden |
 | payment | payment | Internal only | Internal only | Internal only | Internal only |
@@ -118,7 +118,7 @@ Recommended repository role:
 | --- | --- | --- | --- | --- | --- |
 | audit | identity | `IdentityQueryService.getActorSnapshot()` only to enrich actor if event lacks snapshot | Forbidden | Forbidden | Forbidden |
 | audit | property | Do not read aggregate; consume event snapshot only | Forbidden | Forbidden | Forbidden |
-| audit | booking | Do not read aggregate; consume event snapshot only | Forbidden | Forbidden | Forbidden |
+| audit | viewing | Do not read aggregate; consume event snapshot only | Forbidden | Forbidden | Forbidden |
 | audit | contract | Do not read aggregate; consume event snapshot only | Forbidden | Forbidden | Forbidden |
 | audit | billing | Do not read aggregate; consume event snapshot only | Forbidden | Forbidden | Forbidden |
 | audit | payment | Do not read aggregate; consume masked event snapshot only | Forbidden | Forbidden | Forbidden |
@@ -130,7 +130,9 @@ Recommended repository role:
 
 - Query: `IdentityQueryService.getActorSnapshot()`, `getActorsSnapshot()`
 - Policy: `IdentityAccessService.assertRenter()`, `assertOwner()`, `assertAdmin()`, `assertPermission()`
-- Events: `UserRegistered`, `UserRoleChanged`, `LoginSucceeded`, `LoginFailed`
+- Commands: request/verify email OTP, create account after verification, authenticate email/password, refresh/logout sessions and link a future external identity without creating a duplicate user.
+- Events: `EmailVerificationRequested`, `EmailVerified`, `UserRegistered`, `UserRoleChanged`, `LoginSucceeded`, `LoginFailed`
+- MVP invariant: normalized email is the unique login identifier; phone is optional contact data and normal Sign In does not require OTP.
 
 ### property
 
@@ -139,18 +141,18 @@ Recommended repository role:
 - Commands: `PropertyCommandService.markRoomOccupiedFromContract()`, `markRoomAvailableFromContract()` as internal event handlers
 - Events: `PropertyCreated`, `RoomCreated`, `RoomStatusChanged`
 
-### booking
+### viewing
 
-- Query: `BookingQueryService.getApprovedBookingSnapshot()`, `getBookingStatus()`
-- Policy: `BookingPolicyService.assertBookingApproved()`, `assertCanCreateContractFromBooking()`
-- Commands: `BookingCommandService.markBookingConsumedByContract()`
-- Events: `BookingRequested`, `BookingApproved`, `BookingRejected`, `BookingCancelled`, `BookingExpired`
+- Query: `ViewingAppointmentQueryService.getAppointmentSnapshot()`, `getSelectedRoomSource()`
+- Policy: `ViewingAppointmentPolicyService.assertScheduleEffective()`, `assertRoomEligibleAsContractSource()`
+- Commands: renter/owner lifecycle commands and per-room decision commands only; no consume command
+- Events: `ViewingAppointmentRequested`, `ViewingAppointmentApproved`, `ViewingAppointmentRejected`, `ViewingAppointmentCancelled`, `ViewingAppointmentExpired`, `ViewingAppointmentEnded`, `ViewingAppointmentRoomUnavailable`, `ViewingAppointmentRoomDecisionChanged`
 
 ### contract
 
 - Query: `ContractQueryService.getActiveContract()`, `getContractBillingTerms()`, `getActiveContractByRoom()`
 - Policy: `ContractPolicyService.assertContractBillable()`, `assertActorCanViewContract()`
-- Commands: `ContractCommandService.createContractFromApprovedBooking()`, `activateContract()`, `terminateContract()`
+- Commands: `ContractCommandService.createContractFromSelectedViewingRoom()`, `activateContract()`, `terminateContract()`
 - Events: `ContractCreated`, `ContractActivated`, `ContractTerminated`, `ContractRentChanged`
 
 ### billing

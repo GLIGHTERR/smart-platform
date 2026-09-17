@@ -52,7 +52,6 @@ Recommended first execution sequence:
 1. `GLI-10` - Tech assessment FE/BE architecture.
 2. `GLI-27` - Requirement traceability and scope cleanup.
 3. `GLI-12` - Backend foundation and database schema.
-4. `GLI-11` - Auth, OAuth2, OTP and RBAC.
+4. `GLI-11` - Email identity, email OTP activation, email/password Sign In, OAuth2 linking and RBAC.
 5. `GLI-14` - App foundations for SmartTro and SmartChu.
 6. Feature flows: room discovery, owner room management, booking, contract and payment.
-
