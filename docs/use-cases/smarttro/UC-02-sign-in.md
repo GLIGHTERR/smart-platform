@@ -57,7 +57,7 @@ Capture là baseline trình bày. Requirement về validation, lỗi, loading, s
 - `SRS/SRS (SmartTrọ).docx`, `UC-2`.
 - Activity Diagram Sign In by Email và source `.puml` trong `Activity_Diagrams/`.
 - `docs/use-cases/smarttro/UC-01-sign-up.md` cho hành vi chuyển về Sign In sau đăng ký.
-- `docs/use-cases/smarttro/UC-03-forgot-password.md` cho flow khi chọn `Quên mật khẩu`; UC-03 hiện chưa được bàn giao Dev khi chưa được PO duyệt.
+- `docs/use-cases/smarttro/UC-03-forgot-password.md` cho flow khi chọn `Quên mật khẩu`; UC-03 đã được PO duyệt ngày 2026-09-22 và triển khai theo thứ tự FE-first.
 
 ### 3.3. Quy tắc khi có mâu thuẫn
 
@@ -126,7 +126,7 @@ Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ t
 ### 5.3. Điều hướng liên UC
 
 - `Đăng ký` → `UC-01 Sign Up`.
-- `Quên mật khẩu` → `UC-03 Forgot Password` khi UC-03 đã được phê duyệt và triển khai.
+- `Quên mật khẩu` → `UC-03 Forgot Password`; UC-03 dùng ba màn riêng Email → OTP → Mật khẩu mới và không thêm OTP inline vào màn Email.
 - Account chưa xác minh → resume `UC-01` theo contract được chốt tại `SIGNIN-Q04`.
 
 ## 6. Trạng thái và dữ liệu UI

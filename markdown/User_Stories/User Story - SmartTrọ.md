@@ -41,18 +41,22 @@ Là một người dùng đã có tài khoản và đã xác minh email, tôi mu
 
 ### US 3.0 — Quên mật khẩu
 
-Là một người dùng, tôi muốn được cấp lại mật khẩu mới nếu quên mật khẩu để tiếp tục đăng nhập được và sử dụng các dịch vụ của app
+Là một người dùng đã có tài khoản, tôi muốn đặt lại mật khẩu bằng email đã đăng ký và OTP 6 chữ số để có thể đăng nhập lại một cách an toàn.
 
 **Ưu tiên:** High
 
 **Acceptance Criteria**
 
-- 1. Số điện thoại người dùng nhập phải là SĐT đã đăng ký tài khoản
-- 2. Sau khi người dùng nhập số điện thoại, hệ thống phải gửi mã OTP qua SĐT trong vòng 3s
-- 3.Mật khẩu mới phải chứa tối thiểu 8 ký tự, gồm ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt
-- 4. Người dùng phải được chuyển đến trang nhập mật khẩu trong vòng 3s sau khi nhập đúng mã OTP
-- 5. Người dùng phải được chuyển đến trang đăng nhập trong tối đa 3s sau khi nhập mật khẩu hợp lệ
-- 6. Người dùng chưa vượt quá số lần xin cấp lại mật khẩu tối đa
+- 1. Flow gồm ba màn riêng theo Figma: nhập Email → nhập OTP → đặt mật khẩu mới; không hiển thị ô OTP động trên màn nhập email.
+- 2. Email được trim, lowercase và validate theo cùng normalization của Đăng ký/Đăng nhập.
+- 3. Sau khi người dùng gửi email hợp lệ, hệ thống luôn phản hồi `Nếu email tồn tại, mã xác thực đã được gửi.` và không tiết lộ email có tài khoản hay không.
+- 4. Với account đủ điều kiện recovery, hệ thống gửi OTP email 6 chữ số. OTP hết hạn sau 10 phút; resend có cooldown 60 giây và OTP mới làm vô hiệu OTP cũ.
+- 5. Người dùng được thử sai tối đa 5 lần cho mỗi challenge. Hệ thống giới hạn tối đa 5 request/15 phút/email và 20 request/giờ/IP, đồng thời áp dụng tín hiệu device.
+- 6. Chỉ OTP hợp lệ mới được cấp reset token one-time-use TTL 10 phút và chuyển sang màn đặt mật khẩu mới.
+- 7. Mật khẩu mới phải chứa tối thiểu 8 ký tự, gồm ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt; hai trường mật khẩu phải khớp.
+- 8. Đổi mật khẩu thành công phải thu hồi toàn bộ session, chuyển về Đăng nhập với email được điền sẵn và không auto-login.
+- 9. Nếu app chỉ background và process còn sống, giữ bước hiện tại khi challenge/token còn hạn nhưng phải xóa các ô mật khẩu khi resume. Nếu app bị force-close/process bị kill hoặc mở lại sau restart, xóa toàn bộ recovery state, mở Sign In và yêu cầu bắt đầu lại từ email với OTP mới.
+- 10. Không persist email, OTP, challenge, password hoặc reset token của recovery qua app restart; không log hoặc truyền secret qua route/analytics.
 
 ## Quản lý hồ sơ
 
