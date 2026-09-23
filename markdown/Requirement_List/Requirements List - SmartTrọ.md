@@ -99,7 +99,7 @@
 | Deploy date | 09/06/2025 |
 | Code Version | 1 |
 
-**Baseline nghiệp vụ đã duyệt ngày 2026-09-22**
+**Baseline nghiệp vụ đã duyệt ngày 2026-09-23**
 
 - Identity recovery dùng email đã normalize; không dùng số điện thoại hoặc magic link trong MVP.
 - UI gồm ba màn riêng: Email → OTP → Mật khẩu mới. Không chèn input OTP động vào màn Email.

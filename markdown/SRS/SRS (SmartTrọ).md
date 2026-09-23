@@ -268,7 +268,7 @@ Hình 12: Quy trình thanh toán dự kiến
 | Tiền điều kiện | App có kết nối mạng; người dùng chưa đăng nhập; account recovery dùng email đã normalize |
 | Hậu điều kiện thành công | Mật khẩu mới được lưu; toàn bộ access/refresh session cũ bị thu hồi; người dùng trở về Sign In với email prefill và không auto-login |
 | Hậu điều kiện thất bại | Mật khẩu và session không thay đổi; không làm lộ email có account hay không |
-| Baseline chi tiết | [`UC-03-forgot-password.md`](../../docs/use-cases/smarttro/UC-03-forgot-password.md) — Approved ngày 2026-09-22 |
+| Baseline chi tiết | [`UC-03-forgot-password.md`](../../docs/use-cases/smarttro/UC-03-forgot-password.md) — Approved ngày 2026-09-23 |
 
 **Luồng chính**
 

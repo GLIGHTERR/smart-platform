@@ -5,7 +5,7 @@
 | Thuộc tính | Giá trị |
 | --- | --- |
 | Trạng thái | **Approved** |
-| Ngày chốt | 2026-09-22 |
+| Ngày chốt | 2026-09-23 |
 | Phạm vi | Quên mật khẩu SmartTrọ bằng email, OTP 6 chữ số và mật khẩu mới |
 | Figma | Đã xác minh và xuất capture từ page `SmartTrọ` ngày 2026-09-16 |
 | Bàn giao | **Ready cho FE-first implementation**; BE chỉ bắt đầu sau khi PO duyệt UI/deploy preview |

@@ -16,9 +16,9 @@ Thư mục này chứa bản Markdown của các tài liệu DOCX/XLSX để age
 
 | Nguồn | Bản Markdown | Đồng bộ | SHA-256 nguồn | Ghi chú |
 | --- | --- | --- | --- | --- |
-| `SRS/SRS (SmartTrọ).docx` | `SRS/SRS (SmartTrọ).md` | 2026-09-16; amended 2026-09-22 | `8cfae5992ace32ba2a206e879ce3ced370a526cf5d96cbb708f6157b94173d34` | Toàn bộ đoạn văn, bảng và ảnh nhúng; UC-03 được bổ sung theo quyết định PO, source DOCX chưa đổi |
-| `Requirement_List/Requirements List - SmartTrọ.xlsx` | `Requirement_List/Requirements List - SmartTrọ.md` | 2026-09-16; amended 2026-09-22 | `bbe7698a13132ecf3a3bf1195fd2f9ee8255578aea5da7181d8589ec7a492321` | Mỗi requirement/change request được tách thành record; SM004 được bổ sung theo quyết định PO, source XLSX chưa đổi |
-| `User_Stories/User Story - SmartTrọ.xlsx` | `User_Stories/User Story - SmartTrọ.md` | 2026-09-16; amended 2026-09-22 | `d9dfec73abc55b828981b1854723cd7aa516deeda77ba6ded5f7f68aac21ec0f` | Nhóm theo sheet và từng User Story/AC; US 3.0 được bổ sung theo quyết định PO, source XLSX chưa đổi |
+| `SRS/SRS (SmartTrọ).docx` | `SRS/SRS (SmartTrọ).md` | 2026-09-16; amended 2026-09-23 | `8cfae5992ace32ba2a206e879ce3ced370a526cf5d96cbb708f6157b94173d34` | Toàn bộ đoạn văn, bảng và ảnh nhúng; UC-03 được bổ sung theo quyết định PO, source DOCX chưa đổi |
+| `Requirement_List/Requirements List - SmartTrọ.xlsx` | `Requirement_List/Requirements List - SmartTrọ.md` | 2026-09-16; amended 2026-09-23 | `bbe7698a13132ecf3a3bf1195fd2f9ee8255578aea5da7181d8589ec7a492321` | Mỗi requirement/change request được tách thành record; SM004 được bổ sung theo quyết định PO, source XLSX chưa đổi |
+| `User_Stories/User Story - SmartTrọ.xlsx` | `User_Stories/User Story - SmartTrọ.md` | 2026-09-16; amended 2026-09-23 | `d9dfec73abc55b828981b1854723cd7aa516deeda77ba6ded5f7f68aac21ec0f` | Nhóm theo sheet và từng User Story/AC; US 3.0 được bổ sung theo quyết định PO, source XLSX chưa đổi |
 | `FRS/FRS - SmartTrọ.docx` | `FRS/FRS - SmartTrọ.md` | 2026-09-16 | `782c1e18ef1dfb5934c0d22177ff45f89a0f3cc029642aa1f4255c30d55caaef` | Toàn bộ đoạn văn, 5 bảng và 16 ảnh nhúng; source hiện chỉ đặc tả chi tiết UC-12, UC-14, UC-15 |
 
 ## Thứ tự chuyển đổi tiếp theo
