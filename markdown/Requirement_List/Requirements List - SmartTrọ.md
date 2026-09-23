@@ -99,6 +99,20 @@
 | Deploy date | 09/06/2025 |
 | Code Version | 1 |
 
+**Baseline nghiệp vụ đã duyệt ngày 2026-09-23**
+
+- Identity recovery dùng email đã normalize; không dùng số điện thoại hoặc magic link trong MVP.
+- UI gồm ba màn riêng: Email → OTP → Mật khẩu mới. Không chèn input OTP động vào màn Email.
+- Request recovery luôn trả message trung tính `Nếu email tồn tại, mã xác thực đã được gửi.`; chỉ account đủ điều kiện mới nhận OTP.
+- OTP gồm 6 chữ số, TTL 10 phút, resend cooldown 60 giây; OTP mới vô hiệu OTP cũ; tối đa 5 lần sai/challenge.
+- Rate limit: tối đa 5 request/15 phút/email và 20 request/giờ/IP, kết hợp tín hiệu device.
+- OTP hợp lệ chỉ cấp reset token one-time-use TTL 10 phút; reset token được bind với account/challenge/context phù hợp.
+- Reset thành công phải revoke toàn bộ session, trở về Sign In với email prefill và không auto-login.
+- Background/foreground khi process còn sống được giữ bước trong memory nếu còn hạn, nhưng phải xóa password fields khi resume.
+- Force-close/process bị kill/app restart phải xóa toàn bộ recovery state, mở Sign In và bắt đầu lại bằng email + OTP mới.
+- Thứ tự triển khai: FE + preview/mobile build → PO duyệt UI → BE → map API → QA system/regression → UAT.
+- Baseline chi tiết: [`docs/use-cases/smarttro/UC-03-forgot-password.md`](../../docs/use-cases/smarttro/UC-03-forgot-password.md).
+
 ### SM005 — Đổi mật khẩu
 
 | Trường | Giá trị |

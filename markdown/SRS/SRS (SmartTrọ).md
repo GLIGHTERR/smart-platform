@@ -260,7 +260,53 @@ Hình 12: Quy trình thanh toán dự kiến
 
 #### 3.4.1. Đặc tả use case
 
+| Thuộc tính | Nội dung |
+| --- | --- |
+| Tên use case | Quên mật khẩu bằng Email OTP |
+| Tác nhân chính | Người thuê trọ |
+| Kích hoạt | Người dùng chọn `Quên mật khẩu` tại màn Sign In |
+| Tiền điều kiện | App có kết nối mạng; người dùng chưa đăng nhập; account recovery dùng email đã normalize |
+| Hậu điều kiện thành công | Mật khẩu mới được lưu; toàn bộ access/refresh session cũ bị thu hồi; người dùng trở về Sign In với email prefill và không auto-login |
+| Hậu điều kiện thất bại | Mật khẩu và session không thay đổi; không làm lộ email có account hay không |
+| Baseline chi tiết | [`UC-03-forgot-password.md`](../../docs/use-cases/smarttro/UC-03-forgot-password.md) — Approved ngày 2026-09-23 |
+
+**Luồng chính**
+
+1. Hệ thống mở màn nhập Email riêng theo Figma node `2005:3286`.
+2. Người dùng nhập email và chọn `Gửi OTP`.
+3. Hệ thống trim + lowercase email, kiểm tra định dạng và áp dụng rate limit.
+4. Hệ thống luôn trả message `Nếu email tồn tại, mã xác thực đã được gửi.`; nếu account đủ điều kiện, hệ thống phát hành challenge và gửi OTP email 6 chữ số.
+5. App chuyển sang màn OTP riêng theo Figma node `2005:3261`; không thêm input OTP vào màn Email.
+6. Người dùng nhập OTP. Khi OTP hợp lệ, server cấp reset token one-time-use TTL 10 phút.
+7. App chuyển sang màn mật khẩu mới theo Figma node `2005:3310`.
+8. Người dùng nhập và xác nhận mật khẩu mới theo password policy của UC-01.
+9. Hệ thống cập nhật mật khẩu, thu hồi toàn bộ session cũ và ghi audit đã mask dữ liệu nhạy cảm.
+10. App chuyển về Sign In với email prefill và thông báo thành công; không auto-login.
+
+**Luồng thay thế và ngoại lệ**
+
+- Email sai định dạng: không gửi request; hiển thị validation tại field.
+- Email không tồn tại, chưa verify hoặc social-only: vẫn dùng response trung tính; không tự tạo hoặc tự link account.
+- Resend trước 60 giây: không phát hành OTP mới. Resend hợp lệ làm OTP cũ vô hiệu.
+- OTP sai: tăng attempt counter; tối đa 5 lần/challenge. OTP sai, hết hạn, replay hoặc đã bị thay thế không được chuyển bước.
+- Rate limit: tối đa 5 request/15 phút/email và 20 request/giờ/IP, kết hợp tín hiệu device; response không làm lộ account existence.
+- Reset token hết hạn/replay/sai binding: không đổi mật khẩu và yêu cầu bắt đầu lại theo flow phù hợp.
+- Lỗi mạng: chống double-submit; không persist OTP/password/reset token.
+- App chỉ background và process còn sống: giữ bước trong memory nếu challenge/reset token còn hạn; luôn xóa password fields khi resume.
+- App bị force-close/process bị kill hoặc mở lại sau restart: xóa toàn bộ recovery state, mở Sign In; người dùng phải bắt đầu lại từ email và nhận OTP mới.
+
+**Quy tắc bảo mật**
+
+- OTP gồm 6 chữ số, TTL 10 phút.
+- Reset token TTL 10 phút, one-time-use và bind với account + challenge + context phù hợp.
+- Không log hoặc truyền OTP/password/reset token qua analytics hay route parameters.
+- Không persist email, OTP, challenge, password hoặc reset token của recovery qua app restart.
+- Audit các sự kiện request/resend/verify/reset/revoke bằng immutable user ID và email đã mask.
+
 #### 3.4.2. Activity Diagram
+
+- Source: [`AD_Forgot Password.puml`](../../Activity_Diagrams/AD_Forgot%20Password.puml)
+- Render: [`AD_Forgot Password.png`](../../Activity_Diagrams/AD_Forgot%20Password.png)
 
 ### 3.5. UC-4: Xem thông tin cá nhân
 

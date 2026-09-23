@@ -16,8 +16,8 @@ Thư mục này chứa tài liệu theo từng Use Case để PM giao việc, De
 | --- | --- | --- |
 | UC-01 — Đăng ký bằng email | [`UC-01-sign-up.md`](UC-01-sign-up.md) | Approved; Ready cho FE mock/UI review |
 | UC-02 — Đăng nhập bằng email và mật khẩu | [`UC-02-sign-in.md`](UC-02-sign-in.md) | Approved; Ready cho FE mock/UI review |
-| UC-03 — Quên mật khẩu | [`UC-03-forgot-password.md`](UC-03-forgot-password.md) | Pending PO approval; chưa giao Dev |
+| UC-03 — Quên mật khẩu bằng Email OTP | [`UC-03-forgot-password.md`](UC-03-forgot-password.md) | Approved; Ready cho FE-first implementation |
 
 Các UC tiếp theo phải được bổ sung vào thư mục này khi được chuẩn bị để triển khai.
 
-Với UC-01 và UC-02, thứ tự đã được PO duyệt ngày 2026-09-16 là: triển khai FE mock → deploy preview → PO review/approve → mới triển khai backend production.
+Với UC-01, UC-02 và UC-03, thứ tự triển khai là: FE mock → deploy preview/mobile build → PO review/approve → BE → map API → QA → UAT.
