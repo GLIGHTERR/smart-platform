@@ -242,239 +242,190 @@ Hình 12: Quy trình thanh toán dự kiến
 
 ## 3. Phân tích các Use Case / Use cases analysis
 
+> Khôi phục ngày 2026-09-24 từ các bảng lồng trong DOCX nguồn. Danh mục có 33 UC; phần đặc tả chi tiết có 31 bảng và được tách sang [`use-cases/`](use-cases/README.md).
+> Ba living spec UC-01 đến UC-03 trong `docs/use-cases/smarttro/` được giữ nguyên vì đã dùng để triển khai code.
+
 ### 3.1. Danh sách các use case
 
-### 3.2. UC-1: Đăng ký bằng email
+| STT | Mã UC | Tên UC |
+| ---: | --- | --- |
+| 1 | UC-1 | Đăng ký bằng email |
+| 2 | UC-2 | Đăng nhập bằng email và mật khẩu |
+| 3 | UC-3 | Quên mật khẩu |
+| 4 | UC-4 | Xem thông tin cá nhân |
+| 5 | UC-5 | Cập nhật thông tin cá nhân |
+| 6 | UC-6 | Tạo mới chữ ký điện tử |
+| 7 | UC-7 | Cập nhật chữ ký điện tử |
+| 8 | UC-8 | Đổi mật khẩu |
+| 9 | UC-9 | Xem hợp đồng điện tử |
+| 10 | UC-10 | Ký hợp đồng điện tử |
+| 11 | UC-11 | Hủy hợp đồng điện tử |
+| 12 | UC-12 | Xem danh sách phòng trọ |
+| 13 | UC-13 | Xem chi tiết phòng trọ |
+| 14 | UC-14 | Đánh giá và bình luận trong bài đăng về phòng trọ |
+| 15 | UC-15 | Lưu phòng trọ yêu thích |
+| 16 | UC-16 | Đặt lịch xem trọ |
+| 17 | UC-17 | Nhắn tin với chủ trọ |
+| 18 | UC-18 | Viết đánh giá về nhà trọ |
+| 19 | UC-19 | Báo cáo vi phạm |
+| 20 | UC-20 | Xem các báo cáo đã tạo |
+| 21 | UC-21 | Tạo báo cáo sự cố mới |
+| 22 | UC-22 | Theo dõi tiến độ xử lý |
+| 23 | UC-23 | Cập nhật thông tin báo cáo |
+| 24 | UC-24 | Đánh giá sau xử lý |
+| 25 | UC-25 | Liên kết ngân hàng/ví điện tử |
+| 26 | UC-26 | Thanh toán thủ công |
+| 27 | UC-27 | Thanh toán tự động |
+| 28 | UC-28 | Nhận thông báo đến hạn |
+| 29 | UC-29 | Đặt nhắc nhở thanh toán |
+| 30 | UC-30 | Xem lịch sử thanh toán |
+| 31 | UC-31 | Xuất hóa đơn điện tử |
+| 32 | UC-32 | Thống kê chi phí theo tháng |
+| 33 | UC-33 | Báo cáo chi tiết |
 
-#### 3.2.1. Đặc tả use case
+### Tài liệu bổ sung từ Activity Diagram (Draft)
 
-#### 3.2.2. Activity Diagram
+> DOCX nguồn chỉ liệt kê hai UC chữ ký điện tử trong catalogue và không có bảng đặc tả tương ứng. Các tài liệu dưới đây được soạn từ Activity Diagram hiện có, là living spec Draft và không phải nội dung trích xuất từ DOCX.
 
-### 3.3. UC-2: Đăng nhập bằng email và mật khẩu
+- [UC-6 — Tạo mới chữ ký điện tử](../../docs/use-cases/smarttro/UC-06-create-digital-signature.md)
+- [UC-7 — Cập nhật chữ ký điện tử](../../docs/use-cases/smarttro/UC-07-update-digital-signature.md)
 
-#### 3.3.1. Đặc tả use case
+### 3.2–3.32. Đặc tả chi tiết
 
-#### 3.3.2. Activity Diagram
+#### 3.2. UC-1: Đăng ký bằng email
 
-### 3.4. UC-3: Quên mật khẩu
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-01-dang-ky-bang-email.md)
+- [Living implementation specification đã phê duyệt](../../docs/use-cases/smarttro/UC-01-sign-up.md)
 
-#### 3.4.1. Đặc tả use case
+#### 3.3. UC-2: Đăng nhập bằng email và mật khẩu
 
-| Thuộc tính | Nội dung |
-| --- | --- |
-| Tên use case | Quên mật khẩu bằng Email OTP |
-| Tác nhân chính | Người thuê trọ |
-| Kích hoạt | Người dùng chọn `Quên mật khẩu` tại màn Sign In |
-| Tiền điều kiện | App có kết nối mạng; người dùng chưa đăng nhập; account recovery dùng email đã normalize |
-| Hậu điều kiện thành công | Mật khẩu mới được lưu; toàn bộ access/refresh session cũ bị thu hồi; người dùng trở về Sign In với email prefill và không auto-login |
-| Hậu điều kiện thất bại | Mật khẩu và session không thay đổi; không làm lộ email có account hay không |
-| Baseline chi tiết | [`UC-03-forgot-password.md`](../../docs/use-cases/smarttro/UC-03-forgot-password.md) — Approved ngày 2026-09-23 |
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-02-dang-nhap-bang-email-va-mat-khau.md)
+- [Living implementation specification đã phê duyệt](../../docs/use-cases/smarttro/UC-02-sign-in.md)
 
-**Luồng chính**
+#### 3.4. UC-3: Quên mật khẩu
 
-1. Hệ thống mở màn nhập Email riêng theo Figma node `2005:3286`.
-2. Người dùng nhập email và chọn `Gửi OTP`.
-3. Hệ thống trim + lowercase email, kiểm tra định dạng và áp dụng rate limit.
-4. Hệ thống luôn trả message `Nếu email tồn tại, mã xác thực đã được gửi.`; nếu account đủ điều kiện, hệ thống phát hành challenge và gửi OTP email 6 chữ số.
-5. App chuyển sang màn OTP riêng theo Figma node `2005:3261`; không thêm input OTP vào màn Email.
-6. Người dùng nhập OTP. Khi OTP hợp lệ, server cấp reset token one-time-use TTL 10 phút.
-7. App chuyển sang màn mật khẩu mới theo Figma node `2005:3310`.
-8. Người dùng nhập và xác nhận mật khẩu mới theo password policy của UC-01.
-9. Hệ thống cập nhật mật khẩu, thu hồi toàn bộ session cũ và ghi audit đã mask dữ liệu nhạy cảm.
-10. App chuyển về Sign In với email prefill và thông báo thành công; không auto-login.
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-03-quen-mat-khau.md)
+- [Living implementation specification đã phê duyệt](../../docs/use-cases/smarttro/UC-03-forgot-password.md)
 
-**Luồng thay thế và ngoại lệ**
+#### 3.5. UC-4: Xem thông tin cá nhân
 
-- Email sai định dạng: không gửi request; hiển thị validation tại field.
-- Email không tồn tại, chưa verify hoặc social-only: vẫn dùng response trung tính; không tự tạo hoặc tự link account.
-- Resend trước 60 giây: không phát hành OTP mới. Resend hợp lệ làm OTP cũ vô hiệu.
-- OTP sai: tăng attempt counter; tối đa 5 lần/challenge. OTP sai, hết hạn, replay hoặc đã bị thay thế không được chuyển bước.
-- Rate limit: tối đa 5 request/15 phút/email và 20 request/giờ/IP, kết hợp tín hiệu device; response không làm lộ account existence.
-- Reset token hết hạn/replay/sai binding: không đổi mật khẩu và yêu cầu bắt đầu lại theo flow phù hợp.
-- Lỗi mạng: chống double-submit; không persist OTP/password/reset token.
-- App chỉ background và process còn sống: giữ bước trong memory nếu challenge/reset token còn hạn; luôn xóa password fields khi resume.
-- App bị force-close/process bị kill hoặc mở lại sau restart: xóa toàn bộ recovery state, mở Sign In; người dùng phải bắt đầu lại từ email và nhận OTP mới.
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-04-xem-thong-tin-ca-nhan.md)
 
-**Quy tắc bảo mật**
+#### 3.6. UC-5: Cập nhật thông tin cá nhân
 
-- OTP gồm 6 chữ số, TTL 10 phút.
-- Reset token TTL 10 phút, one-time-use và bind với account + challenge + context phù hợp.
-- Không log hoặc truyền OTP/password/reset token qua analytics hay route parameters.
-- Không persist email, OTP, challenge, password hoặc reset token của recovery qua app restart.
-- Audit các sự kiện request/resend/verify/reset/revoke bằng immutable user ID và email đã mask.
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-05-cap-nhat-thong-tin-ca-nhan.md)
 
-#### 3.4.2. Activity Diagram
+#### 3.7. UC-6: Đổi mật khẩu
 
-- Source: [`AD_Forgot Password.puml`](../../Activity_Diagrams/AD_Forgot%20Password.puml)
-- Render: [`AD_Forgot Password.png`](../../Activity_Diagrams/AD_Forgot%20Password.png)
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-06-doi-mat-khau.md)
 
-### 3.5. UC-4: Xem thông tin cá nhân
+#### 3.8. UC-7: Xem hợp đồng điện tử
 
-#### 3.5.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-07-xem-hop-dong-dien-tu.md)
 
-#### 3.5.2. Activity Diagram
+#### 3.9. UC-8: Ký hợp đồng điện tử
 
-### 3.6. UC-5: Cập nhật thông tin cá nhân
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-08-ky-hop-dong-dien-tu.md)
 
-#### 3.6.1. Đặc tả use case
+#### 3.10. UC-9: Hủy hợp đồng điện tử
 
-#### 3.6.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-09-huy-hop-dong-dien-tu.md)
 
-### 3.7. UC-6: Đổi mật khẩu
+#### 3.11. UC-10: Xem danh sách phòng trọ
 
-#### 3.7.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-10-xem-danh-sach-phong-tro.md)
 
-#### 3.7.2. Activity Diagram
+#### 3.12. UC-11: Xem chi tiết phòng trọ
 
-### 3.8. UC-7: Xem hợp đồng điện tử
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-11-xem-chi-tiet-phong-tro.md)
 
-#### 3.8.1. Đặc tả use case
+#### 3.13. UC-12: Đánh giá và bình luận trong bài đăng về phòng trọ
 
-#### 3.8.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-12-danh-gia-va-binh-luan-trong-bai-dang-ve-phong-tro.md)
 
-### 3.9. UC-8: Ký hợp đồng điện tử
+#### 3.14. UC-13: Lưu phòng trọ yêu thích
 
-#### 3.9.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-13-luu-phong-tro-yeu-thich.md)
 
-#### 3.9.2. Activity Diagram
+#### 3.15. UC-14: Đặt lịch xem trọ
 
-### 3.10. UC-9: Hủy hợp đồng điện tử
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-14-dat-lich-xem-tro.md)
 
-#### 3.10.1. Đặc tả use case
+#### 3.16. UC-15: Nhắn tin với chủ trọ
 
-#### 3.10.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-15-nhan-tin-voi-chu-tro.md)
 
-### 3.11. UC-10: Xem danh sách phòng trọ
+#### 3.17. UC-16: Viết đánh giá về nhà trọ
 
-#### 3.11.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-16-viet-danh-gia-ve-nha-tro.md)
 
-#### 3.11.2. Activity Diagram
+#### 3.18. UC-17: Báo cáo vi phạm
 
-### 3.12. UC-11: Xem chi tiết phòng trọ
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-17-bao-cao-vi-pham.md)
 
-#### 3.12.1. Đặc tả use case
+#### 3.19. UC-18: Xem các báo cáo đã tạo
 
-#### 3.12.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-18-xem-cac-bao-cao-da-tao.md)
 
-### 3.13. UC-12: Đánh giá và bình luận trong bài đăng về phòng trọ
+#### 3.20. UC-19: Tạo báo cáo sự cố
 
-#### 3.13.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-19-tao-bao-cao-su-co.md)
 
-#### 3.13.2. Activity Diagram
+#### 3.21. UC-20: Theo dõi tiến độ xử lý
 
-### 3.14. UC-13: Lưu phòng trọ yêu thích
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-20-theo-doi-tien-do-xu-ly.md)
 
-#### 3.14.1. Đặc tả use case
+#### 3.22. UC-21: Cập nhật thông tin báo cáo
 
-#### 3.14.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-21-cap-nhat-thong-tin-bao-cao.md)
 
-### 3.15. UC-14: Đặt lịch xem trọ
+#### 3.23. UC-22: Đánh giá sau xử lý
 
-#### 3.15.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-22-danh-gia-sau-xu-ly.md)
 
-#### 3.15.2. Activity Diagram
+#### 3.24. UC-23: Liên kết ngân hàng/ví điện tử
 
-### 3.16. UC-15: Nhắn tin với chủ trọ
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-23-lien-ket-ngan-hang-vi-dien-tu.md)
 
-#### 3.16.1. Đặc tả use case
+#### 3.25. UC-24: Thanh toán thủ công
 
-#### 3.16.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-24-thanh-toan-thu-cong.md)
 
-### 3.17. UC-16: Viết đánh giá về nhà trọ
+#### 3.26. UC-25: Thanh toán tự động
 
-#### 3.17.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-25-thanh-toan-tu-dong.md)
 
-#### 3.17.2. Activity Diagram
+#### 3.27. UC-26: Nhận thông báo đến hạn
 
-### 3.18. UC-17: Báo cáo vi phạm
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-26-nhan-thong-bao-den-han.md)
 
-#### 3.18.1. Đặc tả use case
+#### 3.28. UC-27: Đặt nhắc nhở thanh toán
 
-#### 3.18.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-27-dat-nhac-nho-thanh-toan.md)
 
-### 3.19. UC-18: Xem các báo cáo đã tạo
+#### 3.29. UC-28: Xem lịch sử thanh toán
 
-#### 3.19.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-28-xem-lich-su-thanh-toan.md)
 
-#### 3.19.2. Activity Diagram
+#### 3.30. UC-29: Xuất hóa đơn điện tử
 
-### 3.20. UC-19: Tạo báo cáo sự cố
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-29-xuat-hoa-don-dien-tu.md)
 
-#### 3.20.1. Đặc tả use case
+#### 3.31. UC-30: Thống kê chi phí theo tháng
 
-#### 3.20.2. Activity Diagram
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-30-thong-ke-chi-phi-theo-thang.md)
 
-### 3.21. UC-20: Theo dõi tiến độ xử lý
+#### 3.32. UC-31: Báo cáo chi tiêu
 
-#### 3.21.1. Đặc tả use case
+- [Bản baseline chuyển đổi đầy đủ](use-cases/UC-31-bao-cao-chi-tieu.md)
+- **Cảnh báo nguồn:** Tiêu đề `UC-31` nhưng bảng ghi `UC-32`.
 
-#### 3.21.2. Activity Diagram
+### 3.33. Ghi chú đối chiếu nguồn
 
-### 3.22. UC-21: Cập nhật thông tin báo cáo
-
-#### 3.22.1. Đặc tả use case
-
-#### 3.22.2. Activity Diagram
-
-### 3.23. UC-22: Đánh giá sau xử lý
-
-#### 3.23.1. Đặc tả use case
-
-#### 3.23.2. Activity Diagram
-
-### 3.24. UC-23: Liên kết ngân hàng/ví điện tử
-
-#### 3.24.1. Đặc tả use case
-
-#### 3.24.2. Activity Diagram
-
-### 3.25. UC-24: Thanh toán thủ công
-
-#### 3.25.1. Đặc tả use case
-
-#### 3.25.2. Activity Diagram
-
-### 3.26. UC-25: Thanh toán tự động
-
-#### 3.26.1. Đặc tả use case
-
-#### 3.26.2. Activity Diagram
-
-### 3.27. UC-26: Nhận thông báo đến hạn
-
-#### 3.27.1. Đặc tả use case
-
-#### 3.27.2. Activity Diagram
-
-### 3.28. UC-27: Đặt nhắc nhở thanh toán
-
-#### 3.28.1. Đặc tả use case
-
-#### 3.28.2. Activity Diagram
-
-### 3.29. UC-28: Xem lịch sử thanh toán
-
-#### 3.29.1. Đặc tả use case
-
-#### 3.29.2. Activity Diagram
-
-### 3.30. UC-29: Xuất hóa đơn điện tử
-
-#### 3.30.1. Đặc tả use case
-
-#### 3.30.2. Activity Diagram
-
-### 3.31. UC-30: Thống kê chi phí theo tháng
-
-#### 3.31.1. Đặc tả use case
-
-#### 3.31.2. Activity Diagram
-
-### 3.32. UC-31: Báo cáo chi tiêu
-
-#### 3.32.1. Đặc tả use case
-
-#### 3.32.2. Activity Diagram
+- Catalogue có `UC-6 — Tạo mới chữ ký điện tử` và `UC-7 — Cập nhật chữ ký điện tử`, nhưng phần phân tích chi tiết không có hai UC này.
+- Từ chức năng Đổi mật khẩu tới Thống kê chi phí theo tháng, số UC trong catalogue và phần phân tích chi tiết lệch nhau hai đơn vị; không được tự động coi hai ID là tương đương.
+- Mục chi tiết cuối có tiêu đề `UC-31: Báo cáo chi tiêu`, nhưng bảng bên trong ghi `Use Case ID = UC-32`; catalogue lại ghi `UC-33 — Báo cáo chi tiết`.
+- Catalogue có 33 UC nhưng DOCX chỉ có 31 bảng đặc tả chi tiết. Các khoảng trống này phải được PO/BA sửa ở nguồn trước khi dùng làm requirement triển khai.
 
 ## 4. Môi trường hoạt động / Operating Environment
 
