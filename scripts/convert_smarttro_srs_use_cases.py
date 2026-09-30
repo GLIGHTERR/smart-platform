@@ -11,8 +11,9 @@ uses the raw WordprocessingML document tree and emits a traceable baseline:
   present in the source document; and
 * explicit warnings for the numbering/content inconsistencies in the source.
 
-It intentionally does not modify the approved implementation specifications in
-``docs/use-cases/smarttro``.
+Approved/living specifications remain in the canonical ``docs/SRS/SmartTro``
+tree. When a source baseline is replaced by a living specification, the
+baseline is generated under ``archieve/source-derived`` for traceability.
 """
 
 from __future__ import annotations
@@ -27,10 +28,12 @@ from zipfile import ZipFile
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SOURCE = REPO_ROOT / "SRS" / "SRS (SmartTrọ).docx"
-MAIN_MIRROR = REPO_ROOT / "markdown" / "SRS" / "SRS (SmartTrọ).md"
-OUTPUT_DIR = REPO_ROOT / "markdown" / "SRS" / "use-cases"
+SOURCE = REPO_ROOT / "archieve" / "legacy-source" / "SRS" / "SmartTro" / "SRS (SmartTrọ).docx"
+MAIN_MIRROR = REPO_ROOT / "docs" / "SRS" / "SmartTro" / "SRS.md"
+OUTPUT_DIR = REPO_ROOT / "docs" / "SRS" / "SmartTro" / "use-cases"
+ARCHIVE_OUTPUT_DIR = REPO_ROOT / "archieve" / "source-derived" / "SRS" / "SmartTro" / "use-cases"
 CONVERSION_DATE = "2026-09-24"
+PO_DECISION_DATE = "2026-09-30"
 
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 W = f"{{{W_NS}}}"
@@ -45,21 +48,27 @@ SECTION_START = "## 3. Phân tích các Use Case / Use cases analysis"
 SECTION_END = "## 4. Môi trường hoạt động / Operating Environment"
 
 APPROVED_IMPLEMENTATION_DOCS = {
-    1: "../../../docs/use-cases/smarttro/UC-01-sign-up.md",
-    2: "../../../docs/use-cases/smarttro/UC-02-sign-in.md",
-    3: "../../../docs/use-cases/smarttro/UC-03-forgot-password.md",
+    1: "../../../../../docs/SRS/SmartTro/use-cases/UC-01-sign-up.md",
+    2: "../../../../../docs/SRS/SmartTro/use-cases/UC-02-sign-in.md",
+    3: "../../../../../docs/SRS/SmartTro/use-cases/UC-03-forgot-password.md",
+}
+
+APPROVED_FILENAMES = {
+    1: "UC-01-sign-up.md",
+    2: "UC-02-sign-in.md",
+    3: "UC-03-forgot-password.md",
 }
 
 SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS = [
     (
-        "UC-6",
+        "UC-32",
         "Tạo mới chữ ký điện tử",
-        "../../../docs/use-cases/smarttro/UC-06-create-digital-signature.md",
+        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-32-create-digital-signature.md",
     ),
     (
-        "UC-7",
+        "UC-33",
         "Cập nhật chữ ký điện tử",
-        "../../../docs/use-cases/smarttro/UC-07-update-digital-signature.md",
+        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-33-update-digital-signature.md",
     ),
 ]
 
@@ -269,23 +278,43 @@ def detail_consistency(detail: DetailSection) -> str:
     return "Khớp giữa tiêu đề và bảng đặc tả."
 
 
+def canonical_resolution(detail: DetailSection) -> str | None:
+    """Return a PO-approved resolution for a known source numbering conflict."""
+    if detail.heading_number == 31 and detail.table_id == "UC-32":
+        return (
+            "Mã hiện hành là `UC-31`; giá trị `UC-32` trong bảng DOCX nguồn "
+            "chỉ được giữ để truy vết và không dùng để giao triển khai."
+        )
+    return None
+
+
 def render_detail(detail: DetailSection, source_hash: str) -> str:
     lines = [
         f"# {detail.heading_id}: {detail.heading_name}",
         "",
         "> Loại tài liệu: **SRS baseline chuyển đổi nguyên trạng**; không tự động đồng nghĩa với requirement đã được PO phê duyệt để triển khai.",
-        f"> Nguồn: `SRS/SRS (SmartTrọ).docx`, mục `{detail.section_number}`; SHA-256 `{source_hash}`.",
+        f"> Nguồn: `archieve/legacy-source/SRS/SmartTro/SRS (SmartTrọ).docx`, mục `{detail.section_number}`; SHA-256 `{source_hash}`.",
         f"> Đồng bộ: {CONVERSION_DATE}.",
         "",
     ]
 
     consistency = detail_consistency(detail)
+    resolution = canonical_resolution(detail)
+    if resolution:
+        lines.extend(
+            [
+                "## Quyết định chuẩn hóa mã",
+                "",
+                f"> **PO chốt ngày {PO_DECISION_DATE}:** {resolution}",
+                "",
+            ]
+        )
     if consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
         lines.extend(
             [
                 "## Cảnh báo truy vết nguồn",
                 "",
-                f"> **Không tự sửa số hoặc nội dung:** {consistency}",
+                f"> Bản chuyển đổi giữ nguyên dữ liệu nguồn để đối chiếu: {consistency}",
                 "",
             ]
         )
@@ -326,18 +355,38 @@ def source_issue_notes() -> list[str]:
     ]
 
 
+def canonical_catalogue(details: list[DetailSection]) -> list[tuple[str, str, str]]:
+    """Return the PO-reconciled catalogue used by PM, Dev and QA.
+
+    The 31 detailed source tables retain IDs UC-1..UC-31. The two signature
+    use cases that existed only in the historical catalogue are assigned the
+    final IDs UC-32 and UC-33 to remove the UC-06/UC-07 collision.
+    """
+    current = [
+        (str(index), f"UC-{index}", detail.heading_name)
+        for index, detail in enumerate(details, start=1)
+    ]
+    current.extend(
+        (str(index), uc_id, name)
+        for index, (uc_id, name, _) in enumerate(
+            SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS, start=len(current) + 1
+        )
+    )
+    return current
+
+
 def render_readme(
     source_hash: str,
     catalogue: list[tuple[str, str, str]],
     details: list[DetailSection],
 ) -> str:
     lines = [
-        "# SmartTrọ SRS Use Case Baseline",
+        "# SmartTrọ SRS — Danh mục Use Case chuẩn",
         "",
-        f"> Chuyển đổi ngày {CONVERSION_DATE} từ `SRS/SRS (SmartTrọ).docx`.",
+        f"> Chuyển đổi ngày {CONVERSION_DATE} từ `archieve/legacy-source/SRS/SmartTro/SRS (SmartTrọ).docx`.",
         f"> SHA-256 nguồn: `{source_hash}`.",
         "",
-        "Thư mục này là bản đối chiếu đầy đủ những gì **đang tồn tại trong SRS DOCX**. Nó khác với `docs/use-cases/smarttro/`, nơi chứa living spec đã được PO chốt và dùng để triển khai code.",
+        "Thư mục này là vị trí chuẩn duy nhất của Use Case SmartTrọ. UC đã được PO chốt dùng living spec hiện hành; baseline bị thay thế được lưu trong `archieve/source-derived/SRS/SmartTro/use-cases/`.",
         "",
         "## Phạm vi chuyển đổi",
         "",
@@ -354,7 +403,26 @@ def render_readme(
     lines.extend(
         [
             "",
-            "## Danh mục UC trong SRS nguồn",
+            "## Quyết định chuẩn hóa mã UC",
+            "",
+            f"> PO chốt ngày {PO_DECISION_DATE}: giữ 31 UC có bảng đặc tả theo mã `UC-1` đến `UC-31`; đổi hai UC chữ ký điện tử thành `UC-32` và `UC-33` và đặt cuối danh mục hiện hành.",
+            "> Số UC không quyết định thứ tự triển khai. UC-32 và UC-33 thuộc cụm hợp đồng thuê trọ và được lập kế hoạch cùng các UC xem/ký/hủy hợp đồng.",
+            "",
+            "## Danh mục UC hiện hành",
+            "",
+            "| STT | Mã UC | Tên UC |",
+            "| ---: | --- | --- |",
+        ]
+    )
+    for stt, uc_id, name in canonical_catalogue(details):
+        lines.append(f"| {escape_table(stt)} | {escape_table(uc_id)} | {escape_table(name)} |")
+
+    lines.extend(
+        [
+            "",
+            "## Danh mục lịch sử trong SRS nguồn",
+            "",
+            "> Bảng này chỉ phục vụ truy vết bất nhất của DOCX nguồn; không dùng mã UC lịch sử để giao triển khai.",
             "",
             "| STT | Mã UC | Tên UC |",
             "| ---: | --- | --- |",
@@ -368,12 +436,20 @@ def render_readme(
             "",
             "## Phân tích chi tiết thực tế trong SRS nguồn",
             "",
-            "| Mục SRS | Tiêu đề mục | ID trong bảng | Tên trong bảng | Baseline | Đối chiếu |",
+            "| Mục SRS | Tiêu đề mục | ID trong bảng | Tên trong bảng | Tài liệu chuẩn | Đối chiếu |",
             "| --- | --- | --- | --- | --- | --- |",
         ]
     )
     for detail in details:
         consistency = detail_consistency(detail)
+        resolution = canonical_resolution(detail)
+        canonical_filename = APPROVED_FILENAMES.get(detail.heading_number, detail.filename)
+        if detail.heading_number in APPROVED_FILENAMES:
+            status = "Living spec hiện hành."
+        elif resolution:
+            status = resolution
+        else:
+            status = consistency
         lines.append(
             "| "
             + " | ".join(
@@ -382,8 +458,8 @@ def render_readme(
                     escape_table(f"{detail.heading_id}: {detail.heading_name}"),
                     escape_table(detail.table_id),
                     escape_table(detail.table_name),
-                    f"[`{detail.filename}`]({detail.filename})",
-                    escape_table(consistency),
+                    f"[`{canonical_filename}`]({canonical_filename})",
+                    escape_table(status),
                 ]
             )
             + " |"
@@ -392,16 +468,17 @@ def render_readme(
     lines.extend(
         [
             "",
-            "## Quan hệ với tài liệu triển khai",
+            "## Quy tắc sử dụng",
             "",
-            "- UC-01, UC-02 và UC-03 đã có living spec được PO phê duyệt trong [`docs/use-cases/smarttro/`](../../../docs/use-cases/smarttro/README.md); giữ nguyên các file đó.",
-            "- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn, nhưng đã có Activity Diagram. Vì vậy chúng được soạn thành **living spec Draft bổ sung**, không được coi là nội dung trích xuất từ DOCX:",
+            "- Mỗi UC chỉ có một file hiện hành trong thư mục này.",
+            "- UC-01, UC-02 và UC-03 là living spec; baseline chuyển đổi được lưu trong archive để truy vết.",
+            "- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn, đã được chuẩn hóa mã nhưng vẫn được giữ dưới dạng Draft trong archive cho tới khi nội dung được duyệt:",
             *[
                 f"  - {uc_id} — {name}: [`{Path(path).name}`]({path})"
                 for uc_id, name, path in SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS
             ],
-            "- Khi chuẩn bị UC mới, PM phải bắt đầu từ baseline tương ứng tại đây, sau đó ghi rõ quyết định PO, deviation, UI, API, test scope và gate triển khai trong living spec riêng.",
-            "- Không dùng việc “chưa tạo living spec” để kết luận SRS không có UC; baseline của toàn bộ SRS phải luôn được tạo trước và độc lập với tiến độ coding.",
+            "- UC-32 và UC-33 được triển khai cùng cụm hợp đồng thuê trọ; không chờ hoàn tất UC-31 chỉ vì được đánh số cuối danh mục.",
+            "- Khi cập nhật UC, sửa file hiện hành tại đây và chuyển bản bị thay thế vào archive; không tạo cây tài liệu song song.",
             "",
         ]
     )
@@ -414,15 +491,16 @@ def render_main_section(
     lines = [
         SECTION_START,
         "",
-        f"> Khôi phục ngày {CONVERSION_DATE} từ các bảng lồng trong DOCX nguồn. Danh mục có {len(catalogue)} UC; phần đặc tả chi tiết có {len(details)} bảng và được tách sang [`use-cases/`](use-cases/README.md).",
-        "> Ba living spec UC-01 đến UC-03 trong `docs/use-cases/smarttro/` được giữ nguyên vì đã dùng để triển khai code.",
+        f"> Khôi phục ngày {CONVERSION_DATE} từ các bảng lồng trong DOCX nguồn. Danh mục lịch sử có {len(catalogue)} UC; phần đặc tả chi tiết có {len(details)} bảng và được tách sang [`use-cases/`](use-cases/README.md).",
+        "> Ba living spec UC-01 đến UC-03 trong `docs/SRS/SmartTro/use-cases/` được giữ nguyên vì đã dùng để triển khai code.",
+        "> PO chốt ngày 2026-09-30: danh mục hiện hành dùng UC-1..UC-31 theo phần đặc tả chi tiết, sau đó UC-32 Tạo mới chữ ký điện tử và UC-33 Cập nhật chữ ký điện tử. Hai UC chữ ký được triển khai cùng cụm hợp đồng thuê trọ, không theo thứ tự số cuối danh mục.",
         "",
         "### 3.1. Danh sách các use case",
         "",
         "| STT | Mã UC | Tên UC |",
         "| ---: | --- | --- |",
     ]
-    for stt, uc_id, name in catalogue:
+    for stt, uc_id, name in canonical_catalogue(details):
         lines.append(f"| {escape_table(stt)} | {escape_table(uc_id)} | {escape_table(name)} |")
 
     lines.extend(
@@ -435,8 +513,10 @@ def render_main_section(
         ]
     )
     for uc_id, name, path in SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS:
-        main_relative = path.replace("../../../", "../../")
-        lines.append(f"- [{uc_id} — {name}]({main_relative})")
+        filename = Path(path).name
+        lines.append(
+            f"- [{uc_id} — {name}](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/{filename})"
+        )
 
     lines.extend(["", "### 3.2–3.32. Đặc tả chi tiết", ""])
     for detail in details:
@@ -444,15 +524,22 @@ def render_main_section(
             [
                 f"#### {detail.section_number} {detail.heading_id}: {detail.heading_name}",
                 "",
-                f"- [Bản baseline chuyển đổi đầy đủ](use-cases/{detail.filename})",
+                (
+                    f"- [Bản baseline chuyển đổi lưu trữ](../../../archieve/source-derived/SRS/SmartTro/use-cases/{detail.filename})"
+                    if detail.heading_number in APPROVED_FILENAMES
+                    else f"- [Tài liệu chuẩn](use-cases/{detail.filename})"
+                ),
             ]
         )
         approved_doc = APPROVED_IMPLEMENTATION_DOCS.get(detail.heading_number)
         if approved_doc:
-            main_relative = approved_doc.replace("../../../", "../../")
-            lines.append(f"- [Living implementation specification đã phê duyệt]({main_relative})")
+            filename = APPROVED_FILENAMES[detail.heading_number]
+            lines.append(f"- [Living implementation specification đã phê duyệt](use-cases/{filename})")
         consistency = detail_consistency(detail)
-        if consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
+        resolution = canonical_resolution(detail)
+        if resolution:
+            lines.append(f"- **Quyết định chuẩn hóa:** {resolution}")
+        elif consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
             lines.append(f"- **Cảnh báo nguồn:** {consistency}")
         lines.append("")
 
@@ -480,11 +567,17 @@ def update_main_mirror(section: str) -> None:
 def main() -> None:
     source_hash, catalogue, details = extract_source()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    ARCHIVE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    protected = set(APPROVED_FILENAMES.values())
     for stale in OUTPUT_DIR.glob("UC-*.md"):
+        if stale.name not in protected:
+            stale.unlink()
+    for stale in ARCHIVE_OUTPUT_DIR.glob("UC-*.md"):
         stale.unlink()
     for detail in details:
-        (OUTPUT_DIR / detail.filename).write_text(
+        target_dir = ARCHIVE_OUTPUT_DIR if detail.heading_number in APPROVED_FILENAMES else OUTPUT_DIR
+        (target_dir / detail.filename).write_text(
             render_detail(detail, source_hash), encoding="utf-8"
         )
 
