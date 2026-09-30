@@ -4,9 +4,13 @@
 > Nguồn: `archieve/legacy-source/SRS/SmartTro/SRS (SmartTrọ).docx`, mục `3.32.`; SHA-256 `8cfae5992ace32ba2a206e879ce3ced370a526cf5d96cbb708f6157b94173d34`.
 > Đồng bộ: 2026-09-24.
 
+## Quyết định chuẩn hóa mã
+
+> **PO chốt ngày 2026-09-30:** Mã hiện hành là `UC-31`; giá trị `UC-32` trong bảng DOCX nguồn chỉ được giữ để truy vết và không dùng để giao triển khai.
+
 ## Cảnh báo truy vết nguồn
 
-> **Không tự sửa số hoặc nội dung:** Tiêu đề `UC-31` nhưng bảng ghi `UC-32`.
+> Bản chuyển đổi giữ nguyên dữ liệu nguồn để đối chiếu: Tiêu đề `UC-31` nhưng bảng ghi `UC-32`.
 
 ## Đặc tả use case
 

@@ -14,6 +14,6 @@ Thư mục được đặt tên `archieve/` theo quy ước hiện tại của r
 
 BRD, WBS, kiến trúc và một số workbook quản lý áp dụng cho toàn Smart Platform. Chúng được đặt trong `Shared` để giữ tính duy nhất; không sao chép cùng một file vào ba ứng dụng.
 
-## Lưu ý xung đột UC SmartTrọ
+## Lưu ý chuẩn hóa UC chữ ký điện tử SmartTrọ
 
-Hai draft `UC-06-create-digital-signature.md` và `UC-07-update-digital-signature.md` được sinh từ Activity Diagram nhưng trùng mã với hai bảng chi tiết khác trong SRS nguồn. Chúng được giữ tại `supplemental/Draft_Use_Cases/SmartTro/` và không phải requirement triển khai cho đến khi PO/BA chốt lại mã UC.
+Hai draft sinh từ Activity Diagram từng dùng mã `UC-06`/`UC-07`, trùng với Đổi mật khẩu và Xem hợp đồng điện tử trong phần đặc tả nguồn. PO đã chuẩn hóa chúng thành `UC-32-create-digital-signature.md` và `UC-33-update-digital-signature.md`, đặt cuối danh mục hiện hành. Chúng vẫn là Draft tại `supplemental/Draft_Use_Cases/SmartTro/` cho tới khi nội dung được duyệt, và được lập kế hoạch cùng cụm hợp đồng thuê trọ thay vì theo thứ tự số UC.

@@ -1,4 +1,4 @@
-# SmartTrọ — UC-06 Tạo mới chữ ký điện tử
+# SmartTrọ — UC-32 Tạo mới chữ ký điện tử
 
 ## 1. Trạng thái tài liệu
 
@@ -16,13 +16,18 @@ Tài liệu này được suy ra trực tiếp từ Activity Diagram đã có. C
 
 Là **người thuê đã có tài khoản SmartTrọ**, tôi muốn tạo và lưu mẫu chữ ký điện tử của mình để có thể sử dụng mẫu chữ ký đó trong các nghiệp vụ điện tử được hệ thống hỗ trợ sau này.
 
-UC này chỉ tạo mẫu chữ ký trong hồ sơ người dùng. Việc áp chữ ký vào hợp đồng, xác nhận ý chí ký hợp đồng và giá trị pháp lý của chữ ký thuộc UC ký hợp đồng hoặc requirement pháp lý riêng; không được tự động thực hiện khi UC-06 hoàn tất.
+UC này chỉ tạo mẫu chữ ký trong hồ sơ người dùng. Việc áp chữ ký vào hợp đồng, xác nhận ý chí ký hợp đồng và giá trị pháp lý của chữ ký thuộc UC ký hợp đồng hoặc requirement pháp lý riêng; không được tự động thực hiện khi UC-32 hoàn tất.
+
+### Nhóm triển khai
+
+- UC-32 thuộc cụm **Hợp đồng thuê trọ** và phải được lập kế hoạch cùng UC-07 Xem hợp đồng điện tử, UC-08 Ký hợp đồng điện tử, UC-09 Hủy hợp đồng điện tử và UC-33 Cập nhật chữ ký điện tử.
+- Việc đặt UC-32 ở cuối danh mục chỉ để giải quyết xung đột mã lịch sử; số UC không quyết định thứ tự triển khai.
 
 ## 3. Nguồn và traceability
 
 ### 3.1. Activity Diagram
 
-![UC-06 — Tạo chữ ký điện tử](../../../legacy-source/Activity_Diagrams/SmartTro/AD_Profile%20Management%20%28Create%20Digital%20Signature%29.png)
+![UC-32 — Tạo chữ ký điện tử](../../../legacy-source/Activity_Diagrams/SmartTro/AD_Profile%20Management%20%28Create%20Digital%20Signature%29.png)
 
 Diagram xác nhận các hành vi sau:
 
@@ -34,7 +39,7 @@ Diagram xác nhận các hành vi sau:
 
 ### 3.2. Quan hệ với SRS
 
-- Catalogue trong SRS gốc có `UC-6 — Tạo mới chữ ký điện tử` nhưng không có bảng đặc tả tương ứng.
+- Catalogue trong SRS gốc có `UC-6 — Tạo mới chữ ký điện tử` nhưng không có bảng đặc tả tương ứng. PO đã chuẩn hóa mã hiện hành thành `UC-32` để tránh trùng với UC-06 Đổi mật khẩu.
 - File này là living draft bổ sung từ diagram, không phải nội dung đã tồn tại trong DOCX nguồn.
 - Sau khi PO duyệt, BA cần đưa đặc tả đã chốt trở lại SRS nguồn và chạy lại bộ chuyển đổi Markdown.
 
@@ -42,11 +47,11 @@ Diagram xác nhận các hành vi sau:
 
 | Nội dung | Mô tả |
 | --- | --- |
-| Use Case ID | UC-06 |
+| Use Case ID | UC-32 |
 | Use Case Name | Tạo mới chữ ký điện tử |
 | Description | Cho phép người thuê tạo và lưu mẫu chữ ký điện tử trong hồ sơ SmartTrọ. |
 | Actor(s) | Người thuê (Renter) |
-| Related Use Case | UC-02 — Đăng nhập; UC-07 — Cập nhật chữ ký điện tử; UC ký hợp đồng điện tử theo catalogue SRS |
+| Related Use Case | UC-02 — Đăng nhập; UC-33 — Cập nhật chữ ký điện tử; UC-07 — Xem hợp đồng điện tử; UC-08 — Ký hợp đồng điện tử; UC-09 — Hủy hợp đồng điện tử |
 | Priority | Chưa được xác định trong diagram/SRS; cần PO chốt |
 | Trigger | Người dùng chọn `Tạo chữ ký điện tử` trong tab `Chữ ký điện tử` của màn Tài khoản. |
 | Precondition | Thiết bị có thể truy cập SmartTrọ; người dùng có tài khoản và đăng nhập thành công trước khi tạo chữ ký. |
@@ -73,13 +78,13 @@ Diagram xác nhận các hành vi sau:
 
 ### 5.2. Alternative Flow
 
-#### AF-06-01 — Đăng nhập trước khi tạo chữ ký
+#### AF-32-01 — Đăng nhập trước khi tạo chữ ký
 
 1. Tại bước 2, nếu người dùng chưa đăng nhập, hệ thống điều hướng tới luồng đăng nhập.
 2. Người dùng đăng nhập thành công.
 3. Luồng tiếp tục tại bước 3 của Basic Flow.
 
-#### AF-06-02 — Ký lại trước khi lưu
+#### AF-32-02 — Ký lại trước khi lưu
 
 1. Sau bước 10, người dùng chọn `Ký lại` thay vì `Lưu`.
 2. Hệ thống đưa người dùng trở lại khu vực ký để thực hiện một mẫu chữ ký mới.
@@ -97,31 +102,31 @@ Activity Diagram chưa mô tả các nhánh chữ ký rỗng, mất mạng, lưu
 | `SIG-CREATE-BR02` | Mẫu chữ ký được tạo bằng thao tác ký trong khu vực ký do hệ thống hiển thị. | Bước ký trong pop-up |
 | `SIG-CREATE-BR03` | Người dùng có thể ký lại nhiều lần trước khi chọn mẫu cuối cùng để lưu. | Nhánh `Ký lại` |
 | `SIG-CREATE-BR04` | Hệ thống chỉ ghi nhận mẫu chữ ký khi người dùng chủ động chọn `Lưu`; không auto-save bản ký nháp. | Nhánh `Lưu` |
-| `SIG-CREATE-BR05` | Hoàn tất UC-06 không đồng nghĩa với việc ký một hợp đồng cụ thể. | Phạm vi diagram chỉ lưu chữ ký vào tài khoản |
+| `SIG-CREATE-BR05` | Hoàn tất UC-32 không đồng nghĩa với việc ký một hợp đồng cụ thể. | Phạm vi diagram chỉ lưu chữ ký vào tài khoản |
 
 ## 7. Acceptance Criteria từ diagram
 
-### AC-06-01 — Mở khu vực tạo chữ ký
+### AC-32-01 — Mở khu vực tạo chữ ký
 
 - **Given** người thuê đã đăng nhập
 - **When** người thuê mở `Tài khoản`, chọn tab `Chữ ký điện tử` và chọn `Tạo chữ ký điện tử`
 - **Then** hệ thống hiển thị khu vực cho phép người dùng vẽ/ký mẫu chữ ký.
 
-### AC-06-02 — Ký lại
+### AC-32-02 — Ký lại
 
 - **Given** người dùng đã vẽ một bản ký nháp nhưng chưa lưu
 - **When** người dùng chọn `Ký lại`
 - **Then** hệ thống cho phép thực hiện lại chữ ký
 - **And** bản ký nháp trước không được lưu làm mẫu chữ ký chính thức.
 
-### AC-06-03 — Lưu mẫu chữ ký
+### AC-32-03 — Lưu mẫu chữ ký
 
 - **Given** người dùng đã ký trong khu vực ký
 - **When** người dùng chọn `Lưu`
 - **Then** hệ thống lưu mẫu chữ ký vào đúng tài khoản người dùng
 - **And** lần mở lại màn Chữ ký điện tử phải đọc được mẫu chữ ký đã lưu.
 
-### AC-06-04 — Yêu cầu đăng nhập
+### AC-32-04 — Yêu cầu đăng nhập
 
 - **Given** người dùng chưa đăng nhập
 - **When** người dùng bắt đầu hành trình tạo chữ ký

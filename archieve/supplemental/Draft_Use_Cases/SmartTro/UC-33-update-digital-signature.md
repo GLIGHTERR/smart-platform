@@ -1,4 +1,4 @@
-# SmartTrọ — UC-07 Cập nhật chữ ký điện tử
+# SmartTrọ — UC-33 Cập nhật chữ ký điện tử
 
 ## 1. Trạng thái tài liệu
 
@@ -18,11 +18,16 @@ Là **người thuê đã có mẫu chữ ký điện tử**, tôi muốn cập 
 
 UC này không tự động thay đổi nội dung hoặc hiệu lực của các hợp đồng đã ký trước đó. Tác động của việc vô hiệu hóa/thay mẫu chữ ký tới hợp đồng cũ và hợp đồng mới phải được chốt riêng tại mục 8.
 
+### Nhóm triển khai
+
+- UC-33 thuộc cụm **Hợp đồng thuê trọ** và phải được lập kế hoạch cùng UC-07 Xem hợp đồng điện tử, UC-08 Ký hợp đồng điện tử, UC-09 Hủy hợp đồng điện tử và UC-32 Tạo mới chữ ký điện tử.
+- Việc đặt UC-33 ở cuối danh mục chỉ để giải quyết xung đột mã lịch sử; số UC không quyết định thứ tự triển khai.
+
 ## 3. Nguồn và traceability
 
 ### 3.1. Activity Diagram
 
-![UC-07 — Cập nhật chữ ký điện tử](../../../legacy-source/Activity_Diagrams/SmartTro/AD_Profile%20Management%20%28Update%20Digital%20Signature%29.png)
+![UC-33 — Cập nhật chữ ký điện tử](../../../legacy-source/Activity_Diagrams/SmartTro/AD_Profile%20Management%20%28Update%20Digital%20Signature%29.png)
 
 Diagram xác nhận các hành vi sau:
 
@@ -35,7 +40,7 @@ Diagram xác nhận các hành vi sau:
 
 ### 3.2. Quan hệ với SRS
 
-- Catalogue trong SRS gốc có `UC-7 — Cập nhật chữ ký điện tử` nhưng không có bảng đặc tả tương ứng.
+- Catalogue trong SRS gốc có `UC-7 — Cập nhật chữ ký điện tử` nhưng không có bảng đặc tả tương ứng. PO đã chuẩn hóa mã hiện hành thành `UC-33` để tránh trùng với UC-07 Xem hợp đồng điện tử.
 - File này là living draft bổ sung từ diagram, không phải nội dung đã tồn tại trong DOCX nguồn.
 - Sau khi PO duyệt, BA cần đưa đặc tả đã chốt trở lại SRS nguồn và chạy lại bộ chuyển đổi Markdown.
 
@@ -43,11 +48,11 @@ Diagram xác nhận các hành vi sau:
 
 | Nội dung | Mô tả |
 | --- | --- |
-| Use Case ID | UC-07 |
+| Use Case ID | UC-33 |
 | Use Case Name | Cập nhật chữ ký điện tử |
 | Description | Cho phép người thuê cập nhật mẫu chữ ký điện tử và/hoặc trạng thái sử dụng của chữ ký đã lưu. |
 | Actor(s) | Người thuê (Renter) |
-| Related Use Case | UC-02 — Đăng nhập; UC-06 — Tạo mới chữ ký điện tử; UC ký hợp đồng điện tử theo catalogue SRS |
+| Related Use Case | UC-02 — Đăng nhập; UC-32 — Tạo mới chữ ký điện tử; UC-07 — Xem hợp đồng điện tử; UC-08 — Ký hợp đồng điện tử; UC-09 — Hủy hợp đồng điện tử |
 | Priority | Chưa được xác định trong diagram/SRS; cần PO chốt |
 | Trigger | Người dùng chọn `Chỉnh sửa` tại màn Chữ ký điện tử. |
 | Precondition | Người dùng đăng nhập thành công; tài khoản có mẫu chữ ký điện tử đã lưu để cập nhật. |
@@ -74,29 +79,29 @@ Diagram xác nhận các hành vi sau:
 
 ### 5.2. Alternative Flow
 
-#### AF-07-01 — Tài khoản chưa có chữ ký
+#### AF-33-01 — Tài khoản chưa có chữ ký
 
 1. Tại bước 7, hệ thống xác định tài khoản chưa có chữ ký.
 2. Luồng cập nhật kết thúc theo đúng Activity Diagram.
-3. Diagram chưa quy định có hiển thị CTA chuyển sang UC-06 hay không; behavior này chờ PO chốt.
+3. Diagram chưa quy định có hiển thị CTA chuyển sang UC-32 hay không; behavior này chờ PO chốt.
 
-#### AF-07-02 — Không thay đổi trạng thái
+#### AF-33-02 — Không thay đổi trạng thái
 
 1. Tại bước 10, người dùng giữ nguyên trạng thái hiện tại.
 2. Hệ thống không thay đổi trường trạng thái và tiếp tục xử lý nhánh chữ ký.
 
-#### AF-07-03 — Không ký lại
+#### AF-33-03 — Không ký lại
 
 1. Tại bước 10, người dùng giữ nguyên mẫu chữ ký hiện tại.
 2. Hệ thống không thay đổi asset chữ ký và tiếp tục xử lý nhánh trạng thái.
 
-#### AF-07-04 — Ký lại
+#### AF-33-04 — Ký lại
 
 1. Tại bước 10, người dùng chọn ký lại và ký trong khu vực ký.
 2. Nếu người dùng tiếp tục chọn `Ký lại`, hệ thống đưa về khu vực ký để tạo bản nháp mới.
 3. Khi người dùng chấp nhận bản ký mới, luồng tiếp tục tại bước 11 của Basic Flow.
 
-#### AF-07-05 — Đăng nhập trước khi cập nhật
+#### AF-33-05 — Đăng nhập trước khi cập nhật
 
 1. Tại bước 2, nếu người dùng chưa đăng nhập, hệ thống điều hướng tới luồng đăng nhập.
 2. Người dùng đăng nhập thành công.
@@ -118,33 +123,33 @@ Activity Diagram chưa mô tả các nhánh chữ ký mới không hợp lệ, c
 
 ## 7. Acceptance Criteria từ diagram
 
-### AC-07-01 — Chỉ sửa chữ ký đã tồn tại
+### AC-33-01 — Chỉ sửa chữ ký đã tồn tại
 
 - **Given** người thuê đã đăng nhập và có mẫu chữ ký
 - **When** người thuê mở tab `Chữ ký điện tử` và chọn `Chỉnh sửa`
 - **Then** hệ thống hiển thị mẫu chữ ký và trạng thái hiện tại trong giao diện chỉnh sửa.
 
-### AC-07-02 — Cập nhật trạng thái độc lập
+### AC-33-02 — Cập nhật trạng thái độc lập
 
 - **Given** giao diện chỉnh sửa đang hiển thị chữ ký hiện tại
 - **When** người dùng chỉ thay đổi trạng thái rồi chọn `Cập nhật`
 - **Then** hệ thống lưu trạng thái mới
 - **And** giữ nguyên asset chữ ký hiện tại.
 
-### AC-07-03 — Ký lại độc lập
+### AC-33-03 — Ký lại độc lập
 
 - **Given** giao diện chỉnh sửa đang hiển thị chữ ký hiện tại
 - **When** người dùng ký lại, giữ nguyên trạng thái và chọn `Cập nhật`
 - **Then** hệ thống lưu mẫu chữ ký mới
 - **And** giữ nguyên trạng thái hiện tại.
 
-### AC-07-04 — Cập nhật đồng thời
+### AC-33-04 — Cập nhật đồng thời
 
 - **Given** giao diện chỉnh sửa đang hiển thị chữ ký hiện tại
 - **When** người dùng vừa thay đổi trạng thái vừa ký lại rồi chọn `Cập nhật`
 - **Then** hệ thống lưu cả trạng thái và mẫu chữ ký mới trong cùng một kết quả cập nhật.
 
-### AC-07-05 — Tài khoản chưa có chữ ký
+### AC-33-05 — Tài khoản chưa có chữ ký
 
 - **Given** người dùng đã đăng nhập nhưng chưa có mẫu chữ ký
 - **When** người dùng mở tab `Chữ ký điện tử`
@@ -156,10 +161,10 @@ Activity Diagram chưa mô tả các nhánh chữ ký mới không hợp lệ, c
 | ID | Câu hỏi cần chốt | Đề xuất ban đầu | Trạng thái |
 | --- | --- | --- | --- |
 | `SIG-COMMON-D01` | Đây là mẫu chữ ký vẽ tay lưu trong app hay chữ ký số có chứng thư số/CA và giá trị pháp lý độc lập? | MVP coi đây là **mẫu chữ ký điện tử vẽ tay**, không gọi là chữ ký số PKI/CA và không tuyên bố giá trị pháp lý ngoài luồng ký hợp đồng được duyệt. | Pending |
-| `SIG-COMMON-D02` | Có cho phép cập nhật bằng chữ ký rỗng hoặc bản ký chỉ có một nét/chấm không? | Không cho lưu chữ ký rỗng; dùng cùng validation đã chốt cho UC-06. | Pending |
+| `SIG-COMMON-D02` | Có cho phép cập nhật bằng chữ ký rỗng hoặc bản ký chỉ có một nét/chấm không? | Không cho lưu chữ ký rỗng; dùng cùng validation đã chốt cho UC-32. | Pending |
 | `SIG-UPDATE-D03` | “Trạng thái” gồm những giá trị nào, mặc định là gì và tác động thế nào? | MVP dùng `active/inactive`; chỉ chữ ký active được đề xuất trong luồng ký mới. | Pending |
 | `SIG-UPDATE-D04` | Vô hiệu hóa hoặc thay mẫu chữ ký có ảnh hưởng hợp đồng đã ký không? | Không làm thay đổi hợp đồng/chữ ký snapshot đã hoàn tất; chỉ ảnh hưởng giao dịch ký mới. | Pending |
-| `SIG-UPDATE-D05` | Khi tài khoản chưa có chữ ký, chỉ kết thúc như diagram hay hiển thị CTA sang UC-06? | Hiển thị empty state và CTA `Tạo chữ ký điện tử` dẫn sang UC-06. | Pending |
+| `SIG-UPDATE-D05` | Khi tài khoản chưa có chữ ký, chỉ kết thúc như diagram hay hiển thị CTA sang UC-32? | Hiển thị empty state và CTA `Tạo chữ ký điện tử` dẫn sang UC-32. | Pending |
 | `SIG-UPDATE-D06` | Nếu người dùng không đổi trạng thái lẫn chữ ký rồi bấm `Cập nhật`, hệ thống làm gì? | Disable `Cập nhật` khi không có thay đổi; không gửi request no-op. | Pending |
 | `SIG-UPDATE-D07` | Cập nhật lỗi/mất mạng hoặc có xung đột phiên bản xử lý thế nào? | Không ghi đè dữ liệu hiện hành; giữ bản nháp trong memory để retry và dùng version/checksum chống lost update. | Pending |
 | `SIG-UPDATE-D08` | Có cần audit và bảo vệ asset chữ ký không? | Audit create/update/status change, không log asset; mã hóa khi truyền/lưu và kiểm soát quyền đọc. | Pending |

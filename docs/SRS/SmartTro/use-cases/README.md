@@ -19,7 +19,52 @@ Thư mục này là vị trí chuẩn duy nhất của Use Case SmartTrọ. UC �
 - Mục chi tiết cuối có tiêu đề `UC-31: Báo cáo chi tiêu`, nhưng bảng bên trong ghi `Use Case ID = UC-32`; catalogue lại ghi `UC-33 — Báo cáo chi tiết`.
 - Catalogue có 33 UC nhưng DOCX chỉ có 31 bảng đặc tả chi tiết. Các khoảng trống này phải được PO/BA sửa ở nguồn trước khi dùng làm requirement triển khai.
 
-## Danh mục UC trong SRS nguồn
+## Quyết định chuẩn hóa mã UC
+
+> PO chốt ngày 2026-09-30: giữ 31 UC có bảng đặc tả theo mã `UC-1` đến `UC-31`; đổi hai UC chữ ký điện tử thành `UC-32` và `UC-33` và đặt cuối danh mục hiện hành.
+> Số UC không quyết định thứ tự triển khai. UC-32 và UC-33 thuộc cụm hợp đồng thuê trọ và được lập kế hoạch cùng các UC xem/ký/hủy hợp đồng.
+
+## Danh mục UC hiện hành
+
+| STT | Mã UC | Tên UC |
+| ---: | --- | --- |
+| 1 | UC-1 | Đăng ký bằng email |
+| 2 | UC-2 | Đăng nhập bằng email và mật khẩu |
+| 3 | UC-3 | Quên mật khẩu |
+| 4 | UC-4 | Xem thông tin cá nhân |
+| 5 | UC-5 | Cập nhật thông tin cá nhân |
+| 6 | UC-6 | Đổi mật khẩu |
+| 7 | UC-7 | Xem hợp đồng điện tử |
+| 8 | UC-8 | Ký hợp đồng điện tử |
+| 9 | UC-9 | Hủy hợp đồng điện tử |
+| 10 | UC-10 | Xem danh sách phòng trọ |
+| 11 | UC-11 | Xem chi tiết phòng trọ |
+| 12 | UC-12 | Đánh giá và bình luận trong bài đăng về phòng trọ |
+| 13 | UC-13 | Lưu phòng trọ yêu thích |
+| 14 | UC-14 | Đặt lịch xem trọ |
+| 15 | UC-15 | Nhắn tin với chủ trọ |
+| 16 | UC-16 | Viết đánh giá về nhà trọ |
+| 17 | UC-17 | Báo cáo vi phạm |
+| 18 | UC-18 | Xem các báo cáo đã tạo |
+| 19 | UC-19 | Tạo báo cáo sự cố |
+| 20 | UC-20 | Theo dõi tiến độ xử lý |
+| 21 | UC-21 | Cập nhật thông tin báo cáo |
+| 22 | UC-22 | Đánh giá sau xử lý |
+| 23 | UC-23 | Liên kết ngân hàng/ví điện tử |
+| 24 | UC-24 | Thanh toán thủ công |
+| 25 | UC-25 | Thanh toán tự động |
+| 26 | UC-26 | Nhận thông báo đến hạn |
+| 27 | UC-27 | Đặt nhắc nhở thanh toán |
+| 28 | UC-28 | Xem lịch sử thanh toán |
+| 29 | UC-29 | Xuất hóa đơn điện tử |
+| 30 | UC-30 | Thống kê chi phí theo tháng |
+| 31 | UC-31 | Báo cáo chi tiêu |
+| 32 | UC-32 | Tạo mới chữ ký điện tử |
+| 33 | UC-33 | Cập nhật chữ ký điện tử |
+
+## Danh mục lịch sử trong SRS nguồn
+
+> Bảng này chỉ phục vụ truy vết bất nhất của DOCX nguồn; không dùng mã UC lịch sử để giao triển khai.
 
 | STT | Mã UC | Tên UC |
 | ---: | --- | --- |
@@ -91,13 +136,14 @@ Thư mục này là vị trí chuẩn duy nhất của Use Case SmartTrọ. UC �
 | 3.29. | UC-28: Xem lịch sử thanh toán | UC-28 | Xem lịch sử thanh toán | [`UC-28-xem-lich-su-thanh-toan.md`](UC-28-xem-lich-su-thanh-toan.md) | Khớp giữa tiêu đề và bảng đặc tả. |
 | 3.30. | UC-29: Xuất hóa đơn điện tử | UC-29 | Xuất hóa đơn điện tử | [`UC-29-xuat-hoa-don-dien-tu.md`](UC-29-xuat-hoa-don-dien-tu.md) | Khớp giữa tiêu đề và bảng đặc tả. |
 | 3.31. | UC-30: Thống kê chi phí theo tháng | UC-30 | Thống kê chi phí theo tháng | [`UC-30-thong-ke-chi-phi-theo-thang.md`](UC-30-thong-ke-chi-phi-theo-thang.md) | Khớp giữa tiêu đề và bảng đặc tả. |
-| 3.32. | UC-31: Báo cáo chi tiêu | UC-32 | Báo cáo chi tiêu | [`UC-31-bao-cao-chi-tieu.md`](UC-31-bao-cao-chi-tieu.md) | Tiêu đề `UC-31` nhưng bảng ghi `UC-32`. |
+| 3.32. | UC-31: Báo cáo chi tiêu | UC-32 | Báo cáo chi tiêu | [`UC-31-bao-cao-chi-tieu.md`](UC-31-bao-cao-chi-tieu.md) | Mã hiện hành là `UC-31`; giá trị `UC-32` trong bảng DOCX nguồn chỉ được giữ để truy vết và không dùng để giao triển khai. |
 
 ## Quy tắc sử dụng
 
 - Mỗi UC chỉ có một file hiện hành trong thư mục này.
 - UC-01, UC-02 và UC-03 là living spec; baseline chuyển đổi được lưu trong archive để truy vết.
-- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn và chỉ được giữ dưới dạng Draft trong archive:
-  - UC-6 — Tạo mới chữ ký điện tử: [`UC-06-create-digital-signature.md`](../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-06-create-digital-signature.md)
-  - UC-7 — Cập nhật chữ ký điện tử: [`UC-07-update-digital-signature.md`](../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-07-update-digital-signature.md)
+- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn, đã được chuẩn hóa mã nhưng vẫn được giữ dưới dạng Draft trong archive cho tới khi nội dung được duyệt:
+  - UC-32 — Tạo mới chữ ký điện tử: [`UC-32-create-digital-signature.md`](../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-32-create-digital-signature.md)
+  - UC-33 — Cập nhật chữ ký điện tử: [`UC-33-update-digital-signature.md`](../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-33-update-digital-signature.md)
+- UC-32 và UC-33 được triển khai cùng cụm hợp đồng thuê trọ; không chờ hoàn tất UC-31 chỉ vì được đánh số cuối danh mục.
 - Khi cập nhật UC, sửa file hiện hành tại đây và chuyển bản bị thay thế vào archive; không tạo cây tài liệu song song.

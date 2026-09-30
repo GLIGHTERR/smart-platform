@@ -33,6 +33,7 @@ MAIN_MIRROR = REPO_ROOT / "docs" / "SRS" / "SmartTro" / "SRS.md"
 OUTPUT_DIR = REPO_ROOT / "docs" / "SRS" / "SmartTro" / "use-cases"
 ARCHIVE_OUTPUT_DIR = REPO_ROOT / "archieve" / "source-derived" / "SRS" / "SmartTro" / "use-cases"
 CONVERSION_DATE = "2026-09-24"
+PO_DECISION_DATE = "2026-09-30"
 
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 W = f"{{{W_NS}}}"
@@ -60,14 +61,14 @@ APPROVED_FILENAMES = {
 
 SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS = [
     (
-        "UC-6",
+        "UC-32",
         "Tạo mới chữ ký điện tử",
-        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-06-create-digital-signature.md",
+        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-32-create-digital-signature.md",
     ),
     (
-        "UC-7",
+        "UC-33",
         "Cập nhật chữ ký điện tử",
-        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-07-update-digital-signature.md",
+        "../../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-33-update-digital-signature.md",
     ),
 ]
 
@@ -277,6 +278,16 @@ def detail_consistency(detail: DetailSection) -> str:
     return "Khớp giữa tiêu đề và bảng đặc tả."
 
 
+def canonical_resolution(detail: DetailSection) -> str | None:
+    """Return a PO-approved resolution for a known source numbering conflict."""
+    if detail.heading_number == 31 and detail.table_id == "UC-32":
+        return (
+            "Mã hiện hành là `UC-31`; giá trị `UC-32` trong bảng DOCX nguồn "
+            "chỉ được giữ để truy vết và không dùng để giao triển khai."
+        )
+    return None
+
+
 def render_detail(detail: DetailSection, source_hash: str) -> str:
     lines = [
         f"# {detail.heading_id}: {detail.heading_name}",
@@ -288,12 +299,22 @@ def render_detail(detail: DetailSection, source_hash: str) -> str:
     ]
 
     consistency = detail_consistency(detail)
+    resolution = canonical_resolution(detail)
+    if resolution:
+        lines.extend(
+            [
+                "## Quyết định chuẩn hóa mã",
+                "",
+                f"> **PO chốt ngày {PO_DECISION_DATE}:** {resolution}",
+                "",
+            ]
+        )
     if consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
         lines.extend(
             [
                 "## Cảnh báo truy vết nguồn",
                 "",
-                f"> **Không tự sửa số hoặc nội dung:** {consistency}",
+                f"> Bản chuyển đổi giữ nguyên dữ liệu nguồn để đối chiếu: {consistency}",
                 "",
             ]
         )
@@ -334,6 +355,26 @@ def source_issue_notes() -> list[str]:
     ]
 
 
+def canonical_catalogue(details: list[DetailSection]) -> list[tuple[str, str, str]]:
+    """Return the PO-reconciled catalogue used by PM, Dev and QA.
+
+    The 31 detailed source tables retain IDs UC-1..UC-31. The two signature
+    use cases that existed only in the historical catalogue are assigned the
+    final IDs UC-32 and UC-33 to remove the UC-06/UC-07 collision.
+    """
+    current = [
+        (str(index), f"UC-{index}", detail.heading_name)
+        for index, detail in enumerate(details, start=1)
+    ]
+    current.extend(
+        (str(index), uc_id, name)
+        for index, (uc_id, name, _) in enumerate(
+            SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS, start=len(current) + 1
+        )
+    )
+    return current
+
+
 def render_readme(
     source_hash: str,
     catalogue: list[tuple[str, str, str]],
@@ -362,7 +403,26 @@ def render_readme(
     lines.extend(
         [
             "",
-            "## Danh mục UC trong SRS nguồn",
+            "## Quyết định chuẩn hóa mã UC",
+            "",
+            f"> PO chốt ngày {PO_DECISION_DATE}: giữ 31 UC có bảng đặc tả theo mã `UC-1` đến `UC-31`; đổi hai UC chữ ký điện tử thành `UC-32` và `UC-33` và đặt cuối danh mục hiện hành.",
+            "> Số UC không quyết định thứ tự triển khai. UC-32 và UC-33 thuộc cụm hợp đồng thuê trọ và được lập kế hoạch cùng các UC xem/ký/hủy hợp đồng.",
+            "",
+            "## Danh mục UC hiện hành",
+            "",
+            "| STT | Mã UC | Tên UC |",
+            "| ---: | --- | --- |",
+        ]
+    )
+    for stt, uc_id, name in canonical_catalogue(details):
+        lines.append(f"| {escape_table(stt)} | {escape_table(uc_id)} | {escape_table(name)} |")
+
+    lines.extend(
+        [
+            "",
+            "## Danh mục lịch sử trong SRS nguồn",
+            "",
+            "> Bảng này chỉ phục vụ truy vết bất nhất của DOCX nguồn; không dùng mã UC lịch sử để giao triển khai.",
             "",
             "| STT | Mã UC | Tên UC |",
             "| ---: | --- | --- |",
@@ -382,8 +442,14 @@ def render_readme(
     )
     for detail in details:
         consistency = detail_consistency(detail)
+        resolution = canonical_resolution(detail)
         canonical_filename = APPROVED_FILENAMES.get(detail.heading_number, detail.filename)
-        status = "Living spec hiện hành." if detail.heading_number in APPROVED_FILENAMES else consistency
+        if detail.heading_number in APPROVED_FILENAMES:
+            status = "Living spec hiện hành."
+        elif resolution:
+            status = resolution
+        else:
+            status = consistency
         lines.append(
             "| "
             + " | ".join(
@@ -406,11 +472,12 @@ def render_readme(
             "",
             "- Mỗi UC chỉ có một file hiện hành trong thư mục này.",
             "- UC-01, UC-02 và UC-03 là living spec; baseline chuyển đổi được lưu trong archive để truy vết.",
-            "- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn và chỉ được giữ dưới dạng Draft trong archive:",
+            "- Hai UC chữ ký điện tử không có bảng đặc tả trong DOCX nguồn, đã được chuẩn hóa mã nhưng vẫn được giữ dưới dạng Draft trong archive cho tới khi nội dung được duyệt:",
             *[
                 f"  - {uc_id} — {name}: [`{Path(path).name}`]({path})"
                 for uc_id, name, path in SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS
             ],
+            "- UC-32 và UC-33 được triển khai cùng cụm hợp đồng thuê trọ; không chờ hoàn tất UC-31 chỉ vì được đánh số cuối danh mục.",
             "- Khi cập nhật UC, sửa file hiện hành tại đây và chuyển bản bị thay thế vào archive; không tạo cây tài liệu song song.",
             "",
         ]
@@ -424,15 +491,16 @@ def render_main_section(
     lines = [
         SECTION_START,
         "",
-        f"> Khôi phục ngày {CONVERSION_DATE} từ các bảng lồng trong DOCX nguồn. Danh mục có {len(catalogue)} UC; phần đặc tả chi tiết có {len(details)} bảng và được tách sang [`use-cases/`](use-cases/README.md).",
+        f"> Khôi phục ngày {CONVERSION_DATE} từ các bảng lồng trong DOCX nguồn. Danh mục lịch sử có {len(catalogue)} UC; phần đặc tả chi tiết có {len(details)} bảng và được tách sang [`use-cases/`](use-cases/README.md).",
         "> Ba living spec UC-01 đến UC-03 trong `docs/SRS/SmartTro/use-cases/` được giữ nguyên vì đã dùng để triển khai code.",
+        "> PO chốt ngày 2026-09-30: danh mục hiện hành dùng UC-1..UC-31 theo phần đặc tả chi tiết, sau đó UC-32 Tạo mới chữ ký điện tử và UC-33 Cập nhật chữ ký điện tử. Hai UC chữ ký được triển khai cùng cụm hợp đồng thuê trọ, không theo thứ tự số cuối danh mục.",
         "",
         "### 3.1. Danh sách các use case",
         "",
         "| STT | Mã UC | Tên UC |",
         "| ---: | --- | --- |",
     ]
-    for stt, uc_id, name in catalogue:
+    for stt, uc_id, name in canonical_catalogue(details):
         lines.append(f"| {escape_table(stt)} | {escape_table(uc_id)} | {escape_table(name)} |")
 
     lines.extend(
@@ -444,8 +512,8 @@ def render_main_section(
             "",
         ]
     )
-    for uc_id, name, _ in SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS:
-        filename = "UC-06-create-digital-signature.md" if uc_id == "UC-6" else "UC-07-update-digital-signature.md"
+    for uc_id, name, path in SUPPLEMENTAL_ACTIVITY_DIAGRAM_DOCS:
+        filename = Path(path).name
         lines.append(
             f"- [{uc_id} — {name}](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/{filename})"
         )
@@ -468,7 +536,10 @@ def render_main_section(
             filename = APPROVED_FILENAMES[detail.heading_number]
             lines.append(f"- [Living implementation specification đã phê duyệt](use-cases/{filename})")
         consistency = detail_consistency(detail)
-        if consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
+        resolution = canonical_resolution(detail)
+        if resolution:
+            lines.append(f"- **Quyết định chuẩn hóa:** {resolution}")
+        elif consistency != "Khớp giữa tiêu đề và bảng đặc tả.":
             lines.append(f"- **Cảnh báo nguồn:** {consistency}")
         lines.append("")
 

@@ -242,8 +242,9 @@ Hình 12: Quy trình thanh toán dự kiến
 
 ## 3. Phân tích các Use Case / Use cases analysis
 
-> Khôi phục ngày 2026-09-24 từ các bảng lồng trong DOCX nguồn. Danh mục có 33 UC; phần đặc tả chi tiết có 31 bảng và được tách sang [`use-cases/`](use-cases/README.md).
+> Khôi phục ngày 2026-09-24 từ các bảng lồng trong DOCX nguồn. Danh mục lịch sử có 33 UC; phần đặc tả chi tiết có 31 bảng và được tách sang [`use-cases/`](use-cases/README.md).
 > Ba living spec UC-01 đến UC-03 trong `docs/SRS/SmartTro/use-cases/` được giữ nguyên vì đã dùng để triển khai code.
+> PO chốt ngày 2026-09-30: danh mục hiện hành dùng UC-1..UC-31 theo phần đặc tả chi tiết, sau đó UC-32 Tạo mới chữ ký điện tử và UC-33 Cập nhật chữ ký điện tử. Hai UC chữ ký được triển khai cùng cụm hợp đồng thuê trọ, không theo thứ tự số cuối danh mục.
 
 ### 3.1. Danh sách các use case
 
@@ -254,41 +255,41 @@ Hình 12: Quy trình thanh toán dự kiến
 | 3 | UC-3 | Quên mật khẩu |
 | 4 | UC-4 | Xem thông tin cá nhân |
 | 5 | UC-5 | Cập nhật thông tin cá nhân |
-| 6 | UC-6 | Tạo mới chữ ký điện tử |
-| 7 | UC-7 | Cập nhật chữ ký điện tử |
-| 8 | UC-8 | Đổi mật khẩu |
-| 9 | UC-9 | Xem hợp đồng điện tử |
-| 10 | UC-10 | Ký hợp đồng điện tử |
-| 11 | UC-11 | Hủy hợp đồng điện tử |
-| 12 | UC-12 | Xem danh sách phòng trọ |
-| 13 | UC-13 | Xem chi tiết phòng trọ |
-| 14 | UC-14 | Đánh giá và bình luận trong bài đăng về phòng trọ |
-| 15 | UC-15 | Lưu phòng trọ yêu thích |
-| 16 | UC-16 | Đặt lịch xem trọ |
-| 17 | UC-17 | Nhắn tin với chủ trọ |
-| 18 | UC-18 | Viết đánh giá về nhà trọ |
-| 19 | UC-19 | Báo cáo vi phạm |
-| 20 | UC-20 | Xem các báo cáo đã tạo |
-| 21 | UC-21 | Tạo báo cáo sự cố mới |
-| 22 | UC-22 | Theo dõi tiến độ xử lý |
-| 23 | UC-23 | Cập nhật thông tin báo cáo |
-| 24 | UC-24 | Đánh giá sau xử lý |
-| 25 | UC-25 | Liên kết ngân hàng/ví điện tử |
-| 26 | UC-26 | Thanh toán thủ công |
-| 27 | UC-27 | Thanh toán tự động |
-| 28 | UC-28 | Nhận thông báo đến hạn |
-| 29 | UC-29 | Đặt nhắc nhở thanh toán |
-| 30 | UC-30 | Xem lịch sử thanh toán |
-| 31 | UC-31 | Xuất hóa đơn điện tử |
-| 32 | UC-32 | Thống kê chi phí theo tháng |
-| 33 | UC-33 | Báo cáo chi tiết |
+| 6 | UC-6 | Đổi mật khẩu |
+| 7 | UC-7 | Xem hợp đồng điện tử |
+| 8 | UC-8 | Ký hợp đồng điện tử |
+| 9 | UC-9 | Hủy hợp đồng điện tử |
+| 10 | UC-10 | Xem danh sách phòng trọ |
+| 11 | UC-11 | Xem chi tiết phòng trọ |
+| 12 | UC-12 | Đánh giá và bình luận trong bài đăng về phòng trọ |
+| 13 | UC-13 | Lưu phòng trọ yêu thích |
+| 14 | UC-14 | Đặt lịch xem trọ |
+| 15 | UC-15 | Nhắn tin với chủ trọ |
+| 16 | UC-16 | Viết đánh giá về nhà trọ |
+| 17 | UC-17 | Báo cáo vi phạm |
+| 18 | UC-18 | Xem các báo cáo đã tạo |
+| 19 | UC-19 | Tạo báo cáo sự cố |
+| 20 | UC-20 | Theo dõi tiến độ xử lý |
+| 21 | UC-21 | Cập nhật thông tin báo cáo |
+| 22 | UC-22 | Đánh giá sau xử lý |
+| 23 | UC-23 | Liên kết ngân hàng/ví điện tử |
+| 24 | UC-24 | Thanh toán thủ công |
+| 25 | UC-25 | Thanh toán tự động |
+| 26 | UC-26 | Nhận thông báo đến hạn |
+| 27 | UC-27 | Đặt nhắc nhở thanh toán |
+| 28 | UC-28 | Xem lịch sử thanh toán |
+| 29 | UC-29 | Xuất hóa đơn điện tử |
+| 30 | UC-30 | Thống kê chi phí theo tháng |
+| 31 | UC-31 | Báo cáo chi tiêu |
+| 32 | UC-32 | Tạo mới chữ ký điện tử |
+| 33 | UC-33 | Cập nhật chữ ký điện tử |
 
 ### Tài liệu bổ sung từ Activity Diagram (Draft)
 
 > DOCX nguồn chỉ liệt kê hai UC chữ ký điện tử trong catalogue và không có bảng đặc tả tương ứng. Các tài liệu dưới đây được soạn từ Activity Diagram hiện có, là living spec Draft và không phải nội dung trích xuất từ DOCX.
 
-- [UC-6 — Tạo mới chữ ký điện tử](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-06-create-digital-signature.md)
-- [UC-7 — Cập nhật chữ ký điện tử](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-07-update-digital-signature.md)
+- [UC-32 — Tạo mới chữ ký điện tử](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-32-create-digital-signature.md)
+- [UC-33 — Cập nhật chữ ký điện tử](../../../archieve/supplemental/Draft_Use_Cases/SmartTro/UC-33-update-digital-signature.md)
 
 ### 3.2–3.32. Đặc tả chi tiết
 
@@ -418,7 +419,7 @@ Hình 12: Quy trình thanh toán dự kiến
 #### 3.32. UC-31: Báo cáo chi tiêu
 
 - [Tài liệu chuẩn](use-cases/UC-31-bao-cao-chi-tieu.md)
-- **Cảnh báo nguồn:** Tiêu đề `UC-31` nhưng bảng ghi `UC-32`.
+- **Quyết định chuẩn hóa:** Mã hiện hành là `UC-31`; giá trị `UC-32` trong bảng DOCX nguồn chỉ được giữ để truy vết và không dùng để giao triển khai.
 
 ### 3.33. Ghi chú đối chiếu nguồn
 

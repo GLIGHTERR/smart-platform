@@ -15,6 +15,11 @@
 - Không tạo thêm một lớp UC khác ở `docs/use-cases/` hoặc `markdown/`.
 - Bản chuyển đổi nguyên trạng của UC-01 đến UC-03 đã được chuyển vào `archieve/source-derived/` để đối chiếu, không dùng để giao triển khai.
 
-## Xung đột UC-06/UC-07
+## Quyết định chuẩn hóa UC chữ ký điện tử
 
-SRS nguồn có bất nhất giữa catalogue và các bảng đặc tả chi tiết. Hai draft chữ ký điện tử sinh từ Activity Diagram được lưu ở `archieve/supplemental/Draft_Use_Cases/SmartTro/`, chưa phải nguồn triển khai cho tới khi PO/BA chốt lại mã UC.
+SRS nguồn có bất nhất giữa catalogue và các bảng đặc tả chi tiết. PO đã chốt giữ các UC có bảng đặc tả theo mã `UC-01` đến `UC-31`, sau đó đặt hai UC chữ ký điện tử ở cuối danh mục:
+
+- `UC-32` — Tạo mới chữ ký điện tử.
+- `UC-33` — Cập nhật chữ ký điện tử.
+
+Hai tài liệu sinh từ Activity Diagram vẫn là Draft tại `archieve/supplemental/Draft_Use_Cases/SmartTro/` cho tới khi nội dung được duyệt. Chúng thuộc **cụm triển khai hợp đồng thuê trọ** cùng UC-07/UC-08/UC-09; số `32`/`33` không có nghĩa phải chờ triển khai xong UC-31.
