@@ -23,6 +23,11 @@
 | GLI-23 | SPF | File upload, media and document storage | Dev | Images and private contract files. |
 | GLI-26 | SPF | QA test plan for MVP flows | QA | Test planning across MVP. |
 | GLI-28 | SPF | CI, environment and deployment pipeline | Dev | Local/dev/QAS setup and CI/CD. |
+| GLI-69 | SMT | SmartTrọ Home Screen MVP | PM/Dev/QA | Dashboard điều hướng có 2 trạng thái theo hợp đồng active; không chứa discovery/list/search/recommendation. |
+| GLI-70..75 | SMT/SPF | Home Docs → FE → BE evaluation → Integration → QA → UAT | PM/Dev/QA/PO | Planning only; chưa assign. D.S.Trọ chỉ điều hướng, màn danh sách trọ/phòng nằm ngoài parent Home. |
+| GLI-76..82 | SMC/SPF | SmartChủ UC-01 Sign Up | PM/Dev/QA/PO | Planning only; email identity + Email OTP, FE-first sau khi PO duyệt docs. |
+| GLI-83..89 | SMC/SPF | SmartChủ UC-02 Sign In | PM/Dev/QA/PO | Planning only; email/password, không OTP trong login thường. |
+| GLI-90..96 | SMC/SPF | SmartChủ UC-03 Forgot Password | PM/Dev/QA/PO | Planning only; Email OTP recovery, chờ PO duyệt docs/Figma. |
 
 ## Recommended Execution Order
 
@@ -35,6 +40,16 @@
 7. GLI-19, GLI-23.
 8. GLI-21, GLI-24, GLI-25.
 9. GLI-26, GLI-28 should run in parallel once enough implementation detail exists.
+10. Sau khi SmartTrọ UC-03 hoàn tất: PO review GLI-70/Home docs, rồi mới giao GLI-71; SmartChủ auth được review song song nhưng chưa assign implementation.
+
+## GLI-69 Home Child Order
+
+1. `GLI-70`: chốt living spec hai trạng thái Home và các câu hỏi mở.
+2. `GLI-71`: FE dựng UI mock trước BE.
+3. `GLI-72`: đánh giá API tối thiểu cho profile + active-contract summary; không đưa discovery vào Home.
+4. `GLI-73`: map API/runtime states sau khi FE được duyệt.
+5. `GLI-74`: QA web; PO kiểm tra Android theo quy trình hiện hành.
+6. `GLI-75`: UAT và đóng parent.
 
 ## GLI-15 Child Order
 
