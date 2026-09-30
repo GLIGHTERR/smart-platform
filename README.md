@@ -1,54 +1,31 @@
-# Smart Platform Documentation Repository
+# Smart Platform Documentation
 
-This repository stores project documentation, implementation handoff notes, requirement references and future agent memory/skill material for Smart Platform.
+Kho tài liệu của Smart Platform được tổ chức theo hai vùng duy nhất:
 
-## Start Here
+- [`docs/`](docs/README.md): tài liệu Markdown **hiện hành**, là điểm vào chuẩn cho PM, Dev, QA và agent.
+- [`archieve/`](archieve/README.md): tài liệu nguồn cũ, bản chuyển đổi đã được thay thế và tài liệu bổ trợ/lịch sử.
 
-Read these files first:
+Không tạo lại thư mục `markdown/` và không đặt tài liệu hiện hành ở thư mục gốc.
 
-1. `docs/00-project-overview.md`
-2. `docs/01-architecture-decision-record.md`
-3. `docs/02-requirement-traceability.md`
-4. `docs/03-dev-handoff.md`
-5. `docs/04-qa-handoff.md`
-6. `docs/05-assumptions-and-open-questions.md`
-7. `docs/06-board-task-map.md`
-8. `docs/07-backend-module-boundaries.md`
-9. `docs/08-9router-poc-and-token-budget.md`
-10. `docs/09-viewing-appointment-mvp-rules.md`
-11. `docs/10-ui-implementation-and-review-playbook.md`
-12. `docs/use-cases/smarttro/UC-01-sign-up.md`
-13. `docs/use-cases/smarttro/UC-02-sign-in.md`
-14. `docs/use-cases/smarttro/UC-03-forgot-password.md`
-15. `markdown/README.md` for agent-readable mirrors of the current SmartTrọ source documents.
+## Bắt đầu đọc
 
-## Source Artifacts
+1. Mở [`docs/README.md`](docs/README.md).
+2. Chọn loại tài liệu: `FRS`, `Requirement_List`, `SRS` hoặc `User_Stories`.
+3. Chọn sản phẩm: `SmartTro`, `SmartChu` hoặc `SmartAdmin`.
+4. Chỉ dùng tài liệu trong `archieve/` khi cần truy vết nguồn hoặc lịch sử quyết định.
 
-| Folder | Content |
+## Quy ước sản phẩm
+
+| Tên | Phạm vi |
 | --- | --- |
-| `BRD/` | Business Requirements Document. |
-| `WBS/` | Work breakdown structure and estimates. |
-| `Requirement_List/` | Requirement management files for SmartTro and SmartChu. |
-| `User_Stories/` | User stories and acceptance criteria. |
-| `SRS/` | Software Requirements Specifications. |
-| `FRS/` | Functional Requirements Specifications. |
-| `markdown/` | Agent-readable mirrors of selected DOCX/XLSX sources, with source hashes and conversion status in `markdown/README.md`. |
-| `Business_Processes/` | Current/proposed business process images. |
-| `Activity_Diagrams/` | Activity diagrams by feature. |
-| `Use_Case_Diagrams/` | Use case diagrams by feature group. |
-| `Workflow_Management/` | Delivery/output tracking workbook. |
+| SmartTrọ / `SmartTro` | Ứng dụng dành cho người thuê trọ. |
+| SmartChủ / `SmartChu` | Ứng dụng dành cho chủ trọ. |
+| SmartAdmin | Cổng quản trị hệ thống. |
+| `Shared` | Tài liệu dùng chung, không thuộc riêng một sản phẩm. |
 
-## Board Prefixes
+## Quy tắc cho agent
 
-| Prefix | Meaning |
-| --- | --- |
-| SPF | Smart Platform / cross-system work. |
-| SMT | SmartTro renter app. |
-| SMC | SmartChu owner app. |
-| SMA | SmartAdmin web. |
-
-## Agent Working Rule
-
-If a requirement is unclear, agents should infer the expected behavior from BRD and user stories first, then document the assumption. Ask PM before implementing or testing high-risk logic such as payment, contract validity, authorization, data deletion or irreversible state transitions.
-
-Do not apply 9Router to Codex PM, Codex DEV or Gemini QA until the PoC in `docs/08-9router-poc-and-token-budget.md` meets its adoption criteria.
+- Trước khi triển khai hoặc kiểm thử, phải đọc tài liệu hiện hành trong `docs/`.
+- Không suy diễn một file trong `archieve/` là yêu cầu hiện hành nếu chưa có dẫn chiếu rõ ràng từ `docs/`.
+- Khi thay đổi đường dẫn tài liệu, phải cập nhật liên kết và script converter trong cùng PR.
+- Mỗi mục đích tài liệu chỉ có một bản hiện hành; bản bị thay thế phải chuyển vào `archieve/`.

@@ -2,9 +2,9 @@
 """Convert the four SmartChủ source documents to traceable Markdown mirrors.
 
 The source documents are historical baselines. They intentionally retain old
-phone/SMS authentication text and business rules. Approved implementation
-changes live in ``docs/`` and are linked from the generated Markdown instead
-of being silently folded into the source mirror.
+phone/SMS authentication text and business rules. Current Markdown is written
+to the canonical ``docs/`` tree. Baselines replaced by approved living specs
+are written to ``archieve/source-derived`` for traceability.
 """
 
 from __future__ import annotations
@@ -27,18 +27,19 @@ from openpyxl import load_workbook
 ROOT = Path(__file__).resolve().parents[1]
 DATE = "2026-09-30"
 
-SRS_SOURCE = ROOT / "SRS" / "SRS (SmartChủ).docx"
-FRS_SOURCE = ROOT / "FRS" / "FRS - SmartChủ.docx"
-REQ_SOURCE = ROOT / "Requirement_List" / "Requirements List - SmartChủ.xlsx"
-US_SOURCE = ROOT / "User_Stories" / "User Story - SmartChủ.xlsx"
+SRS_SOURCE = ROOT / "archieve" / "legacy-source" / "SRS" / "SmartChu" / "SRS (SmartChủ).docx"
+FRS_SOURCE = ROOT / "archieve" / "legacy-source" / "FRS" / "SmartChu" / "FRS - SmartChủ.docx"
+REQ_SOURCE = ROOT / "archieve" / "legacy-source" / "Requirement_List" / "SmartChu" / "Requirements List - SmartChủ.xlsx"
+US_SOURCE = ROOT / "archieve" / "legacy-source" / "User_Stories" / "SmartChu" / "User Story - SmartChủ.xlsx"
 
-SRS_OUT = ROOT / "markdown" / "SRS" / "SRS (SmartChủ).md"
-SRS_UC_DIR = ROOT / "markdown" / "SRS" / "smartchu-use-cases"
-FRS_OUT = ROOT / "markdown" / "FRS" / "FRS - SmartChủ.md"
-REQ_OUT = ROOT / "markdown" / "Requirement_List" / "Requirements List - SmartChủ.md"
-US_OUT = ROOT / "markdown" / "User_Stories" / "User Story - SmartChủ.md"
-SRS_ASSET_DIR = ROOT / "markdown" / "SRS" / "assets" / "srs-smartchu"
-FRS_ASSET_DIR = ROOT / "markdown" / "FRS" / "assets" / "frs-smartchu"
+SRS_OUT = ROOT / "docs" / "SRS" / "SmartChu" / "SRS.md"
+SRS_UC_DIR = ROOT / "docs" / "SRS" / "SmartChu" / "use-cases"
+SRS_ARCHIVE_UC_DIR = ROOT / "archieve" / "source-derived" / "SRS" / "SmartChu" / "use-cases"
+FRS_OUT = ROOT / "docs" / "FRS" / "SmartChu" / "FRS.md"
+REQ_OUT = ROOT / "docs" / "Requirement_List" / "SmartChu" / "Requirements.md"
+US_OUT = ROOT / "docs" / "User_Stories" / "SmartChu" / "User-Stories.md"
+SRS_ASSET_DIR = ROOT / "docs" / "SRS" / "SmartChu" / "assets"
+FRS_ASSET_DIR = ROOT / "docs" / "FRS" / "SmartChu" / "assets" / "source"
 
 EXPECTED_HASHES = {
     SRS_SOURCE: "fc374c30bc5c6777cb4bd7f6d8e48988b9dc801bd6b203d72fbd19b4469b58ab",
@@ -48,17 +49,17 @@ EXPECTED_HASHES = {
 }
 
 UC_AMENDMENTS = {
-    1: "../../../docs/use-cases/smartchu/UC-01-sign-up.md",
-    2: "../../../docs/use-cases/smartchu/UC-02-sign-in.md",
-    3: "../../../docs/use-cases/smartchu/UC-03-forgot-password.md",
-    6: "../../../docs/use-cases/smartchu/UC-06-view-business-information.md",
-    7: "../../../docs/use-cases/smartchu/UC-07-submit-business-verification.md",
-    10: "../../../docs/use-cases/smartchu/UC-10-create-electronic-contract.md",
-    18: "../../../docs/use-cases/smartchu/UC-18-create-property.md",
-    22: "../../../docs/use-cases/smartchu/UC-22-create-room.md",
+    1: "UC-01-sign-up.md",
+    2: "UC-02-sign-in.md",
+    3: "UC-03-forgot-password.md",
+    6: "UC-06-view-business-information.md",
+    7: "UC-07-submit-business-verification.md",
+    10: "UC-10-create-electronic-contract.md",
+    18: "UC-18-create-property.md",
+    22: "UC-22-create-room.md",
 }
 POLICY_UCS = {6, 7, 10, 18, 22}
-POLICY_LINK = "../../../docs/11-smartchu-business-verification-policy.md"
+ARCHIVE_POLICY_LINK = "../../../../supplemental/Business_Rules/SmartChu/11-smartchu-business-verification-policy.md"
 REQUIREMENT_TO_UC = {
     "SM038": 1,
     "SM039": 2,
@@ -206,13 +207,11 @@ def uc_filename(number: int, name: str) -> str:
     return f"UC-{number:02d}-{slugify(name)}.md"
 
 
-def amendment_block(number: int, *, prefix: str = "../../../") -> list[str]:
+def amendment_block(number: int) -> list[str]:
     lines: list[str] = []
     amendment = UC_AMENDMENTS.get(number)
     if amendment:
-        path = amendment
-        if prefix != "../../../":
-            path = path.replace("../../../", prefix)
+        path = f"../../../../../docs/SRS/SmartChu/use-cases/{amendment}"
         lines.extend(
             [
                 "## Amendment / living implementation spec hiện hành",
@@ -222,10 +221,7 @@ def amendment_block(number: int, *, prefix: str = "../../../") -> list[str]:
             ]
         )
         if number in POLICY_UCS:
-            policy = POLICY_LINK
-            if prefix != "../../../":
-                policy = policy.replace("../../../", prefix)
-            lines.append(f"- [Chính sách xác minh kinh doanh SmartChủ]({policy})")
+            lines.append(f"- [Chính sách xác minh kinh doanh SmartChủ]({ARCHIVE_POLICY_LINK})")
         lines.append("")
     return lines
 
@@ -237,7 +233,7 @@ def render_uc(fields: dict[str, list[CellParagraph]], source_hash: str) -> tuple
         f"# UC-{number:02d}: {name}",
         "",
         "> **Loại tài liệu:** Baseline chuyển đổi nguyên trạng từ SRS SmartChủ lịch sử.",
-        f"> **Nguồn:** `SRS/SRS (SmartChủ).docx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
+        f"> **Nguồn:** `archieve/legacy-source/SRS/SmartChu/SRS (SmartChủ).docx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
         "> **Lưu ý:** Tài liệu này không tự động phản ánh quyết định PO mới nếu file DOCX nguồn chưa được sửa.",
         "",
         *amendment_block(number),
@@ -336,7 +332,12 @@ def render_docx_body(source: Path, title: str, source_hash: str) -> list[str]:
 def write_srs(source_hash: str) -> None:
     catalogue, details = extract_srs_tables()
     SRS_UC_DIR.mkdir(parents=True, exist_ok=True)
+    SRS_ARCHIVE_UC_DIR.mkdir(parents=True, exist_ok=True)
+    protected = set(UC_AMENDMENTS.values())
     for stale in SRS_UC_DIR.glob("UC-*.md"):
+        if stale.name not in protected:
+            stale.unlink()
+    for stale in SRS_ARCHIVE_UC_DIR.glob("UC-*.md"):
         stale.unlink()
 
     detail_index: dict[int, tuple[str, str]] = {}
@@ -344,17 +345,18 @@ def write_srs(source_hash: str) -> None:
         number = uc_number(fields)
         name = plain_cell(fields.get("Use Case Name", [])).strip()
         filename, content = render_uc(fields, source_hash)
-        (SRS_UC_DIR / filename).write_text(content, encoding="utf-8")
+        target_dir = SRS_ARCHIVE_UC_DIR if number in UC_AMENDMENTS else SRS_UC_DIR
+        (target_dir / filename).write_text(content, encoding="utf-8")
         detail_index[number] = (name, filename)
 
     readme = [
-        "# SmartChủ SRS — Use Case Baseline",
+        "# SmartChủ SRS — Danh mục Use Case chuẩn",
         "",
-        f"> Khôi phục {len(details)} bảng đặc tả từ `SRS/SRS (SmartChủ).docx` ngày {DATE}.",
+        f"> Khôi phục {len(details)} bảng đặc tả từ `archieve/legacy-source/SRS/SmartChu/SRS (SmartChủ).docx` ngày {DATE}.",
         f"> SHA-256 nguồn: `{source_hash}`.",
-        "> Các file này là baseline lịch sử. Tài liệu Approved/living spec trong `docs/` được ưu tiên khi triển khai nếu khác nguồn.",
+        "> Đây là vị trí chuẩn duy nhất của Use Case SmartChủ; baseline bị living spec thay thế được lưu trong archive.",
         "",
-        "| Mã UC | Tên trong danh mục nguồn | Baseline chi tiết | Amendment hiện hành |",
+        "| Mã UC | Tên trong danh mục nguồn | Tài liệu chuẩn | Trạng thái |",
         "| --- | --- | --- | --- |",
     ]
     for stt, raw_id, catalogue_name in catalogue:
@@ -364,18 +366,19 @@ def write_srs(source_hash: str) -> None:
         number = int(number_match.group(1))
         detail_name, filename = detail_index[number]
         amendment = UC_AMENDMENTS.get(number)
-        amendment_cell = f"[Living spec]({amendment})" if amendment else "—"
+        canonical_filename = amendment or filename
+        status = "Living spec hiện hành" if amendment else "Baseline chuyển đổi hiện hành"
         readme.append(
-            f"| UC-{number:02d} | {md_escape(catalogue_name)} | [{md_escape(detail_name)}]({filename}) | {amendment_cell} |"
+            f"| UC-{number:02d} | {md_escape(catalogue_name)} | [{md_escape(detail_name)}]({canonical_filename}) | {status} |"
         )
     readme.extend(
         [
             "",
-            "## Quy tắc ưu tiên",
+            "## Quy tắc sử dụng",
             "",
-            "1. Quyết định PO/Approved living spec trong `docs/`.",
-            "2. Baseline SRS SmartChủ được chuyển đổi tại thư mục này.",
-            "3. File DOCX nguồn để đối chiếu định dạng, sơ đồ và lịch sử.",
+            "1. Mỗi UC chỉ có một file hiện hành trong thư mục này.",
+            "2. Baseline bị living spec thay thế chỉ nằm trong `archieve/source-derived/SRS/SmartChu/use-cases/`.",
+            "3. Không tạo cây `docs/use-cases/` hoặc `markdown/` song song.",
             "",
         ]
     )
@@ -396,8 +399,9 @@ def write_srs(source_hash: str) -> None:
     for stt, raw_id, name in catalogue:
         number = int(re.search(r"(\d+)", raw_id).group(1))
         detail_name, filename = detail_index[number]
+        filename = UC_AMENDMENTS.get(number, filename)
         lines.append(
-            f"| {md_escape(stt)} | UC-{number:02d} | {md_escape(name)} | [{md_escape(detail_name)}](smartchu-use-cases/{filename}) |"
+            f"| {md_escape(stt)} | UC-{number:02d} | {md_escape(name)} | [{md_escape(detail_name)}](use-cases/{filename}) |"
         )
     lines.extend(["", "## Tài sản hình ảnh trích xuất", ""])
     for asset in assets:
@@ -463,15 +467,16 @@ def actual_bounds(ws) -> tuple[int, int]:
     return last_row, last_col
 
 
-def amendment_for_uc(number: int, *, depth: str = "../../") -> list[str]:
-    link = UC_AMENDMENTS.get(number)
-    if not link:
+def amendment_for_uc(number: int) -> list[str]:
+    filename = UC_AMENDMENTS.get(number)
+    if not filename:
         return []
-    adjusted = link.replace("../../../", depth)
-    lines = [f"- Living spec hiện hành: [UC-{number:02d}]({adjusted})"]
+    lines = [
+        f"- Living spec hiện hành: [UC-{number:02d}](../../../docs/SRS/SmartChu/use-cases/{filename})"
+    ]
     if number in POLICY_UCS:
         lines.append(
-            f"- Chính sách liên quan: [Xác minh kinh doanh SmartChủ]({POLICY_LINK.replace('../../../', depth)})"
+            "- Chính sách liên quan: [Xác minh kinh doanh SmartChủ](../../../archieve/supplemental/Business_Rules/SmartChu/11-smartchu-business-verification-policy.md)"
         )
     return lines
 
@@ -482,7 +487,7 @@ def write_requirements(source_hash: str) -> None:
         "# Requirements List — SmartChủ",
         "",
         "> **Loại tài liệu:** Markdown mirror của workbook nguồn.",
-        f"> **Nguồn:** `Requirement_List/Requirements List - SmartChủ.xlsx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
+        f"> **Nguồn:** `archieve/legacy-source/Requirement_List/SmartChu/Requirements List - SmartChủ.xlsx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
         "> Các requirement lịch sử về số điện thoại/SMS được giữ nguyên. Living spec Approved trong `docs/` được ưu tiên khi triển khai.",
         "",
     ]
@@ -522,7 +527,7 @@ def write_user_stories(source_hash: str) -> None:
         "# User Story — SmartChủ",
         "",
         "> **Loại tài liệu:** Markdown mirror của workbook nguồn.",
-        f"> **Nguồn:** `User_Stories/User Story - SmartChủ.xlsx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
+        f"> **Nguồn:** `archieve/legacy-source/User_Stories/SmartChu/User Story - SmartChủ.xlsx` — SHA-256 `{source_hash}` — chuyển đổi {DATE}.",
         "> User story lịch sử về số điện thoại/SMS được giữ nguyên. Living spec Approved trong `docs/` được ưu tiên khi triển khai.",
         "",
     ]
