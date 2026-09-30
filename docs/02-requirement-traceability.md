@@ -10,12 +10,12 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 
 | Requirement Group | SmartTro IDs | SmartChu IDs | Board Task |
 | --- | --- | --- | --- |
-| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; mỗi flow dùng tài liệu UC riêng trong `docs/use-cases/smarttro/` |
-| Room/property discovery and management | SM013-SM016 | SM053-SM061 | `GLI-16`, `GLI-17` |
+| Auth and profile | SM001-SM009 | SM038-SM046 | `GLI-11`, `GLI-14`; SmartChủ business verification dùng `docs/11-smartchu-business-verification-policy.md` và UC-06/07 |
+| Room/property discovery and management | SM013-SM016 | SM053-SM061 | `GLI-16`, `GLI-17`; SmartChủ UC-18/22 yêu cầu business profile `APPROVED` |
 | Viewing appointment / room-viewing schedule | SM017 | SM062-SM064 | `GLI-15` |
 | Messaging and interaction | SM018-SM020 | SM065-SM068 | `GLI-19`, `GLI-21` |
 | Incident management | SM022-SM026 | SM069-SM076 | `GLI-24` |
-| Contract lifecycle | SM010-SM012 | SM047-SM052 | `GLI-18` |
+| Contract lifecycle | SM010-SM012 | SM047-SM052 | `GLI-18`; SmartChủ UC-10 yêu cầu business profile `APPROVED` |
 | Payment and billing | SM027-SM033 | SM077-SM082 | `GLI-20`, `GLI-22`, `GLI-25` |
 | Reporting/statistics | SM034-SM035 | SM083 | `GLI-25` |
 | Admin foundation/moderation | N/A in current SmartTro/SmartChu lists | N/A in current SmartTro/SmartChu lists | `GLI-13`, `GLI-21` |
@@ -50,3 +50,4 @@ It does not replace the original BRD, Requirement Lists, User Stories, SRS or BP
 | Booking proposed flow combines multiple domains. | A one-booking/one-contract model would incorrectly couple viewing, contract and payment. | Keep `GLI-15` as the parent specification; execute `GLI-43` then backend `GLI-45`, clients `GLI-46`/`GLI-47`, and post-merge integration/QA. Contract/deposit remain `GLI-18`/`GLI-20`. |
 | BPMN is image-only. | Dev cannot diff or edit source BPMN. | Use image as source of behavior; future update should store editable BPMN/drawio if possible. |
 | Legacy auth artifacts still use phone or OTP on every login. | Dev may implement contradictory identity and authentication flows. | Dùng đúng tài liệu UC trong `docs/use-cases/smarttro/`; cập nhật từng artifact bị ảnh hưởng trước khi UC tương ứng được giao Dev. |
+| SmartChủ source cũ có bước gửi hồ sơ/đợi Admin nhưng thiếu precondition duyệt ở UC tạo hợp đồng, nhà và phòng. | FE có thể chỉ khóa một màn, còn API vẫn cho tạo dữ liệu hoặc các module xử lý không thống nhất. | Dùng `docs/11-smartchu-business-verification-policy.md`; Home và module hiển thị trạng thái, mọi API ghi dữ liệu kiểm tra `APPROVED`. |

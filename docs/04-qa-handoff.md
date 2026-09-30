@@ -99,6 +99,8 @@ QA must use the exact UC specification in `docs/use-cases/smarttro/` as the curr
 - Password/OTP do not appear in logs, route parameters or persistent storage.
 - The environment under test uses the exact merged SHA and actual auth/mock contract, not an isolated happy-case setup.
 
+Social-provider Sign Up/Sign In is a separate UC and is not a mandatory fixture for UC-03. When that UC is implemented, QA must additionally test a social-only account that submits the same email to Forgot Password: the response remains non-enumerating, no local password account is created implicitly, no provider is linked/unlinked implicitly, and the approved provider recovery/linking behavior is followed.
+
 ## Requirement Ambiguity Rule for QA
 
 If expected result is unclear:

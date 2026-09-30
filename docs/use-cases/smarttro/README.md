@@ -27,3 +27,7 @@ Bản đối chiếu đầy đủ nội dung UC thực tế có trong SRS nguồ
 Các UC tiếp theo được bổ sung vào **thư mục living spec này** khi được chuẩn bị để triển khai. Việc đó không ảnh hưởng tới baseline SRS đã được chuyển đổi trước cho toàn bộ danh mục.
 
 Với UC-01, UC-02 và UC-03, thứ tự triển khai là: FE mock → deploy preview/mobile build → PO review/approve → BE → map API → QA → UAT.
+
+## Phạm vi Social Authentication được tách riêng
+
+Đăng ký/Đăng nhập bằng Facebook, Google hoặc Apple phải được chuẩn bị thành UC riêng; không dùng UC-01, UC-02 hoặc UC-03 để suy diễn provider-linking behavior. Khi mở UC Social Authentication, tài liệu của UC đó bắt buộc phải bao phủ cả account social-only dùng cùng email với flow quên mật khẩu: anti-enumeration, không tự tạo password account, không tự link/unlink provider và behavior phục hồi/truy cập lại provider đã được PO duyệt.

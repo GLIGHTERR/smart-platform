@@ -62,8 +62,17 @@ Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng no
 | `FORGOT-D11` | Reset thành công thu hồi toàn bộ access/refresh session đang hoạt động của account. | Approved |
 | `FORGOT-D12` | Không auto-login; về Sign In với email prefill và thông báo đổi mật khẩu thành công. | Approved |
 | `FORGOT-D13` | Nếu app chỉ background và process còn sống: giữ bước hiện tại trong memory nếu challenge/reset token còn hạn, nhưng luôn xóa hai ô mật khẩu khi resume. Nếu app bị force-close/process bị kill hoặc mở lại sau restart: xóa toàn bộ recovery state, mở entry point Sign In; người dùng phải bắt đầu lại từ bước email và nhận OTP mới. Không persist email, OTP, challenge, mật khẩu hoặc reset token qua app restart. | Approved |
-| `FORGOT-D14` | Account chưa verify/social-only không được tự tạo account hoặc tự link provider; vẫn dùng response trung tính và chỉ đi theo linking/support flow khi có requirement riêng. | Approved |
+| `FORGOT-D14` | Account email/password chưa verify không được tự tạo account mới; vẫn dùng response trung tính. Account social-only và provider linking không thuộc phạm vi triển khai/QA của UC-03, mà phải được đặc tả và kiểm thử trong UC Đăng ký/Đăng nhập bằng tài khoản social. | Approved |
 | `FORGOT-D15` | Audit request/resend/verify/reset/revoke theo immutable user ID; mask email; không log OTP/token/password. | Approved |
+
+### Phạm vi deferred sang UC Social Authentication
+
+UC-03 không dùng account social-only làm fixture bắt buộc. Khi chuẩn bị UC Đăng ký/Đăng nhập bằng tài khoản social, PM và QA phải bổ sung ít nhất các trường hợp sau vào chính tài liệu UC đó:
+
+- Account chỉ có social provider, chưa có password local, gửi yêu cầu quên mật khẩu bằng cùng email.
+- Response không được làm lộ email/account/provider có tồn tại hay không.
+- Hệ thống không tự tạo password account, không tự link/unlink provider và không âm thầm chuyển kiểu đăng nhập.
+- Behavior tiếp theo (provider re-authentication, password enrollment hay linking flow) chỉ được triển khai sau khi PO chốt requirement và UI riêng.
 
 ## 5. Acceptance Criteria
 
@@ -73,6 +82,7 @@ Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng no
 - **When** người dùng nhập email đúng định dạng và chọn `Gửi OTP`
 - **Then** app gửi đúng một request với email đã normalize, chống double-submit và hiển thị response trung tính bất kể email có tồn tại hay không.
 - **And** nếu account hợp lệ, OTP 6 chữ số được gửi qua email và app điều hướng sang màn OTP riêng.
+- **And** nếu account email/password chưa verify, hệ thống không tạo account trùng và không chuyển sang reset-password flow.
 - **And** UI không thêm input OTP vào màn email.
 
 ### AC-02 — Xác minh OTP
