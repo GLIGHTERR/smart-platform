@@ -117,7 +117,7 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 
 ### Hướng tiếp theo đã chuẩn bị nhưng chưa tự động khởi chạy
 
-- SmartTrọ Home Screen: parent `GLI-69` đang `in_progress`; `GLI-70` đang `in_review` với PR docs #8; `GLI-71..75` vẫn `backlog`. PO đã chốt living spec/Figma-capture ngày 2026-10-02, nhưng chưa mở gate implementation. Home không chứa room discovery; `D.S.Trọ` chỉ điều hướng tới UC-10.
+- SmartTrọ Home Screen: parent `GLI-69` đang `in_progress`; `GLI-70` đã `done` sau khi PR #8 merge tại `57850e5bfe0854ad934e55304af2670f7fc5563c`; `GLI-71` được mở gate theo lệnh PO ngày 2026-10-02, còn `GLI-72..75` vẫn `backlog`. Home không chứa room discovery; `D.S.Trọ` chỉ điều hướng tới UC-10.
 - SmartChủ Auth: parent UC-01 `GLI-76`, UC-02 `GLI-83`, UC-03 `GLI-90`; các task con đang backlog. Phải review/chốt docs và Figma trước khi assign Dev.
 
 ## 7. Figma và design handoff
