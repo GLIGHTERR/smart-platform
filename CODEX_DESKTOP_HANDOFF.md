@@ -69,6 +69,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Dựng nội dung email và gọi Brevo chạy ở worker bất đồng bộ với retry/backoff/audit.
 - Không dùng fire-and-forget in-memory vì Render restart/scale-down có thể làm mất email.
 - Không lưu/log OTP plaintext trong outbox hoặc audit.
+- Outbox consumer phải xử lý đúng result shape của TypeORM raw query; claim job hiện dùng CTE `UPDATE` kèm final `SELECT`, quarantine payload lỗi và giữ polling error boundary để một job lỗi không làm dừng consumer.
 - Pattern này áp dụng cho mọi quy trình gửi email sau này; hiện ưu tiên Forgot Password rồi Signup. UC-02 Sign In hiện không có email delivery.
 
 ### 4.3 UI/mobile
@@ -102,16 +103,14 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 
 ### SmartTrọ UC-03
 
-- Parent `GLI-61`: `in_progress`.
-- `GLI-64` integration, `GLI-65` QA: `in_review`.
-- `GLI-66` UAT: `in_progress`; PO đã từng xác nhận chức năng đăng ký/đăng nhập/đăng xuất và Forgot Password cơ bản hoạt động, nhưng phải lấy trạng thái issue mới nhất làm chuẩn.
-- `GLI-68` đổi email tại màn OTP/UI: `in_review`.
-- `GLI-67` branding/icon: `in_progress`, trong khi commit branding/UI đã xuất hiện trên `smart-tro/master`; phải đối chiếu issue/PR/build trước khi đóng.
+- Parent `GLI-61` và các child trực tiếp `GLI-62`, `GLI-63`, `GLI-64`, `GLI-65`, `GLI-66`, `GLI-68`, `GLI-97`: `done` theo xác nhận Multica và PO ngày 2026-10-01.
+- PO xác nhận luồng Forgot Password hoàn tất và cho phép đóng toàn bộ scope UC-03.
+- `GLI-67` branding/icon không thuộc danh sách child trực tiếp đã đóng ở trên; phải kiểm tra lại trạng thái issue/PR/build trước khi xử lý tiếp.
 
 ### Email outbox
 
-- `GLI-97` Forgot Password transactional outbox: `in_review`.
-- `GLI-98` Signup transactional outbox: `backlog`, phụ thuộc foundation của GLI-97.
+- `GLI-97` Forgot Password transactional outbox: `done`. PR #14 triển khai foundation đã merge; PR #15 hotfix lỗi claim result đã merge và deploy thành công. Render đang giữ `PASSWORD_RECOVERY_OUTBOX_CONSUMER_ENABLED=true` tại thời điểm xác nhận.
+- `GLI-98` Signup transactional outbox: `backlog`; dependency foundation từ GLI-97 đã hoàn tất nhưng chưa được tự động khởi chạy.
 - Không mở task tối ưu Login OTP vì UC-02 Sign In hiện không gửi OTP theo living spec.
 
 ### Hướng tiếp theo đã chuẩn bị nhưng chưa tự động khởi chạy
