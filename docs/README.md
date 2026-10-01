@@ -16,7 +16,7 @@ Các loại nguồn cũ chưa có bản Markdown chuẩn như BRD, WBS, Question
 ## Quy tắc nguồn chuẩn
 
 1. Mỗi tài liệu hiện hành chỉ có một đường dẫn chuẩn trong `docs/`.
-2. Với Use Case đã được PO cập nhật/phê duyệt, file living specification là tài liệu chuẩn; bản chuyển đổi nguyên trạng tương ứng được giữ ở `archieve/source-derived/` chỉ để đối chiếu lịch sử.
+2. Với Use Case hoặc màn hình đã được PO cập nhật/phê duyệt, file living specification tương ứng là tài liệu chuẩn; bản chuyển đổi nguyên trạng chỉ dùng để đối chiếu lịch sử và không được ghi đè quyết định mới.
 3. Với Use Case chưa có living specification, file chuyển đổi từ SRS nguồn trong `docs/SRS/<Sản phẩm>/use-cases/` là tài liệu chuẩn tạm thời.
 4. File DOCX/XLSX/PNG/PUML nguồn cũ nằm trong `archieve/legacy-source/`; không dùng chúng để ghi đè quyết định mới đã được phê duyệt.
 5. Tài liệu dùng chung toàn hệ thống được phân loại là `Shared`, tránh sao chép cùng nội dung vào cả ba ứng dụng.

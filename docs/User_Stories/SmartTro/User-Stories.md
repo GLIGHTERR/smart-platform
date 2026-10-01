@@ -146,8 +146,10 @@ Là một người dùng, tôi muốn xem danh sách các phòng trọ tôi c
 
 **Acceptance Criteria**
 
-- 1. Trang "Danh sách phòng" hiển thị danh sách các phòng trọ trên hệ thống và đáp ứng các điều kiệu trong bộ lọc, 1 bộ lọc theo giá, diện tích phòng, vị trí địa lý và tiện ích
+- 1. Trang "Danh sách phòng" hiển thị danh sách các phòng trọ trên hệ thống và đáp ứng các điều kiện trong bộ lọc theo giá, diện tích phòng, vị trí địa lý và tiện ích
 - 2. Người dùng bấm vào 1 phòng trên danh sách để xem chi tiết
+- 3. Khi chưa áp dụng bộ lọc, trang hiển thị tất cả phòng đang available thuộc các nhà trọ khác nhau
+- 4. Thứ tự mặc định là tên nhà trọ tăng dần; các phòng cùng nhà trọ sắp xếp theo giá tăng dần
 
 ### US 11.0 — Xem chi tiết phòng trọ
 
