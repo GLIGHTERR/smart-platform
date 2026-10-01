@@ -79,6 +79,8 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Social icons dùng managed SVG/PNG assets, không dùng FontAwesome glyph nếu làm sai mockup/runtime.
 - App người thuê phải hiển thị tên **SmartTrọ** và dùng bộ icon chính thức/adaptive/monochrome trong source app; đổi display name/icon trên Expo dashboard không thay thế cấu hình native của project.
 - Cần kiểm tra cả Android device và web review; web không đại diện đầy đủ cho runtime mobile.
+- Runtime error/offline dùng pattern chung: nếu đã có dữ liệu hợp lệ thì giữ UI ổn định, retry cục bộ vùng lỗi và hiển thị non-blocking toast; initial load dùng skeleton vùng động. Không hiển thị raw backend error hoặc dữ liệu nhạy cảm trong toast.
+- SmartTrọ Home hỗ trợ 0, 1 hoặc nhiều hợp đồng active; nhiều hợp đồng dùng carousel và ưu tiên card sắp hết hạn gần nhất. Ngày trên card là ngày hết hạn; fallback display name là email một dòng có tail ellipsis.
 
 ### 4.4 Quy trình delivery
 
@@ -99,7 +101,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tra cấu hình, đọc trực tiếp provider hoặc environment được ủy quyền.
 
-## 6. Snapshot công việc ngày 2026-10-01
+## 6. Snapshot công việc ngày 2026-10-02
 
 ### SmartTrọ UC-03
 
@@ -115,7 +117,7 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 
 ### Hướng tiếp theo đã chuẩn bị nhưng chưa tự động khởi chạy
 
-- SmartTrọ Home Screen: parent `GLI-69`, các task `GLI-70..75` đang backlog. Home chỉ chứa greeting, active-contract summary khi có và navigation shortcuts; không bao gồm danh sách/tìm kiếm/đề xuất phòng.
+- SmartTrọ Home Screen: parent `GLI-69` đang `in_progress`; `GLI-70` đang `in_review` với PR docs #8; `GLI-71..75` vẫn `backlog`. PO đã chốt living spec/Figma-capture ngày 2026-10-02, nhưng chưa mở gate implementation. Home không chứa room discovery; `D.S.Trọ` chỉ điều hướng tới UC-10.
 - SmartChủ Auth: parent UC-01 `GLI-76`, UC-02 `GLI-83`, UC-03 `GLI-90`; các task con đang backlog. Phải review/chốt docs và Figma trước khi assign Dev.
 
 ## 7. Figma và design handoff
