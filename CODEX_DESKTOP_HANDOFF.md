@@ -70,7 +70,9 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Không dùng fire-and-forget in-memory vì Render restart/scale-down có thể làm mất email.
 - Không lưu/log OTP plaintext trong outbox hoặc audit.
 - Outbox consumer phải xử lý đúng result shape của TypeORM raw query; claim job hiện dùng CTE `UPDATE` kèm final `SELECT`, quarantine payload lỗi và giữ polling error boundary để một job lỗi không làm dừng consumer.
-- Pattern này áp dụng cho mọi quy trình gửi email sau này; hiện ưu tiên Forgot Password rồi Signup. UC-02 Sign In hiện không có email delivery.
+- Shared consumer hiện xử lý cả `password_recovery_email` và `registration_email`; OTP được derive ổn định từ challenge ID để retry cùng job không đổi mã, không lưu OTP plaintext, và job stale bị bỏ qua khi challenge đã được thay thế, verified, consumed hoặc expired.
+- Pattern transactional outbox đã áp dụng cho Forgot Password và Signup. UC-02 Sign In không có email delivery và không thay đổi login contract.
+- Deployment phải bảo đảm đúng một consumer hoạt động: bật `PASSWORD_RECOVERY_OUTBOX_CONSUMER_ENABLED=true` trên đúng một API instance hoặc chạy worker bằng `npm run start:prod:worker`; Docker image mặc định chỉ khởi động renter API.
 
 ### 4.3 UI/mobile
 
@@ -117,7 +119,7 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 ### Email outbox
 
 - `GLI-97` Forgot Password transactional outbox: `done`. PR #14 triển khai foundation đã merge; PR #15 hotfix lỗi claim result đã merge và deploy thành công. Render đang giữ `PASSWORD_RECOVERY_OUTBOX_CONSUMER_ENABLED=true` tại thời điểm xác nhận.
-- `GLI-98` Signup transactional outbox: `backlog`; dependency foundation từ GLI-97 đã hoàn tất nhưng chưa được tự động khởi chạy.
+- `GLI-98` Signup transactional outbox: `done`. PR #16 đã merge vào `smart-platform-services/master` tại `afa8fbb5ebabdf14aa40792dfd4c1a279da83311`; PO xác nhận gửi OTP ban đầu và resend UAT pass ngày 2026-10-06. Không có migration, biến môi trường, service mới hoặc thay đổi UC-02 login.
 - Không mở task tối ưu Login OTP vì UC-02 Sign In hiện không gửi OTP theo living spec.
 
 ### SmartTrọ Home MVP
