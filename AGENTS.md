@@ -29,7 +29,9 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 ## Tách task để giảm context
 
 - Task điều phối gốc giữ quyết định toàn hệ thống và điều phối thứ tự.
-- Task nhánh chỉ nhận: mục tiêu, repo, living spec, quyết định liên quan, acceptance criteria và điều kiện kết thúc.
+- Khi PO yêu cầu bắt đầu một UC/workstream, tạo tối đa một task Codex nhánh cho toàn UC với context tối thiểu.
+- Không tạo thêm task Codex nhánh cho từng task Multica như Dev, QA, defect hoặc gate con; quản lý chúng ngay trong task Codex của UC.
+- Task Codex UC chỉ nhận: mục tiêu, repo, living spec, quyết định liên quan, acceptance criteria và điều kiện kết thúc.
 - Không truyền toàn bộ transcript của task gốc cho task nhánh.
 - Nếu cần làm song song trong cùng repo, dùng worktree/branch riêng để tránh đè working tree.
 
@@ -37,7 +39,7 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 
 Trước khi một task nhánh được coi là hoàn tất, agent phải phát một khối `ROOT_SYNC` theo mẫu tại [`.codex/handoffs/TEMPLATE.md`](.codex/handoffs/TEMPLATE.md).
 
-- Với task Codex: gửi khối này về task điều phối gốc hoặc để trong final answer để task gốc đọc lại.
+- Với task Codex UC: gửi một khối này về task điều phối gốc khi toàn workstream đóng, sau đó task có thể được archive.
 - Với task Multica: thêm khối này vào comment cuối của issue.
 - Chỉ ghi delta tạo ra bởi task, không kể lại toàn bộ project.
 - Task điều phối sau đó kiểm tra commit/PR đã merge, cập nhật `CODEX_DESKTOP_HANDOFF.md` nếu có quyết định bền vững, rồi ghi nhận tại [`.codex/handoffs/ledger.md`](.codex/handoffs/ledger.md).

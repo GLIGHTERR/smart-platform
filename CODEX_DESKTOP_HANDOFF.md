@@ -85,6 +85,8 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 ### 4.4 Quy trình delivery
 
 - Từ các UC mới: tạo task cha theo UC, sau đó tách task con theo vai trò thực tế.
+- Mỗi UC/workstream chỉ dùng một task Codex điều phối; không tạo task Codex nhánh cho từng task Multica Dev/QA/defect/gate con.
+- Các task Multica con được theo dõi và handoff ngay trong task Codex của UC; khi toàn workstream đóng, gửi một `ROOT_SYNC` về Coordinator gốc rồi archive task UC nếu cần.
 - FE/UI được dựng và PO review trước BE. Sau đó mới BE/BE-GAP, integration, QA và UAT.
 - QA ưu tiên web/review environment khi device automation không ổn định hoặc tốn quota; PO test/UAT trên device thật khi cần.
 - Chỉ auto-build Expo khi merge/push vào `master`; không build mỗi push lên branch cá nhân của Dev.
