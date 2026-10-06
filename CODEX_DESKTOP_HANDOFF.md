@@ -1,6 +1,6 @@
 # Smart Platform — Context Handoff
 
-> **Cập nhật:** 2026-10-01
+> **Cập nhật:** 2026-10-06
 >
 > **Vai trò:** Context hub cô đọng cho task điều phối và các task nhánh.
 >
@@ -15,7 +15,7 @@ Luồng đồng bộ:
 ```text
 Task điều phối gốc
   ├─ giao task nhánh bằng context tối thiểu
-  ├─ task nhánh triển khai + kiểm chứng
+  ├─ task nhánh điều phối execution plane + kiểm chứng
   ├─ task nhánh phát ROOT_SYNC khi đóng
   └─ task gốc đọc delta + commit đã merge, rồi cập nhật handoff/ledger
 ```
@@ -90,6 +90,9 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Chỉ auto-build Expo khi merge/push vào `master`; không build mỗi push lên branch cá nhân của Dev.
 - Không merge/deploy tự động nếu task chỉ yêu cầu tạo PR hoặc handoff review.
 - Sau merge, xóa branch ngắn hạn. Nếu sau này có `develop`/`staging`, policy sẽ được chốt lại.
+- SmartTrọ Home MVP đã chốt là FE-only với mockable data; không tạo Home BE/API hoặc integration follow-up.
+- Task docs/requirements/living-spec/scope-decision có final assignee là PO.
+- Task có BA/PO UAT được trả assignee về PO sau khi disposition đã được ghi nhận.
 
 ## 5. Hạ tầng đã dùng
 
@@ -101,7 +104,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tra cấu hình, đọc trực tiếp provider hoặc environment được ủy quyền.
 
-## 6. Snapshot công việc ngày 2026-10-02
+## 6. Snapshot công việc ngày 2026-10-06
 
 ### SmartTrọ UC-03
 
@@ -115,10 +118,17 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 - `GLI-98` Signup transactional outbox: `backlog`; dependency foundation từ GLI-97 đã hoàn tất nhưng chưa được tự động khởi chạy.
 - Không mở task tối ưu Login OTP vì UC-02 Sign In hiện không gửi OTP theo living spec.
 
-### Hướng tiếp theo đã chuẩn bị nhưng chưa tự động khởi chạy
+### SmartTrọ Home MVP
 
-- SmartTrọ Home Screen: parent `GLI-69` đang `in_progress`; `GLI-70` đã `done` sau khi PR #8 merge tại `57850e5bfe0854ad934e55304af2670f7fc5563c`; `GLI-71` được mở gate theo lệnh PO ngày 2026-10-02, còn `GLI-72..75` vẫn `backlog`. Home không chứa room discovery; `D.S.Trọ` chỉ điều hướng tới UC-10.
-- SmartChủ Auth: parent UC-01 `GLI-76`, UC-02 `GLI-83`, UC-03 `GLI-90`; các task con đang backlog. Phải review/chốt docs và Figma trước khi assign Dev.
+- Workstream `GLI-69` / `GLI-71` đã đóng. `GLI-69`, `GLI-70`, `GLI-71`, `GLI-74`, `GLI-75`, `GLI-99`, `GLI-100`, `GLI-101`, `GLI-102`, `GLI-103`, `GLI-104`: `done`; `GLI-72`, `GLI-73`: `cancelled` vì Home MVP không có BE/API integration.
+- Docs đã merge qua `GLIGHTERR/smart-platform` PR #8 tại `57850e5bfe0854ad934e55304af2670f7fc5563c`.
+- SmartTrọ implementation và defect fixes đã merge qua PR #21 đến #27; commit cuối được PO chấp nhận là `4b0c794e21234f0303c8b637d80abc85017d0f62`.
+- GitHub CI/Pages và Web QA đã pass. EAS Android preview `048156d7-d3b2-444a-b1bc-f0ac5b3f5920` đã được PO UAT trên thiết bị thật và xác nhận pass.
+- Không có open risk, replacement task hoặc Home follow-up. Không mở lại workstream nếu PO không yêu cầu.
+
+### Hướng tiếp theo chưa tự động khởi chạy
+
+- SmartChủ Auth: parent UC-01 `GLI-76`, UC-02 `GLI-83`, UC-03 `GLI-90`; phải kiểm tra trạng thái động, review/chốt docs và Figma trước khi giao work qua Multica.
 
 ## 7. Figma và design handoff
 
