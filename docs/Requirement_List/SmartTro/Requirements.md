@@ -30,6 +30,19 @@
 | Deploy date | 09/06/2025 |
 | Code Version | 1 |
 
+#### Cập nhật ngày 2026-10-08 — baseline G0
+
+`SM001` dùng flow bắt buộc: **Email -> OTP -> Thông tin cá nhân -> Mật khẩu -> Sign In**. Living specification chuẩn là [`UC-01-sign-up.md`](../../SRS/SmartTro/use-cases/UC-01-sign-up.md); nội dung lịch sử trong XLSX hoặc Change Request không được ghi đè baseline này.
+
+- Email normalized là định danh đăng nhập duy nhất. OTP gồm 6 chữ số qua email; resend cooldown 60 giây theo timestamp backend, tối đa 5 lần/giờ/email và OTP mới vô hiệu OTP cũ.
+- Bước Thông tin cá nhân thu thập `Họ và tên (bắt buộc)` và SĐT tùy chọn. Full name trim + collapse whitespace lặp, không rỗng sau normalize và không bắt buộc hai từ. Phone nullable, non-unique, không phải login identifier và chỉ validate khi có nhập.
+- Chỉ `Tạo tài khoản` ở bước Mật khẩu tạo/persist user, displayName và phone. Đăng ký thành công trở về Sign In, không auto-login.
+- Đổi email từ OTP xóa OTP UI và prefill email cũ. Backend chỉ supersede/invalidate challenge cũ và tạo challenge/outbox mới atomically khi email normalized mới khác và request thành công; email không đổi reuse attempt/cooldown, không resend tự động.
+- Back từ Mật khẩu xóa cả password và confirm password, giữ name/phone. Home ưu tiên full name, fallback email cho dữ liệu legacy/missing.
+- Accessibility: touch target tối thiểu 48 px, contrast accessible; CTA các màn mới dùng màu và viền xanh theo mockup, đồng thời có focus state thật. Wording social button màn Email hiện tại không đổi.
+- Visual baseline cập nhật: màn Email giữ nguyên; các màn OTP, Thông tin cá nhân và Mật khẩu bỏ social-account stack cùng redirect Sign In. Màn Thông tin cá nhân dùng placeholder `Họ và tên (bắt buộc)`, `Số điện thoại (không bắt buộc)` và CTA `Tiếp tục`; màn Mật khẩu dùng `Tạo tài khoản` và `Quay lại` theo mockup PO ngày 2026-10-08.
+- Gate delivery: **G0 Docs -> G1 FE -> PO review -> G2 BE -> G3 Integration -> G4 QA -> G5 UAT**. Không mở G1 trước khi PR docs merge và PO duyệt baseline. Các PR pre-baseline `smart-tro#31` và `smart-platform-services#18` không được merge theo baseline này.
+
 ### SM002 — Đăng nhập
 
 | Trường | Giá trị |
