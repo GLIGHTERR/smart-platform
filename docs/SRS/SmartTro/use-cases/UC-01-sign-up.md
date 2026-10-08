@@ -376,8 +376,9 @@ Mục này là phần cập nhật hiện hành cho các nội dung mâu thuẫn
 
 Flow chuẩn thay cho flow ba bước tại mục 2 và mục 5 là: **Email -> OTP -> Thông tin cá nhân -> Mật khẩu -> Sign In**. Email đã normalize vẫn là định danh đăng nhập duy nhất. Đăng ký thành công quay về Sign In và không auto-login.
 
-- Giữ nguyên wording social button hiện có. Social auth không được suy diễn là đã hoạt động.
-- Capture Email, OTP và Mật khẩu ở mục 3.1 vẫn là baseline visual cho các màn tương ứng. Chưa có capture/mockup được duyệt cho màn Thông tin cá nhân; G1 phải trình capture/mockup màn này để PO review, không tự suy diễn visual mới trong G0.
+- Màn Email giữ nguyên toàn bộ composition hiện có, gồm wording social button và lối sang Sign In.
+- Các màn OTP, Thông tin cá nhân và Mật khẩu bỏ social-account stack và lối redirect Sign In. Social auth không được suy diễn là đã hoạt động.
+- Mockup PO cung cấp ngày 2026-10-08 là visual baseline mới cho Thông tin cá nhân và Mật khẩu; source attachment là `01a11998-5aba-7ac1-a316-69974b7b4ee2` và `01a11998-adc5-7e32-9619-ebb4311ba7e9`. Capture Email ở mục 3.1 vẫn giữ nguyên.
 - Các PR pre-baseline `smart-tro#31` và `smart-platform-services#18` không được merge/reuse nguyên trạng cho flow này.
 
 ### 15.2. Bước Thông tin cá nhân
@@ -388,6 +389,18 @@ Sau khi OTP hợp lệ, ứng dụng chuyển sang bước Thông tin cá nhân,
 - SĐT là tùy chọn, nullable, non-unique; không là login identifier và không nhận OTP. Chỉ validate format khi người dùng nhập; nếu bỏ trống, payload gửi `null`.
 - Name và phone chỉ được giữ trong memory của flow. Chỉ `Tạo tài khoản` ở bước Mật khẩu mới tạo/persist account, `displayName` và `phone`.
 - Back từ Mật khẩu về Thông tin cá nhân xóa cả password và confirm password, nhưng giữ name/phone.
+- Placeholder lần lượt là `Họ và tên (bắt buộc)` và `Số điện thoại (không bắt buộc)`; required/optional behavior phải follow đúng placeholder này.
+- CTA duy nhất là `Tiếp tục`, nền trắng, label màu cam và viền xanh theo mockup; không hiển thị social stack hoặc redirect Sign In.
+
+![Mockup Thông tin cá nhân ngày 2026-10-08](../../../FRS/SmartTro/assets/auth/sign-up-personal-info-2026-10-08.png)
+
+### 15.2.1. Màn OTP và Mật khẩu theo mockup mới
+
+- Màn OTP vẫn giữ input OTP, resend và CTA theo policy tại mục 15.3, nhưng bỏ social-account stack và redirect Sign In.
+- Màn Mật khẩu dùng hai placeholder `Mật khẩu` và `Nhập lại mật khẩu`; CTA chính là `Tạo tài khoản` với nền trắng, label màu cam và viền xanh theo mockup.
+- CTA phụ `Quay lại` trở về Thông tin cá nhân, dùng label trắng trên nền cam với viền xanh theo mockup. Không hiển thị social stack hoặc redirect Sign In.
+
+![Mockup Mật khẩu ngày 2026-10-08](../../../FRS/SmartTro/assets/auth/sign-up-password-2026-10-08.png)
 
 ### 15.3. State, đổi email và resend
 
@@ -415,6 +428,6 @@ email_input -> requesting_otp -> otp_input -> verifying_otp
 
 ### 15.5. Accessibility, kiểm thử và gate
 
-- Button/touch target tối thiểu 48 px, contrast accessible; blue outline chỉ được xuất hiện ở focus state thật.
+- Button/touch target tối thiểu 48 px và contrast accessible. CTA của các màn mới dùng nền, label và viền xanh đúng mockup PO; focus state phải bổ sung chỉ dấu truy cập thật, không chỉ dựa vào màu.
 - Bổ sung test cho name valid/trim/collapse, null/rỗng/whitespace-only; phone empty/valid/invalid; OTP invalid/expired/resend; đổi/không đổi email; back navigation; duplicate completion/race; network retry; không lộ secret trong log/storage. Giữ regression Email, OTP, password, Sign In, password recovery và Home greeting.
 - Chuỗi gate thay cho mục 4.2 và 14: **G0 Docs -> G1 FE -> PO review -> G2 BE -> G3 Integration -> G4 QA -> G5 UAT**. Chỉ mở G1 sau khi PR docs merge và PO phê duyệt baseline; G2-G5 giữ đóng tới khi gate trước hoàn tất.

@@ -39,7 +39,8 @@
 - Chỉ `Tạo tài khoản` ở bước Mật khẩu tạo/persist user, displayName và phone. Đăng ký thành công trở về Sign In, không auto-login.
 - Đổi email từ OTP xóa OTP UI và prefill email cũ. Backend chỉ supersede/invalidate challenge cũ và tạo challenge/outbox mới atomically khi email normalized mới khác và request thành công; email không đổi reuse attempt/cooldown, không resend tự động.
 - Back từ Mật khẩu xóa cả password và confirm password, giữ name/phone. Home ưu tiên full name, fallback email cho dữ liệu legacy/missing.
-- Accessibility: touch target tối thiểu 48 px, contrast accessible, không có blue outline trừ focus state thật. Wording social button hiện tại không đổi.
+- Accessibility: touch target tối thiểu 48 px, contrast accessible; CTA các màn mới dùng màu và viền xanh theo mockup, đồng thời có focus state thật. Wording social button màn Email hiện tại không đổi.
+- Visual baseline cập nhật: màn Email giữ nguyên; các màn OTP, Thông tin cá nhân và Mật khẩu bỏ social-account stack cùng redirect Sign In. Màn Thông tin cá nhân dùng placeholder `Họ và tên (bắt buộc)`, `Số điện thoại (không bắt buộc)` và CTA `Tiếp tục`; màn Mật khẩu dùng `Tạo tài khoản` và `Quay lại` theo mockup PO ngày 2026-10-08.
 - Gate delivery: **G0 Docs -> G1 FE -> PO review -> G2 BE -> G3 Integration -> G4 QA -> G5 UAT**. Không mở G1 trước khi PR docs merge và PO duyệt baseline. Các PR pre-baseline `smart-tro#31` và `smart-platform-services#18` không được merge theo baseline này.
 
 ### SM002 — Đăng nhập
