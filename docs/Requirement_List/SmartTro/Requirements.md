@@ -30,7 +30,7 @@
 | Deploy date | 09/06/2025 |
 | Code Version | 1 |
 
-#### Baseline PO_REBASELINE G0 — 2026-10-07
+#### Cập nhật ngày 2026-10-08 — baseline G0
 
 `SM001` dùng flow bắt buộc: **Email -> OTP -> Thông tin cá nhân -> Mật khẩu -> Sign In**. Living specification chuẩn là [`UC-01-sign-up.md`](../../SRS/SmartTro/use-cases/UC-01-sign-up.md); nội dung lịch sử trong XLSX hoặc Change Request không được ghi đè baseline này.
 

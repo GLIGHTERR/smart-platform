@@ -1,204 +1,420 @@
-# SmartTro — UC-01 Đăng ký
+# SmartTrọ — Sign Up UI Implementation Specification
 
-## Trạng thái và phạm vi
+## 1. Trạng thái tài liệu
 
 | Thuộc tính | Giá trị |
 | --- | --- |
-| Baseline | **PO_REBASELINE — G0 DOCS**, 2026-10-07 |
-| Owner quyết định | PO |
-| Flow chuẩn | Email -> OTP -> Thông tin cá nhân -> Mật khẩu -> Sign In |
-| Điều kiện mở Dev | PR docs đã merge và PO duyệt baseline |
+| Trạng thái nghiệp vụ | **Approved** |
+| Trạng thái bàn giao PM | **Ready — đã xác minh Figma và xuất capture email ngày 2026-09-16** |
+| Phạm vi | Luồng đăng ký SmartTrọ bằng email, OTP email và mật khẩu |
+| Nền tảng | React Native + Expo cho iOS, Android và Expo Web preview |
+| Dữ liệu ở giai đoạn UI | Mock trong bộ nhớ; chưa gọi API và chưa gửi email thật |
+| Ngày lập | 2026-09-15 |
+| Ngày cập nhật quyết định email | 2026-09-16 |
+| Ngày cập nhật typography sau GLI-48 | 2026-09-17 |
+| Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D20` |
 
-PO_REBASELINE thay thế toàn bộ PM_DECISION trước đây của GLI-114. Không sửa code hoặc merge/deploy hai PR pre-baseline `smart-tro#31` và `smart-platform-services#18`. Hai PR này phải được đánh giá lại sau G0, không phải bằng chứng cho baseline hiện hành.
+Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
 
-Email đã normalize là định danh đăng nhập duy nhất. Số điện thoại là dữ liệu liên hệ tùy chọn, nullable, non-unique; không là login identifier và không nhận OTP. Đăng ký thành công quay về Sign In, không auto-login.
+Tài liệu và capture hiện đã khớp với luồng email. PM, Dev và QA phải dùng trực tiếp tài liệu UC này cho Sign Up SmartTrọ. Các policy backend còn mở được ghi ngay trong UC này; không dùng một tài liệu quyết định Auth Identity trung gian.
 
-## Quyết định PO bắt buộc
+## 2. Mục tiêu và kết quả mong đợi
 
-| ID | Quyết định |
-| --- | --- |
-| SU-G0-01 | Hiển thị label đúng `Họ và tên (bắt buộc)`. Normalize bằng trim đầu/cuối và collapse khoảng trắng lặp; sau normalize không được rỗng. Một từ vẫn hợp lệ. |
-| SU-G0-02 | SĐT tùy chọn; chỉ validate khi người dùng nhập, không dùng để login, OTP hoặc uniqueness. |
-| SU-G0-03 | Thu thập full name + SĐT tại bước riêng sau OTP. Chỉ tạo/persist account khi chọn `Tạo tài khoản` ở bước Mật khẩu. |
-| SU-G0-04 | Home ưu tiên full name; email là fallback cho dữ liệu legacy/missing. |
-| SU-G0-05 | Đổi email từ OTP: FE xóa OTP đang nhập, về Email với email cũ prefill; không xóa vật lý challenge/outbox. |
-| SU-G0-06 | Chỉ khi email normalized mới khác và request thành công, backend atomically supersede/invalidate challenge cũ và tạo challenge/outbox mới. Email không đổi reuse attempt/cooldown hợp lệ, không resend tự động. |
-| SU-G0-07 | Back từ Mật khẩu về Thông tin cá nhân xóa password + confirm password, giữ name/phone. |
-| SU-G0-08 | Resend cooldown 60 giây theo absolute backend timestamp; resend thành công vô hiệu OTP cũ; tối đa 5 lần/giờ/email. |
-| SU-G0-09 | Button/touch target tối thiểu 48 px, contrast accessible; blue outline chỉ cho focus state thật. |
-| SU-G0-10 | Giữ nguyên wording social button hiện tại; social auth không được suy diễn là hoạt động. |
+Luồng đăng ký gồm ba bước:
 
-## State machine và dữ liệu
+1. Nhập email và yêu cầu mã OTP.
+2. Nhập mã OTP 6 chữ số nhận qua email.
+3. Tạo mật khẩu, xác nhận mật khẩu và hoàn tất đăng ký.
+
+Sau khi đăng ký thành công, ứng dụng chuyển về Sign In và không tự đăng nhập.
+
+Kết quả cần đạt:
+
+- Email được chuẩn hóa và dùng làm định danh unique của tài khoản MVP.
+- Người dùng phải xác minh quyền sở hữu email trước khi đặt mật khẩu.
+- Luồng UI giữ nguyên trạng thái không nhạy cảm khi người dùng chuyển sang ứng dụng email rồi quay lại.
+- OTP, mật khẩu và xác nhận mật khẩu không được ghi vào persistent storage, route parameters hoặc log.
+- UI bám Figma sau khi phần chữ được cập nhật sang email; Dev không chép React/Tailwind do Figma sinh ra.
+- Giai đoạn review UI có mock gateway rõ ràng và không tạo business rule ngầm.
+
+## 3. Nguồn và thứ tự ưu tiên
+
+### 3.1. Nguồn thiết kế
+
+Figma file `Smart Platform`, file key `rsjbGO3ul8lzKKKTj38r0t`, page `SmartTrọ`.
+
+| Bước | Figma node hiện có | Trạng thái sử dụng |
+| --- | --- | --- |
+| Nhập email | `237:1161` — `Sign Up (Input Email) - iPhone` | **Ready** — label `Email`, action `Gửi OTP` |
+| Nhập OTP | `237:1137` — `Sign Up (Input OTP) - iPhone` | **Ready** — OTP và resend đã hiển thị |
+| Tạo mật khẩu | `237:1185` — `Sign Up (Input Password) - iPhone` | **Ready** — mật khẩu, xác nhận mật khẩu và action đăng ký |
+
+Capture baseline đã xuất từ đúng page `SmartTrọ` ngày 2026-09-16 và đặt tại `docs/assets/smarttro-auth/`:
+
+- `sign-up-email.png`.
+- `sign-up-otp.png`.
+- `sign-up-password.png`.
+
+Các file cũ trong `docs/assets/smarttro-sign-up/` chỉ là lịch sử và không còn là baseline nội dung.
+
+#### Capture 1 — Nhập email
+
+![SmartTrọ Sign Up — nhập email](../../../FRS/SmartTro/assets/auth/sign-up-email.png)
+
+#### Capture 2 — Nhập OTP email
+
+![SmartTrọ Sign Up — nhập OTP email](../../../FRS/SmartTro/assets/auth/sign-up-otp.png)
+
+#### Capture 3 — Tạo mật khẩu
+
+![SmartTrọ Sign Up — tạo mật khẩu](../../../FRS/SmartTro/assets/auth/sign-up-password.png)
+
+### 3.2. Nguồn requirement
+
+- Quyết định PO ngày 2026-09-16 trong tài liệu này.
+- `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md` cho hành vi điều hướng và đăng nhập sau khi đăng ký.
+- `Requirement_List/Requirements List - SmartTrọ.xlsx`, `SM001`.
+- `User_Stories/User Story - SmartTrọ.xlsx`, sheet `Đăng kýĐăng nhập`, User Story `1.0`.
+- `SRS/SRS (SmartTrọ).docx`, UC Sign Up sau khi cập nhật.
+
+Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong `Activity_Diagrams/`. Các bản `By Phone` chỉ là lịch sử và không còn là baseline MVP.
+
+### 3.3. Quy tắc khi có mâu thuẫn
+
+1. Quyết định PO mới nhất trong task/comment.
+2. Tài liệu UC hiện tại; với hành vi chuyển sang Sign In, dùng thêm `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md`.
+3. Markdown handoff mới nhất trong `docs/`.
+4. Requirement List, User Story và SRS đã cập nhật.
+5. Figma cho phần trình bày trực quan.
+6. Code foundation cho convention kỹ thuật.
+
+Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, capture Figma tại mục 3.1 là baseline bắt buộc. Foundation chỉ được ưu tiên khi Figma không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
+
+Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giải quyết được, PM phải comment vào task và tag PO để chốt trước khi giao Dev.
+
+## 4. Quyết định và câu hỏi của UC
+
+### 4.1. Quyết định đã phê duyệt
+
+| ID | Quyết định | Trạng thái |
+| --- | --- | --- |
+| SIGNUP-D01 | Dùng Be Vietnam Pro cho SmartTrọ Auth: `400Regular` cho input/placeholder/body/helper/notice/error và `600SemiBold` cho title/action/link/separator/social label | Approved, revised after GLI-48 on 2026-09-17 |
+| SIGNUP-D02 | Dùng palette accessible đã duyệt: `#A84300` cho text/action trên nền sáng; `#B84D00` chỉ là filled-primary fallback khi một state thực sự cần button nền đặc. Happy-path Auth giữ white CTA + outline + orange text theo Figma | Approved, refined 2026-09-16 |
+| SIGNUP-D03 | Social sign-up chỉ visual-only ở review build; production mặc định ẩn đến khi có task riêng | Approved |
+| SIGNUP-D04 | Resend OTP ở UI mock có cooldown 60 giây; backend là nguồn policy thật | Approved |
+| SIGNUP-D05 | Đăng ký thành công quay về Sign In; không auto-login | Approved |
+| SIGNUP-D06 | Áp dụng toàn bộ sai khác accessibility `UI-D01` đến `UI-D07` | Approved |
+| SIGNUP-D07 | Định danh Sign Up MVP đổi từ số điện thoại sang email; email normalized là unique login identifier | Approved |
+| SIGNUP-D08 | OTP gồm 6 chữ số và gửi qua email; không dùng verification link trong MVP | Approved |
+| SIGNUP-D09 | OTP hết hạn sau 10 phút | Approved 2026-09-16 |
+| SIGNUP-D10 | Mỗi OTP cho phép tối đa 5 lần nhập sai; sau đó challenge bị vô hiệu hóa và người dùng phải yêu cầu OTP mới | Approved 2026-09-16 |
+| SIGNUP-D11 | Resend cách nhau tối thiểu 60 giây, tối đa 5 lần/giờ/email; backend phải có thêm giới hạn IP/device chống abuse | Approved 2026-09-16 |
+| SIGNUP-D12 | Endpoint công khai dùng response generic, không xác nhận riêng email đã tồn tại; UI cung cấp lối sang Sign In | Approved 2026-09-16 |
+| SIGNUP-D13 | Email provider được bọc sau adapter; chưa khóa vendor trong requirement nghiệp vụ | Approved 2026-09-16 |
+| SIGNUP-D14 | Capture Figma là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16 |
+| SIGNUP-D15 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
+| SIGNUP-D16 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
+| SIGNUP-D17 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
+| SIGNUP-D18 | Be Vietnam Pro và brand icon phải dùng asset/package được quản lý trong repo; chỉ import weight thực sự dùng; không dùng emoji, ký tự thay thế, icon gần giống hoặc system-font fallback cho application content | Approved 2026-09-16, revised after GLI-48 on 2026-09-17 |
+| SIGNUP-D19 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
+| SIGNUP-D20 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
+
+### 4.2. Thứ tự triển khai đã phê duyệt
+
+1. Triển khai FE bằng mock gateway.
+2. Deploy preview để PO kiểm tra UI, responsive behavior và flow.
+3. Chỉ sau khi PO phê duyệt preview mới bắt đầu task backend production.
+4. Khi triển khai backend, các giá trị `SIGNUP-D09` đến `SIGNUP-D13` phải được đưa vào API contract/config và test; FE không được dùng mock để thay thế policy production.
+
+## 5. Luồng nghiệp vụ chuẩn
+
+### 5.1. Bước Email
+
+1. Người dùng mở Sign Up.
+2. Nhập email.
+3. Ứng dụng trim khoảng trắng và lowercase phần dùng để so khớp/unique.
+4. FE kiểm tra định dạng cơ bản.
+5. Người dùng chọn `Gửi mã OTP`.
+6. Mock/API tạo một signup attempt và gửi OTP tới email.
+7. Ứng dụng chuyển sang bước OTP.
+
+### 5.2. Bước OTP
+
+1. Hiển thị email đã mask để người dùng biết mã được gửi tới đâu.
+2. Người dùng nhập đúng 6 chữ số.
+3. Người dùng chọn `Tiếp tục`.
+4. Nếu OTP hợp lệ, chuyển sang bước tạo mật khẩu.
+5. Nếu OTP sai/hết hạn, giữ người dùng ở bước OTP và hiển thị lỗi phù hợp.
+6. `Gửi lại mã` chỉ khả dụng sau cooldown; OTP mới làm OTP cũ mất hiệu lực khi backend thật được triển khai.
+
+### 5.3. Bước Mật khẩu
+
+1. Nhập mật khẩu và xác nhận mật khẩu.
+2. FE kiểm tra tối thiểu 8 ký tự, ít nhất một chữ hoa, một chữ số và một ký tự đặc biệt theo requirement hiện tại.
+3. Hai giá trị phải trùng nhau.
+4. Khi hoàn tất thành công, tài khoản được tạo ở trạng thái email đã xác minh.
+5. Hiển thị success feedback và chuyển về Sign In, điền sẵn email nếu an toàn nhưng không điền mật khẩu.
+
+## 6. Trạng thái và dữ liệu UI
+
+### 6.1. State machine
 
 ```text
 email_input
-  -> requesting_otp -> otp_input -> verifying_otp
+  -> requesting_otp
+  -> otp_input
+  -> verifying_otp
+  -> password_input
+  -> creating_account
+  -> success
+  -> sign_in
+```
+
+Các trạng thái lỗi quay lại bước hiện tại; không nhảy cóc bước và không tạo tài khoản trước khi email được xác minh.
+
+### 6.2. Trạng thái được phép khôi phục
+
+Để người dùng chuyển sang ứng dụng email rồi quay lại mà không bị dựng lại từ đầu, có thể persist:
+
+- `signupAttemptId` không chứa secret.
+- `normalizedEmail`.
+- `currentStep`.
+- `otpRequestedAt`.
+- `otpExpiresAt` khi backend trả về.
+- `resendAvailableAt`.
+
+Không persist:
+
+- OTP.
+- Password.
+- Confirm password.
+- Access/refresh token trước khi tài khoản được tạo thành công.
+
+Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một biến trong memory. Khi app resume, UI tính lại thời gian còn lại từ `resendAvailableAt`/`otpExpiresAt`.
+
+### 6.3. Back, close và resume
+
+- Back từ Password về OTP: xóa password và confirm password.
+- Back từ OTP về Email: xóa OTP; giữ email để sửa.
+- Rời flow: xóa toàn bộ dữ liệu nhạy cảm; attempt có thể được resume theo policy backend nếu còn hiệu lực.
+- App background/foreground: giữ step và email; không reload/reset UI chỉ vì người dùng mở ứng dụng email.
+- Attempt hết hạn khi resume: thông báo rõ và đưa người dùng về bước Email hoặc cho gửi lại mã theo policy.
+
+## 7. UI specification
+
+### 7.1. Cấu trúc chung
+
+- Dùng `SafeAreaView`/safe-area thật; không vẽ status bar hoặc home indicator giả.
+- Container chính scroll được khi bàn phím mở và trên màn hình thấp.
+- Primary button có chiều cao/vùng chạm tối thiểu 48 px.
+- Be Vietnam Pro là font đã duyệt cho SmartTrọ Auth: `400Regular` cho input/placeholder/body/helper/notice/error và `600SemiBold` cho title/action/link/separator/social label. UI phải chờ font load trước khi render evidence; không dùng system fallback cho application content trong screenshot review.
+- Không dùng màu cam cũ có contrast thấp cho text/action. Happy-path CTA giữ white surface + outline + orange action text theo capture; không đổi thành solid rust button.
+- Nền màn hình là orange brand surface toàn màn như capture; không bọc form trong white card, không thêm kicker, subtitle hoặc decorative component ngoài baseline nếu chưa được PO duyệt.
+- Title, input, CTA, separator `Hoặc`, social buttons và account link phải giữ đúng thứ tự, alignment và visual hierarchy của capture.
+- Quy tắc chiều rộng mobile:
+  - viewport `320–359 px`: padding ngang `20 px`;
+  - viewport `360–399 px`: padding ngang `40 px`;
+  - viewport `400–430 px`: padding ngang `48 px`;
+  - form/social stack rộng `100%` trong vùng trên và không vượt `334 px`.
+- `375 × 812` là baseline screenshot. Bắt buộc kiểm tra thêm `320 × 568`, `390 × 844` và `430 × 932`; không được clip CTA, link hoặc nội dung khi font scaling mặc định và khi bàn phím mở.
+- Với Expo Web có viewport lớn hơn `430 px`, canvas mobile rộng tối đa `430 px`, `min-height: 100dvh` và căn giữa. Phần ngoài canvas chỉ dùng neutral backdrop hoặc cùng orange surface; không kéo form thành desktop layout.
+- Landscape/tablet ngoài baseline chỉ cần giữ một cột dễ đọc, căn giữa, không overflow; desktop/tablet composition riêng nằm ngoài scope.
+
+### 7.2. Bước Email
+
+- Title hiển thị: `Đăng ký`.
+- Không hiển thị external label ở happy path; dùng placeholder `Email` theo capture và accessibility label riêng cho screen reader.
+- Placeholder: `Email`.
+- Keyboard/content type: email address; tắt auto-capitalize; cho phép paste.
+- Primary action hiển thị: `Gửi OTP`.
+- Link phụ: `Đã có tài khoản? Đăng nhập`.
+- Sau primary action phải có separator `Hoặc`, ba social buttons theo đúng thứ tự Facebook, Google, Apple rồi mới tới account link.
+- Inline error tối thiểu: trống, sai định dạng, email đã tồn tại, lỗi gửi mã.
+- Không dùng thông báo khác nhau để tiết lộ email đã tồn tại ở endpoint công khai nếu backend chọn generic anti-enumeration response; contract cụ thể phải được chốt ở task backend.
+
+### 7.3. Bước OTP
+
+- Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Xác thực email`.
+- Helper: `Nhập mã 6 chữ số đã gửi tới <email đã mask>`.
+- OTP chỉ nhận chữ số, tối đa 6 ký tự, cho phép paste toàn bộ mã.
+- Primary action: `Tiếp tục` disabled khi chưa đủ 6 số hoặc đang verify.
+- Secondary action: `Gửi lại mã` cùng countdown.
+- Happy-path composition vẫn giữ title `Đăng ký`, OTP input, action `Gửi lại mã OTP`, action `Tiếp tục`, separator/social stack và account link như capture; helper/error/countdown được chèn gần OTP field mà không đổi style tổng thể.
+- Lỗi tối thiểu: mã sai, mã hết hạn, vượt giới hạn thử, resend thất bại.
+
+### 7.4. Bước Mật khẩu
+
+- Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Tạo mật khẩu`.
+- Hai field: `Mật khẩu` và `Xác nhận mật khẩu`.
+- Có show/hide password và accessibility label.
+- Hiển thị rule mật khẩu trước khi submit; không chỉ báo lỗi sau cùng.
+- Primary action: `Đăng ký`.
+- Happy-path composition giữ title `Đăng ký`, hai field, primary action, separator/social stack và account link theo capture.
+- Không lưu password khi back, close hoặc app bị kill.
+
+## 8. Validation và error contract tối thiểu
+
+| Tình huống | Kết quả UI |
+| --- | --- |
+| Email trống/sai định dạng | Không gửi request; hiển thị lỗi inline |
+| Email đã có tài khoản | Hiển thị thông báo theo contract anti-enumeration được backend chốt; có lối sang Sign In |
+| Gửi OTP thất bại | Giữ email và cho retry an toàn |
+| OTP chưa đủ 6 số | Disable `Tiếp tục` |
+| OTP sai | Xóa/đánh dấu field theo thiết kế; giữ ở bước OTP |
+| OTP hết hạn | Cho resend theo policy; không sang Password |
+| Password không đạt rule | Hiển thị rule chưa đạt; không submit |
+| Confirm password không khớp | Lỗi tại confirm field |
+| Tạo tài khoản trùng do race condition | Không tạo user thứ hai; hướng dẫn Sign In/khôi phục tài khoản |
+| Mất mạng | Giữ state không nhạy cảm, cho retry, không gửi lặp ngầm |
+
+## 9. Technical mapping cho repository `smart-tro`
+
+Giữ implementation theo foundation hiện có. Nếu tên thư mục khác, Dev phải map theo convention repo, không tạo kiến trúc song song chỉ để khớp spec.
+
+Tách tối thiểu:
+
+- Screen/container cho từng bước hoặc một flow container với step components rõ ràng.
+- Validation schema cho email/password.
+- `SignUpGateway` interface tách mock khỏi API thật.
+- Auth flow state có thể restore phần không nhạy cảm.
+- Shared input/button/token từ design foundation.
+
+Mock gateway tối thiểu:
+
+- request OTP thành công.
+- invalid/expired OTP.
+- duplicate email.
+- create account thành công/thất bại.
+- resend cooldown 60 giây.
+
+## 10. Accessibility và khác biệt có chủ đích với Figma
+
+| ID | Vấn đề của frame cũ | Quyết định triển khai |
+| --- | --- | --- |
+| UI-D01 | Button thấp hơn vùng chạm an toàn | Vùng chạm tối thiểu 48 px |
+| UI-D02 | Chữ trắng trên cam cũ contrast thấp | Happy-path Auth dùng white CTA + outline + `#A84300` text như capture; `#B84D00` chỉ dùng cho filled-primary fallback đã kiểm tra contrast |
+| UI-D03 | Text cam cũ trên nền trắng contrast thấp | Dùng `#A84300` cho text/action |
+| UI-D04 | OTP không nói mã gửi tới đâu | Hiển thị email đã mask |
+| UI-D05 | Thiếu resend/error/loading state | Bổ sung đầy đủ state vận hành |
+| UI-D06 | Frame vẽ OS chrome | Dùng OS/safe-area thật |
+| UI-D07 | Social button trông như hoạt động | Review visual-only; production ẩn bằng feature flag |
+
+## 11. Kiểm thử bắt buộc trước PR
+
+Dev phải tự lập test cases và chạy unit/component tests cho phần mình thay đổi. Coverage 100% áp dụng cho logic mới của flow Sign Up thuộc phạm vi task; không dùng con số coverage để thay thế test hành vi.
+
+Tối thiểu phải có:
+
+- Email trim/lowercase/format validation.
+- OTP trống, ngắn, đủ 6 số, ký tự không phải số, paste 6 số.
+- Password rule và confirm mismatch.
+- Email → OTP → Password → Success → Sign In.
+- Back/resume/background và attempt hết hạn.
+- Duplicate email và retry sau network failure.
+- Không có OTP/password trong route params, log hoặc storage.
+- Accessibility label, focus order, keyboard behavior và vùng chạm.
+- Visual regression/manual screenshot ở `375 × 812` cho đủ ba bước, đối chiếu trực tiếp với ba capture tại mục 3.1.
+- Responsive smoke test ở `320 × 568`, `390 × 844`, `430 × 932` và web viewport lớn hơn `430 px`; không clip, không horizontal scroll, không kéo canvas thành desktop form.
+- Social buttons hiển thị đúng asset/thứ tự ở review build, không thực hiện OAuth và bị ẩn khi production flag tắt.
+
+## 12. Out of scope của UC hiện tại
+
+- Email provider thật và template email production.
+- Backend OTP/email provider production trước khi PO duyệt FE preview.
+- Social/OAuth account linking.
+- Đổi email, quên mật khẩu và account recovery.
+- Xác thực số điện thoại.
+- Auto-login sau đăng ký.
+
+## 13. Definition of Done
+
+- Ba bước hoạt động đúng với mock gateway trên mobile và Expo Web preview.
+- UI bám capture Figma mới đã đổi sang email, các quyết định `SIGNUP-D14` đến `SIGNUP-D20` và các khác biệt `UI-D01` đến `UI-D07`.
+- Có screenshot evidence ở `375 × 812`; sai lệch spacing/alignment/radius trong happy path không vượt quá `4 px`, trừ khác biệt safe-area/OS chrome và accessibility đã ghi rõ.
+- Responsive checks `320 × 568`, `390 × 844`, `430 × 932` pass.
+- State restore không làm lộ hoặc persist OTP/password.
+- Unit/component tests cho logic mới đạt 100% coverage và tất cả test pass.
+- Lint/typecheck pass.
+- PR mô tả test evidence, preview URL/build và các deviation còn lại.
+- PM/PO review UI trên build từ code đã merge; QA chỉ test sau khi PR merge và môi trường review/develop dùng đúng merge SHA.
+
+## 14. Gate trước khi bàn giao PM
+
+### 14.1. FE mock và preview
+
+Chỉ chuyển trạng thái tài liệu thành `Ready for PM` khi đủ:
+
+- [x] Figma node đầu tiên đổi từ Phone sang Email.
+- [x] OTP helper đổi từ SMS/số điện thoại sang email đã mask.
+- [x] Ba capture mới được xuất cùng một revision Figma và nhúng lại vào tài liệu.
+- [x] Requirement List `SM001` dùng email.
+- [x] User Story `1.0` dùng email OTP 6 chữ số.
+- [x] SRS heading/logic Sign Up dùng email.
+- [x] Activity Diagram Sign Up by Email không còn bước/text số điện thoại; có source `.puml`.
+- [x] Hành vi sau đăng ký và các ràng buộc liên UC được truy vết tới `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md`.
+
+- [ ] FE mock được triển khai và unit/component tests pass.
+- [ ] Preview được deploy từ đúng merge SHA.
+- [ ] Preview bám visual baseline tại `375 × 812` và pass responsive matrix đã chốt.
+- [ ] PO review và phê duyệt preview.
+- [ ] Chỉ sau PO approval mới chuẩn bị Android APK preview; không tự đưa APK/Google Drive vào task visual hiện tại.
+
+### 14.2. Backend production
+
+- [x] `SIGNUP-D09` đến `SIGNUP-D13` đã được PO chốt.
+- [ ] FE preview đã được PO phê duyệt.
+- [ ] API contract, provider adapter, rate limit và OTP policy được cập nhật theo quyết định đã chốt.
+- [ ] QA có test data và environment contract thực tế.
+
+PM được phép giao FE mock/deploy preview ngay. PM không được giao backend production trước khi toàn bộ gate 14.2 hoàn tất.
+
+## 15. Cập nhật ngày 2026-10-08 — Flow và contract đăng ký
+
+Mục này là phần cập nhật hiện hành cho các nội dung mâu thuẫn trong mục 1-14; các phần không được nêu dưới đây vẫn giữ nguyên hiệu lực. Đây không phải changelog thay thế đặc tả UC.
+
+### 15.1. Flow và phạm vi hiện hành
+
+Flow chuẩn thay cho flow ba bước tại mục 2 và mục 5 là: **Email -> OTP -> Thông tin cá nhân -> Mật khẩu -> Sign In**. Email đã normalize vẫn là định danh đăng nhập duy nhất. Đăng ký thành công quay về Sign In và không auto-login.
+
+- Giữ nguyên wording social button hiện có. Social auth không được suy diễn là đã hoạt động.
+- Capture Email, OTP và Mật khẩu ở mục 3.1 vẫn là baseline visual cho các màn tương ứng. Chưa có capture/mockup được duyệt cho màn Thông tin cá nhân; G1 phải trình capture/mockup màn này để PO review, không tự suy diễn visual mới trong G0.
+- Các PR pre-baseline `smart-tro#31` và `smart-platform-services#18` không được merge/reuse nguyên trạng cho flow này.
+
+### 15.2. Bước Thông tin cá nhân
+
+Sau khi OTP hợp lệ, ứng dụng chuyển sang bước Thông tin cá nhân, không chuyển thẳng tới Mật khẩu.
+
+- Hiển thị `Họ và tên (bắt buộc)`. Giá trị được trim đầu/cuối và collapse khoảng trắng lặp; sau normalize phải không rỗng. Một từ vẫn hợp lệ.
+- SĐT là tùy chọn, nullable, non-unique; không là login identifier và không nhận OTP. Chỉ validate format khi người dùng nhập; nếu bỏ trống, payload gửi `null`.
+- Name và phone chỉ được giữ trong memory của flow. Chỉ `Tạo tài khoản` ở bước Mật khẩu mới tạo/persist account, `displayName` và `phone`.
+- Back từ Mật khẩu về Thông tin cá nhân xóa cả password và confirm password, nhưng giữ name/phone.
+
+### 15.3. State, đổi email và resend
+
+State machine hiện hành:
+
+```text
+email_input -> requesting_otp -> otp_input -> verifying_otp
   -> personal_info_input -> password_input -> creating_account
   -> success -> sign_in
 ```
 
-- Lỗi quay lại bước hiện tại, không được nhảy cóc hoặc tạo account trước `creating_account` thành công.
-- Có thể giữ để resume khi còn hợp lệ: `signupAttemptId`, normalized email, step, `otpExpiresAt`, `resendAvailableAt`; countdown tính từ timestamp tuyệt đối.
-- Có thể giữ trong memory flow: full name đã normalize và phone. Chỉ persist chúng vào account sau complete thành công.
-- Không persist OTP, password, confirm password, token hoặc dữ liệu nhạy cảm vào storage, route parameter hay log.
-- Background/foreground không reset flow chỉ vì mở app email. Nếu attempt hết hạn khi resume, hiển thị rõ và chỉ cho Email/Resend theo policy.
-- Close/rời flow xóa dữ liệu nhạy cảm; không xóa vật lý challenge/outbox chỉ bởi hành động UI.
+- Có thể giữ để resume: `signupAttemptId`, normalized email, current step, `otpExpiresAt`, `resendAvailableAt`, name đã normalize và phone. Countdown luôn tính từ timestamp tuyệt đối do backend trả về.
+- Không persist OTP, password, confirm password, token hoặc dữ liệu nhạy cảm vào storage, route parameter hay log. Close/rời flow xóa dữ liệu nhạy cảm nhưng không xóa vật lý challenge/outbox.
+- Từ OTP, chọn đổi email phải xóa OTP đang nhập và trở về Email với email cũ prefill. Chỉ request thành công cho normalized email khác mới atomically supersede/invalidate challenge cũ, tạo challenge và outbox mới; OTP cũ mất hiệu lực. Nếu normalized email không đổi, reuse attempt/cooldown còn hợp lệ và không resend tự động.
+- Resend chỉ khả dụng khi `now >= resendAvailableAt`; cooldown là 60 giây theo timestamp backend, tối đa 5 lần/giờ/email. Resend thành công vô hiệu OTP cũ.
 
-## Hành vi theo bước
+### 15.4. Contract, validation và bảo mật
 
-### Email
+`POST /auth/signup/complete` chỉ gọi sau verified attempt, tại bước Mật khẩu, với payload cuối gồm `email`, `attemptId`, proof OTP theo contract backend, `displayName`, `phone` và `password`.
 
-1. Người dùng nhập email và chọn `Gửi OTP`.
-2. FE normalize theo contract backend, kiểm tra định dạng cơ bản và chờ response thành công trước khi sang OTP.
-3. Backend trả attempt, expiry và `resendAvailableAt`; không trả OTP.
-4. Wording social button hiện có được giữ nguyên.
+- `displayName` bắt buộc và phải được trim + collapse whitespace trước khi gửi/persist; giá trị rỗng sau normalize bị từ chối.
+- Backend lặp lại validation quan trọng, tạo user, persist display name/phone và consume verified attempt atomically; không phát token hoặc auto-login.
+- UI map lỗi theo contract an toàn, không hiển thị raw backend error hoặc tiết lộ email tồn tại. Không log OTP/password/token.
+- Dữ liệu legacy thiếu/blank full name không backfill trong phạm vi này; Home ưu tiên full name và fallback email.
 
-### OTP
+### 15.5. Accessibility, kiểm thử và gate
 
-- OTP chỉ nhận 6 chữ số và cho paste toàn bộ mã.
-- OTP đúng chuyển tới Thông tin cá nhân; không chuyển thẳng Mật khẩu.
-- Sai, hết hạn, vượt giới hạn hoặc resend thất bại giữ tại OTP và map lỗi an toàn theo contract.
-- `Gửi lại mã` chỉ khả dụng khi `now >= resendAvailableAt`; thành công phải vô hiệu OTP cũ.
-- Đổi email xóa OTP UI và về Email với email cũ prefill. Với email normalized không đổi, FE/BE reuse attempt/cooldown hợp lệ và không resend tự động. Với email normalized khác, backend atomically supersede/invalidate challenge cũ, tạo challenge/outbox mới và trả attempt mới.
-
-### Thông tin cá nhân
-
-- Field: `Họ và tên (bắt buộc)` và SĐT tùy chọn.
-- Full name: trim + collapse whitespace lặp, sau normalize phải khác rỗng; không yêu cầu hai từ.
-- Phone: `null` khi bỏ trống; chỉ validate format khi có giá trị; không kiểm tra unique.
-- Tiếp tục chỉ khi full name hợp lệ và phone, nếu có, hợp lệ.
-
-### Mật khẩu
-
-- Mật khẩu và Xác nhận mật khẩu tuân theo policy backend và phải trùng nhau.
-- `Tạo tài khoản` gửi payload cuối và là thời điểm duy nhất tạo/persist user, displayName, phone.
-- Back về Thông tin cá nhân xóa cả password field, giữ full name/phone.
-- Thành công quay về Sign In; có thể prefill email nếu an toàn, không cấp session hoặc auto-login.
-
-## API và challenge lifecycle
-
-### Request OTP / đổi email
-
-`POST /auth/signup/request-otp` nhận email đã normalize ở backend boundary và trả attempt identifier, expiry, absolute `resendAvailableAt`.
-
-| Điều kiện | Hành vi backend |
-| --- | --- |
-| Email bằng normalized email của attempt còn hợp lệ | Reuse attempt/cooldown, không tạo outbox hoặc resend tự động. |
-| Email normalized khác và request hợp lệ | Trong một transaction: supersede/invalidate challenge cũ, tạo challenge mới + durable outbox mới; OTP cũ mất hiệu lực. |
-| Request không hợp lệ/rate-limited | Không đổi challenge hợp lệ hiện có; trả error mapping an toàn. |
-
-Challenge/outbox là dữ liệu vận hành/audit; UI không xóa vật lý chúng. OTP plaintext không được lưu hoặc log.
-
-### Hoàn tất đăng ký
-
-`POST /auth/signup/complete` chỉ được gọi sau verified attempt và ở bước Mật khẩu:
-
-```json
-{
-  "email": "normalized-email@example.com",
-  "attemptId": "signup-attempt-id",
-  "code": "verified-otp-context",
-  "displayName": "Nguyen Van A",
-  "phone": "+84901234567",
-  "password": "secret"
-}
-```
-
-- `displayName` bắt buộc; sau trim + collapse whitespace không rỗng.
-- `phone` tùy chọn; gửi `null` nếu không nhập; không là credential/OTP/unique key.
-- G2 BE phải khóa tên field proof OTP trong OpenAPI; FE không giữ OTP ngoài phạm vi cần thiết.
-- Backend tạo user, persist display name/phone và consume verified attempt atomically; không phát access/refresh token.
-
-## Validation, lỗi, bảo mật và compatibility
-
-| Boundary | Yêu cầu |
-| --- | --- |
-| FE | Chặn email sai, OTP không đủ 6 số, full name rỗng sau normalize, phone đã nhập sai format, password sai policy, confirm mismatch. |
-| BE | Lặp lại validation quan trọng; normalize input ở boundary; enforce cooldown 60 giây và 5 resend/giờ/email. |
-| Error mapping | UI dùng mã/lỗi đã chốt, không hiện raw backend error hoặc tiết lộ email tồn tại qua public response. |
-| Privacy | Không log/persist OTP, password, confirm password hoặc token. Phone/full name chỉ dùng cho account sau complete thành công. |
-| Legacy | Account có full name null/blank vẫn hoạt động; Home fallback email. Không migration/backfill trong G0. |
-| Rollout | G1 FE dùng mock/review contract đã PO duyệt; G2 BE khóa API/persistence; integration chỉ sau khi hai phần cùng merge theo baseline này. |
-
-## Accessibility và visual boundary
-
-- Touch target/button tối thiểu 48 px, focus order/accessibility label theo step, contrast accessible.
-- Blue outline chỉ ở focus state thật, không phải decoration tĩnh.
-- G1 phải đưa capture/mockup bước Thông tin cá nhân cho PO review. Không có approved asset mới trong G0 nên không tự tạo visual baseline.
-
-## Acceptance criteria
-
-### AC-01 — Happy path
-Given email hợp lệ, OTP đúng, full name hợp lệ và phone hợp lệ hoặc bỏ trống
-When người dùng hoàn tất `Tạo tài khoản`
-Then account được tạo đúng một lần với displayName đã normalize và phone nullable
-And ứng dụng quay về Sign In, không auto-login.
-
-### AC-02 — OTP và resend
-Given người dùng ở bước OTP
-When OTP sai, hết hạn hoặc chưa đủ 6 số
-Then không được vào Thông tin cá nhân và lỗi contract được hiển thị.
-
-Given resend bị cooldown/quota chặn
-When người dùng yêu cầu resend
-Then FE dùng timestamp backend để chặn đúng 60 giây và backend giới hạn tối đa 5 lần/giờ/email.
-
-Given resend thành công
-Then OTP cũ mất hiệu lực.
-
-### AC-03 — Đổi/không đổi email
-Given người dùng đang nhập OTP
-When đổi email
-Then FE xóa OTP và về Email với email cũ prefill.
-
-Given email normalized không đổi
-When gửi lại request email
-Then attempt/cooldown hợp lệ được reuse và không resend tự động.
-
-Given email normalized khác và request thành công
-Then challenge cũ bị supersede/invalidate và challenge/outbox mới được tạo atomically.
-
-### AC-04 — Thông tin cá nhân và back navigation
-Given full name null, rỗng hoặc chỉ whitespace sau normalize
-When người dùng tiếp tục
-Then không thể vào Mật khẩu.
-
-Given full name có whitespace đầu/cuối hoặc lặp
-When tiếp tục
-Then payload dùng giá trị trim + collapse whitespace.
-
-Given phone bỏ trống
-When tạo account
-Then phone được persist nullable; phone chỉ validate khi có nhập.
-
-Given người dùng back từ Mật khẩu
-Then password/confirm bị xóa, còn full name/phone được giữ.
-
-### AC-05 — Legacy, UX và security
-Given account legacy thiếu full name
-When Home hiển thị định danh
-Then email là fallback.
-
-Then các action đạt 48 px, contrast accessible, không có blue outline giả
-And OTP/password/token không xuất hiện trong storage, route parameter hoặc log.
-
-## Traceability và gates
-
-| Gate | Scope | Điều kiện ra |
-| --- | --- | --- |
-| G0 Docs | Living spec + traceability | PR docs merge, PO duyệt baseline |
-| G1 FE | UI/state/mock contract | PO review capture/flow Email -> OTP -> Personal Info -> Password |
-| PO review | Quyết định visual/behavior G1 | Approval rõ ràng trước BE |
-| G2 BE | API, validation, challenge/outbox lifecycle, persistence | Contract/tests/coverage + deploy evidence |
-| G3 Integration | FE + BE cùng baseline | Build đúng merge SHA + integration evidence |
-| G4 QA | System/regression | PASS/FAIL/BLOCKED verdict |
-| G5 UAT | BA/PO nghiệm thu | PO disposition |
-
-`smart-tro#31` và `smart-platform-services#18` không thỏa flow, fields, lifecycle hoặc gates ở đây. Không merge chúng như implementation của G0; G1/G2 phải re-evaluate hoặc thay thế sau PO approval.
-
-## DoD G0
-
-- File này và `docs/Requirement_List/SmartTro/Requirements.md` phản ánh PO_REBASELINE.
-- Không sửa code FE/BE, không merge/deploy PR pre-baseline.
-- PR SmartPlatform nêu file cập nhật, validation, impact #31/#18 và ambiguity còn lại.
-- Sau handoff, assignee nghiệp vụ trả về PO. Không mở G1 tới khi PR docs merge và PO duyệt baseline.
+- Button/touch target tối thiểu 48 px, contrast accessible; blue outline chỉ được xuất hiện ở focus state thật.
+- Bổ sung test cho name valid/trim/collapse, null/rỗng/whitespace-only; phone empty/valid/invalid; OTP invalid/expired/resend; đổi/không đổi email; back navigation; duplicate completion/race; network retry; không lộ secret trong log/storage. Giữ regression Email, OTP, password, Sign In, password recovery và Home greeting.
+- Chuỗi gate thay cho mục 4.2 và 14: **G0 Docs -> G1 FE -> PO review -> G2 BE -> G3 Integration -> G4 QA -> G5 UAT**. Chỉ mở G1 sau khi PR docs merge và PO phê duyệt baseline; G2-G5 giữ đóng tới khi gate trước hoàn tất.
