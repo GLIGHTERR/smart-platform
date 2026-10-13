@@ -90,7 +90,18 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Runtime error/offline dùng pattern chung: nếu đã có dữ liệu hợp lệ thì giữ UI ổn định, retry cục bộ vùng lỗi và hiển thị non-blocking toast; initial load dùng skeleton vùng động. Không hiển thị raw backend error hoặc dữ liệu nhạy cảm trong toast.
 - SmartTrọ Home hỗ trợ 0, 1 hoặc nhiều hợp đồng active; nhiều hợp đồng dùng carousel và ưu tiên card sắp hết hạn gần nhất. Ngày trên card là ngày hết hạn; fallback display name là email một dòng có tail ellipsis.
 
-### 4.4 Quy trình delivery
+### 4.4 SmartTrọ UC-04 — Xem thông tin cá nhân
+
+- Hai tab `Cá nhân` và `Chữ ký` luôn hiển thị. `Chữ ký` là placeholder theo pattern màn chưa triển khai: `UC-32/UC-33 — Xem chữ ký điện tử.`, không có nút quay về Home.
+- Màn profile có Back rõ ràng về Home, toàn màn hình scroll được; tên, email và dữ liệu nhà/phòng dài phải wrap hoặc truncate an toàn.
+- Avatar nullable dùng icon profile mặc định Ant Design. Email bắt buộc và mask một phần; số điện thoại nullable/không hợp lệ hiển thị `Chưa cập nhật`. Số Việt Nam hợp lệ có 10 chữ số, mask 7 ký tự và chỉ lộ 3 số cuối.
+- Logout dùng hộp xác nhận accessible, chống double-submit. Tab phải có semantic state/`aria-selected`, focus/keyboard phù hợp và nội dung trạng thái có thể đọc được.
+- Không có active contract chỉ hiển thị thông tin cá nhân; có thể có nhiều active contract. Sắp xếp theo `signedAt` tăng dần, rồi contract ID tăng dần khi bằng nhau.
+- Landlord ký trước renter; chỉ cả hai đã ký mới active. Active contract có `signedAt = null` là dữ liệu lifecycle invalid, không phải UI state. Home/profile không hardcode contract.
+- Profile API xác định subject từ access token, bỏ qua `userId` do client truyền và trả `Cache-Control: private, no-store`.
+- UC-04 chỉ xem profile: giữ fallback cho legacy display name thiếu, không mở rộng sang UC-05 sửa thông tin hoặc UC-06 đổi mật khẩu.
+
+### 4.5 Quy trình delivery
 
 - Coordinator/task Codex là control plane; Multica là execution plane cho PM/BA, Dev, QA và deliverable code/docs/test/deploy. Codex không tự hoàn thành deliverable Multica nếu PO không yêu cầu trực tiếp trong lượt hiện tại.
 - Từ các UC mới: tạo task cha theo UC, sau đó tách task con theo vai trò thực tế.
@@ -105,6 +116,8 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - SmartTrọ Home MVP đã chốt là FE-only với mockable data; không tạo Home BE/API hoặc integration follow-up.
 - Task docs/requirements/living-spec/scope-decision có final assignee là PO.
 - Task có BA/PO UAT được trả assignee về PO sau khi disposition đã được ghi nhận.
+- Taxonomy Multica: Epic cho scope lớn, Story cho UC hoàn chỉnh, Task cho FE/BE/QA/UAT, Sub-Bug cho defect con và Sub-Task cho phần việc không phải defect; defect phải thuộc đúng UC/Story hiện hành.
+- PR merge không tự đồng nghĩa task `done`: chỉ đóng sau review/evidence/QA hoặc PO acceptance theo gate. Nếu Dev/QA bị block quyền môi trường, cung cấp runbook transaction + verify + rollback để PO tự chạy.
 
 ## 5. Hạ tầng đã dùng
 
@@ -125,6 +138,13 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 - Pages dùng renter API thật, không còn mock gateway/token/path. FE single-flight thao tác Gửi OTP nhưng vẫn retry được khi có lỗi thật; BE reuse challenge thắng concurrency để không tạo delivery/outbox thứ hai.
 - Android validation được PO quyết định defer theo web-first do Expo Free quota, không tạo replacement task. Quan sát `MINOR-01 S3` (retry khi inject lỗi mạng chưa hiện mapped error text) không chặn release và chưa có bug riêng.
 - Đây là snapshot xác nhận ngày 2026-10-13; trước hành động tiếp theo phải kiểm tra lại Multica, GitHub và provider phù hợp.
+
+### SmartTrọ UC-04 Profile
+
+- `GLI-105`, gate `GLI-106`–`GLI-112`, lifecycle defects `GLI-116`/`GLI-117` và QA defects `GLI-135`/`GLI-136` đã `done`; QA và PO UAT web pass, không còn release blocker.
+- Merge đã xác minh: docs `GLIGHTERR/smart-platform` `86e2c077e2a8209059aa4fb399252f2d084de02e`; SmartTrọ `8aedf0973f2718a7be645adcb033200db9cd6703`, `066bb6fa91d93ee6420ca92de55d2e694cc63d0e`, `d6053b4b5f25e8bfd77af1eb8bdd6accf3dd4abf`; services `5d130cb1949e4dc867e86fa94f96f9b2303846ce`, `ddf0da2722500c43ea81807eb3d2dc3648f3694b`.
+- Bản web/API được chấp nhận tại <https://glighterr.github.io/smart-tro/> và <https://smart-platform-renter-api.onrender.com>. Đây là snapshot 2026-10-13; kiểm tra lại provider trước thao tác mới.
+- Residual PO chấp nhận, không chặn release: Android/native validation do EAS quota; thiếu fixture live đầy đủ cho hợp đồng/avatar/session-failure; chưa có exact Render build SHA.
 
 ### SmartTrọ UC-03
 
