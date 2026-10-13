@@ -26,6 +26,7 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 - Không mở rộng scope hoặc tự thay đổi quyết định nghiệp vụ/Figma.
 - Không polling liên tục. Chỉ kiểm tra tiến độ khi người dùng yêu cầu hoặc khi cần một lần xác nhận ngay sau thao tác.
 - Không lưu API key, password, OTP, token, cookie hoặc secret vào Git, tài liệu hay comment task.
+- Ưu tiên connector/API/CLI; chỉ dùng browser khi cần thao tác hoặc kiểm thử UI. Khi bị chặn quyền môi trường, agent phải cung cấp runbook có transaction, verify và rollback rõ ràng để PO tự chạy.
 - Branch ngắn hạn được xóa sau khi merge vào `master`. Build/release chính thức chỉ chạy từ `master`, trừ khi PO yêu cầu preview riêng.
 
 ## Kích hoạt agent Multica
@@ -33,6 +34,8 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 - Chỉ comment trực tiếp trong đúng task Multica và mention đúng PM, Dev hoặc QA agent mới là giao việc/kích hoạt run.
 - GitHub comment, commit, local handoff hay kênh khác chỉ là audit/reference; không thay thế trigger trên Multica.
 - Trigger nêu ngắn gọn mục tiêu, hành động, evidence/đầu ra và gate. Nếu chưa gửi được comment mention, phải báo rõ agent chưa được kích hoạt.
+- Taxonomy Multica: Epic cho scope lớn, Story cho UC hoàn chỉnh, Task cho FE/BE/QA/UAT, Sub-Bug cho defect con và Sub-Task cho phần việc không phải defect. Defect phải nằm dưới UC/Story hiện hành.
+- PR merge không tự đồng nghĩa `done`: task chỉ đóng sau khi đủ review, evidence, QA và PO acceptance theo gate.
 
 ## Tách task để giảm context
 
