@@ -1,6 +1,6 @@
 # Smart Platform — Context Handoff
 
-> **Cập nhật:** 2026-10-06
+> **Cập nhật:** 2026-10-13
 >
 > **Vai trò:** Context hub cô đọng cho task điều phối và các task nhánh.
 >
@@ -13,9 +13,9 @@ Tách công việc sang các task Codex nhỏ để tránh nạp lại toàn b�
 Luồng đồng bộ:
 
 ```text
-Task điều phối gốc
+Coordinator gốc (control plane)
   ├─ giao task nhánh bằng context tối thiểu
-  ├─ task nhánh điều phối execution plane + kiểm chứng
+  ├─ task nhánh điều phối execution plane trên Multica + kiểm chứng
   ├─ task nhánh phát ROOT_SYNC khi đóng
   └─ task gốc đọc delta + commit đã merge, rồi cập nhật handoff/ledger
 ```
@@ -54,7 +54,12 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 ### 4.1 Identity và authentication
 
 - MVP dùng **email đã normalize** làm định danh đăng nhập unique; số điện thoại là dữ liệu liên hệ, không phải login identifier.
-- Đăng ký: Email → OTP email 6 chữ số → tạo mật khẩu.
+- Đăng ký: Email → OTP email 6 chữ số → Thông tin cá nhân → tạo mật khẩu → quay về Đăng nhập. Account chỉ được hoàn thành ở bước tạo tài khoản cuối cùng, không auto-login.
+- Thông tin cá nhân trong đăng ký gồm Họ và tên bắt buộc (trim, chuẩn hóa khoảng trắng) và số điện thoại không bắt buộc (nullable, không unique, hiện chỉ là dữ liệu liên hệ). Home ưu tiên chào theo Họ và tên, fallback email.
+- Ba social button được giữ nguyên; social-auth contract không thuộc scope flow email/password này.
+- Cùng email đã normalize quay lại attempt đang hoạt động và không tự gửi OTP mới. Đổi email tạo request thay thế với `previousAttemptId`; chỉ supersede attempt cũ sau khi request mới thành công.
+- Attempt/OTP cũ sau supersession trở thành stale và không còn hợp lệ, không hard-delete. Resend giữ cooldown 60 giây và làm OTP trước đó không còn hợp lệ theo backend contract.
+- OTP và password không được ghi vào route, local/session storage, log hoặc evidence.
 - Đăng nhập thông thường: Email + mật khẩu. Hiện không tự thêm Login OTP chỉ vì mockup từng có biến thể đó; muốn thay đổi phải chốt lại requirement/docs.
 - Quên mật khẩu: Email → OTP email 6 chữ số → mật khẩu mới.
 - Nếu recovery bị force-close/process kill, người dùng đi lại từ đầu; không persist OTP, password hoặc reset token.
@@ -66,6 +71,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 - FE vẫn chờ response của BE trước khi chuyển màn; không optimistic navigation.
 - BE chỉ xử lý đồng bộ validation/rate limit/cooldown, tạo challenge nghiệp vụ và durable transactional outbox job.
+- Signup challenge và registration-email outbox được ghi atomically; API trả `202` sau commit, còn delivery email chạy bất đồng bộ.
 - Dựng nội dung email và gọi Brevo chạy ở worker bất đồng bộ với retry/backoff/audit.
 - Không dùng fire-and-forget in-memory vì Render restart/scale-down có thể làm mất email.
 - Không lưu/log OTP plaintext trong outbox hoặc audit.
@@ -86,9 +92,11 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 ### 4.4 Quy trình delivery
 
+- Coordinator/task Codex là control plane; Multica là execution plane cho PM/BA, Dev, QA và deliverable code/docs/test/deploy. Codex không tự hoàn thành deliverable Multica nếu PO không yêu cầu trực tiếp trong lượt hiện tại.
 - Từ các UC mới: tạo task cha theo UC, sau đó tách task con theo vai trò thực tế.
 - Mỗi UC/workstream chỉ dùng một task Codex điều phối; không tạo task Codex nhánh cho từng task Multica Dev/QA/defect/gate con.
 - Các task Multica con được theo dõi và handoff ngay trong task Codex của UC; khi toàn workstream đóng, gửi một `ROOT_SYNC` về Coordinator gốc rồi archive task UC nếu cần.
+- Chỉ comment trực tiếp trong đúng task Multica và mention đúng agent mới kích hoạt run; GitHub comment hoặc handoff local không thay thế trigger đó. Nếu chưa trigger được, báo rõ agent chưa được kích hoạt.
 - FE/UI được dựng và PO review trước BE. Sau đó mới BE/BE-GAP, integration, QA và UAT.
 - QA ưu tiên web/review environment khi device automation không ổn định hoặc tốn quota; PO test/UAT trên device thật khi cần.
 - Chỉ auto-build Expo khi merge/push vào `master`; không build mỗi push lên branch cá nhân của Dev.
@@ -108,7 +116,15 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tra cấu hình, đọc trực tiếp provider hoặc environment được ủy quyền.
 
-## 6. Snapshot công việc ngày 2026-10-06
+## 6. Snapshot công việc ngày 2026-10-13
+
+### SmartTrọ UC-01 Registration update
+
+- Parent `GLI-49` và các descendant thuộc scope đã `done`; QA và PO UAT web đã pass, không còn release blocker.
+- Bản web được chấp nhận: <https://glighterr.github.io/smart-tro/>. Merge đã xác minh: `GLIGHTERR/smart-tro` `cf23a06709dc2c5008936e71bbc4dc448dcdc134`, `GLIGHTERR/smart-platform-services` `97bb8e0f684421d0112acb1dc528084b418a48d7`, và docs `GLIGHTERR/smart-platform` `487a757987406f0e63578b4626213308f6e973e2`.
+- Pages dùng renter API thật, không còn mock gateway/token/path. FE single-flight thao tác Gửi OTP nhưng vẫn retry được khi có lỗi thật; BE reuse challenge thắng concurrency để không tạo delivery/outbox thứ hai.
+- Android validation được PO quyết định defer theo web-first do Expo Free quota, không tạo replacement task. Quan sát `MINOR-01 S3` (retry khi inject lỗi mạng chưa hiện mapped error text) không chặn release và chưa có bug riêng.
+- Đây là snapshot xác nhận ngày 2026-10-13; trước hành động tiếp theo phải kiểm tra lại Multica, GitHub và provider phù hợp.
 
 ### SmartTrọ UC-03
 
