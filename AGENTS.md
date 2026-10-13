@@ -19,12 +19,20 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 ## Quy tắc vận hành
 
 - Trao đổi và tài liệu nghiệp vụ dùng tiếng Việt có dấu.
-- Mỗi UC dùng một task cha; task con theo chuỗi `DOCS → FE → BE/BE-GAP → INT → QA → UAT` khi các bước đó thực sự cần.
+- Coordinator và task Codex nhánh là control plane/điều phối, không phải agent triển khai. Multica là execution plane cho PM/BA, Dev, QA và mọi thay đổi code, tài liệu, test hoặc deploy thuộc task.
+- Codex được phép chốt scope/gate/acceptance criteria, tạo và handoff task Multica, kiểm tra evidence/PR/deploy, xử lý blocker, nhận `ROOT_SYNC` và mở gate tiếp theo. Không tự làm deliverable của task Multica trừ khi PO nói rõ trong yêu cầu hiện tại rằng Codex phải trực tiếp thực hiện.
+- Mỗi UC/workstream chỉ dùng một task Codex điều phối; task Multica theo chuỗi `DOCS → FE → BE/BE-GAP → INT → QA → UAT` khi các bước đó thực sự cần.
 - FE dựng UI và được review trước khi triển khai BE, trừ khi task chỉ sửa defect backend độc lập đã được duyệt.
 - Không mở rộng scope hoặc tự thay đổi quyết định nghiệp vụ/Figma.
 - Không polling liên tục. Chỉ kiểm tra tiến độ khi người dùng yêu cầu hoặc khi cần một lần xác nhận ngay sau thao tác.
 - Không lưu API key, password, OTP, token, cookie hoặc secret vào Git, tài liệu hay comment task.
 - Branch ngắn hạn được xóa sau khi merge vào `master`. Build/release chính thức chỉ chạy từ `master`, trừ khi PO yêu cầu preview riêng.
+
+## Kích hoạt agent Multica
+
+- Chỉ comment trực tiếp trong đúng task Multica và mention đúng PM, Dev hoặc QA agent mới là giao việc/kích hoạt run.
+- GitHub comment, commit, local handoff hay kênh khác chỉ là audit/reference; không thay thế trigger trên Multica.
+- Trigger nêu ngắn gọn mục tiêu, hành động, evidence/đầu ra và gate. Nếu chưa gửi được comment mention, phải báo rõ agent chưa được kích hoạt.
 
 ## Tách task để giảm context
 
@@ -49,6 +57,9 @@ Trước khi một task nhánh được coi là hoàn tất, agent phải phát 
 
 - Một mục đích tài liệu chỉ có một bản hiện hành trong `docs/`.
 - Khi living spec thay đổi, cập nhật traceability liên quan trong cùng PR.
+- UC, SRS và FRS phải mô tả đầy đủ current canonical behavior để người mới đọc độc lập. Không thay phần thân bằng changelog, delta hay bản tổng hợp update.
+- Dùng cấu trúc/format hiện hành của tài liệu trên branch gốc làm skeleton; tích hợp quyết định mới vào đúng mục, giữ context còn hiệu lực và sửa hoặc đánh dấu superseded nội dung cũ.
+- Revision history chỉ ghi lịch sử thay đổi, không thay thế specification; task PM/docs phải kiểm tra consistency, decision traceability, validation, acceptance criteria, test/DoD và delivery gates.
 - Không tái tạo thư mục `markdown/`.
 - Giữ nguyên thay đổi không liên quan của người dùng và agent khác.
 - Dùng `apply_patch` cho chỉnh sửa thủ công.
