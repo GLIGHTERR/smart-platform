@@ -174,6 +174,8 @@
 
 ### SM007 — Cập nhật thông tin cá nhân
 
+> Quy định triển khai hiện hành: [`UC-05 living specification`](../../FRS/SmartTro/screens/edit-personal-information-screen.md). Bảng dưới là trace legacy; các hành vi mâu thuẫn được thay thế bởi quyết định PO ngày 2026-10-14.
+
 | Trường | Giá trị |
 | --- | --- |
 | ID | SM007 |

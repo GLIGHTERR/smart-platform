@@ -81,9 +81,12 @@ Là một người dùng đã đăng ký tài khoản, tôi muốn cập nhậ
 
 **Acceptance Criteria**
 
-- 1. Trang "Sửa thông tin cá nhân" hiển thị các input để người dùng chỉnh sửa các thông tin như tên người dùng, email và image picker cho trường avatar. Trường SĐT không được thay đổi
-- 2. Người dùng cần đợi 1h kể từ lần thay đổi thông tin tài khoản cá nhân trước đó để có thể thay đổi tiếp
-- 3. Hệ thống phải chuyển người dùng về trang "Tài khoản" trong vòng 2s sau khi người dùng bấm nút "Xác nhận"
+- 1. Người dùng đã đăng nhập có thể cập nhật Họ và tên bắt buộc cùng SĐT tùy chọn của chính access-token subject; email chỉ đọc và được mask, avatar/media không thuộc phạm vi UC-05.
+- 2. Họ và tên được trim/collapse whitespace, hỗ trợ Unicode, tối đa 160 ký tự; SĐT Việt Nam hiển thị dạng domestic khi sửa, lưu canonical E.164 hoặc `null` khi xóa.
+- 3. `Lưu` chỉ khả dụng khi form dirty và hợp lệ; save thành công hiển thị confirmation, quay về Tài khoản/Cá nhân và refetch dữ liệu authoritative. Server xử lý request cập nhật dưới 2 giây ở tải bình thường.
+- 4. Hủy hoặc bất kỳ web/device back path nào phải xác nhận bỏ thay đổi khi form dirty; form clean rời ngay. Không có offline queue, không lộ PII/raw backend error, và không cho client chọn `userId`.
+
+Tài liệu triển khai chuẩn: [`UC-05 living specification`](../../FRS/SmartTro/screens/edit-personal-information-screen.md). Các acceptance criteria legacy mâu thuẫn (email/avatar editable, SĐT read-only, cooldown một giờ) đã bị thay thế bởi quyết định PO ngày 2026-10-14.
 
 ### US 6.0 — Đổi mật khẩu
 
