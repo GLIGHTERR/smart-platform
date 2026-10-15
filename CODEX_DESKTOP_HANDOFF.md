@@ -1,6 +1,6 @@
 # Smart Platform — Context Handoff
 
-> **Cập nhật:** 2026-10-13
+> **Cập nhật:** 2026-10-15
 >
 > **Vai trò:** Context hub cô đọng cho task điều phối và các task nhánh.
 >
@@ -85,6 +85,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Figma là nguồn visual; requirement/living spec là nguồn behavior. Nếu conflict phải hỏi PO.
 - Font ứng dụng hiện chốt **Be Vietnam Pro**; phải bundle đúng weights cần dùng, không phụ thuộc glyph fallback gây nét chữ không đồng nhất.
 - Social icons dùng managed SVG/PNG assets, không dùng FontAwesome glyph nếu làm sai mockup/runtime.
+- Sign In password field giữ cùng visual contract với Email field: cao `48px`, pill radius `24px`, background/clipping đồng nhất. Password reveal là button có accessible name và expanded state, target `54x48px`, hỗ trợ click, Enter và Space.
 - App người thuê phải hiển thị tên **SmartTrọ** và dùng bộ icon chính thức/adaptive/monochrome trong source app; đổi display name/icon trên Expo dashboard không thay thế cấu hình native của project.
 - Cần kiểm tra cả Android device và web review; web không đại diện đầy đủ cho runtime mobile.
 - Runtime error/offline dùng pattern chung: nếu đã có dữ liệu hợp lệ thì giữ UI ổn định, retry cục bộ vùng lỗi và hiển thị non-blocking toast; initial load dùng skeleton vùng động. Không hiển thị raw backend error hoặc dữ liệu nhạy cảm trong toast.
@@ -129,7 +130,14 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tra cấu hình, đọc trực tiếp provider hoặc environment được ủy quyền.
 
-## 6. Snapshot công việc ngày 2026-10-13
+## 6. Snapshot công việc ngày 2026-10-15
+
+### SmartTrọ Sign In UI hotfix
+
+- `GLI-140`, QA `GLI-141` và accessibility defect `GLI-142` đã `done`; PO UAT Web pass và waive QA retest bổ sung.
+- `GLIGHTERR/smart-tro` PR #46 merge `95761ed3ffe461b9d2ccef6025974115523e160a`; PR #47/final `master` `5268edb817d27d3b17e73952f4cbd067fe909bc6`. Required checks và Pages deployment pass.
+- Artifact được chấp nhận: <https://glighterr.github.io/smart-tro/Auth>. Hotfix chỉ sửa visual/accessibility của password field và reveal control; không đổi auth/API/session/OTP/social/security/copy/layout-order/feature-flag contract.
+- Android/native verification được PO chấp nhận defer do EAS Free-plan quota; không phải release blocker và không có follow-up bắt buộc.
 
 ### SmartTrọ UC-01 Registration update
 
