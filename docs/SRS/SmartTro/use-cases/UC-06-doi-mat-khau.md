@@ -1,162 +1,162 @@
-# SmartTro - UC-06 Doi mat khau
+# SmartTrọ - UC-06 Đổi mật khẩu
 
-## 1. Trang thai tai lieu va nguon
+## 1. Trạng thái tài liệu và nguồn
 
-| Thuoc tinh | Gia tri |
+| Thuộc tính | Giá trị |
 | --- | --- |
-| Trang thai G0 | **DONE - PO decisions terminal 2026-11-04** |
-| Pham vi | Doi mat khau local cho nguoi dung da xac thuc. G0 chua la authorization de FE/BE trien khai; G1 canonical reference va PO visual review van la gate. |
-| Legacy | SRS muc 3.7 la baseline tham khao, khong phai approval. Quy tac SHA-256 trong baseline bi thay the bang verdict o muc 5 va khong duoc dung mac dinh. |
-| Source heads da review | `smart-platform@19fa7ff491d5e9f5a3ba4b4a53728eec145d76da`; `smart-tro@ab463c04bc16d55c78448ac29dcb0e8f86bb9f22`; `smart-platform-services@dff03a7a49186e7c8ba82efbac9e21fa16910a6b`. |
-| Quyet dinh PO | `UC06-D01..D10` terminal; `UC06-D07` van yeu cau Security/BE xac minh implementation truoc G2. |
+| Trạng thái G0 | **HOÀN THÀNH - PO đã chốt quyết định ngày 2026-11-04** |
+| Phạm vi | Đổi mật khẩu cục bộ cho người dùng đã xác thực. G0 chưa cho phép triển khai FE/BE; Figma/reference chuẩn ở G1 và PO duyệt giao diện vẫn là cổng bắt buộc. |
+| Tài liệu cũ | Mục 3.7 SRS là đường cơ sở tham khảo, không phải phê duyệt. Quy tắc SHA-256 trong tài liệu cũ bị thay thế bởi kết luận ở mục 5 và không được dùng mặc định. |
+| Các đầu mã nguồn đã rà soát | `smart-platform@19fa7ff491d5e9f5a3ba4b4a53728eec145d76da`; `smart-tro@ab463c04bc16d55c78448ac29dcb0e8f86bb9f22`; `smart-platform-services@dff03a7a49186e7c8ba82efbac9e21fa16910a6b`. |
+| Quyết định PO | `UC06-D01..D10` đã ở trạng thái cuối; `UC06-D07` vẫn yêu cầu Security/BE xác minh implementation trước G2. |
 
-Tai lieu nay tu dung va la canonical G0 cho UC-06. Cac decision matrix ben duoi la terminal theo `PO_APPROVED` ngay 2026-11-04; chi G1 Figma/reference va PO visual review moi cho phep mo FE/UI. Khong ghi gia tri password, token, cookie, credential, PII that, hoac log nhay cam trong tai lieu/evidence.
+Tài liệu này là đặc tả G0 chuẩn, độc lập cho UC-06. Ma trận quyết định bên dưới đã được chốt theo `PO_APPROVED` ngày 2026-11-04; chỉ G1 Figma/reference và PO duyệt giao diện mới cho phép mở FE/UI. Không ghi giá trị mật khẩu, token, cookie, credential, PII thật hoặc log nhạy cảm trong tài liệu/evidence.
 
-## 2. Muc tieu, actor va ranh gioi
+## 2. Mục tiêu, tác nhân và ranh giới
 
-**Actor:** nguoi dung da dang nhap, co tai khoan local active. Subject luon lay tu session da xac thuc; client khong gui ID de chon account.
+**Tác nhân:** người dùng đã đăng nhập, có tài khoản cục bộ đang hoạt động. Subject luôn lấy từ session đã xác thực; client không gửi ID để chọn tài khoản.
 
-**Trigger:** tu UC-04 Account/Personal, nguoi dung chon `Doi mat khau`.
+**Kích hoạt:** từ UC-04 Account/Personal, người dùng chọn `Đổi mật khẩu`.
 
-**Preconditions:** session hien tai hop le; account co local password; UI/API dang dung contract da duoc phe duyet.
+**Tiền điều kiện:** session hiện tại hợp lệ; tài khoản có mật khẩu cục bộ; UI/API đang dùng contract đã được phê duyệt.
 
-**Postcondition khi thanh cong:** password moi duoc luu atomically theo storage verdict da duyet, cac session bi thu hoi theo decision `UC06-D03`, security/audit event duoc ghi khong lo secret, va UI thuc hien destination da duyet.
+**Hậu điều kiện khi thành công:** mật khẩu mới được lưu atomically theo kết luận lưu trữ đã duyệt, toàn bộ session bị thu hồi theo `UC06-D03`, sự kiện bảo mật/audit được ghi không lộ secret, và UI điều hướng theo quyết định đã duyệt.
 
-**In scope:** form current/new/confirm, verification, validation, session lifecycle, errors an toan, accessibility, API/test/delivery contract.
+**Trong phạm vi:** biểu mẫu mật khẩu hiện tại/mới/xác nhận, xác minh, validation, vòng đời session, lỗi an toàn, accessibility, contract API/kiểm thử/bàn giao.
 
-**Out of scope cho G0/UC-06:** password enrollment cho social-only account, MFA/re-authentication step moi, account linking, reset/recovery UC-03, quan ly thiet bi chi tiet, va implementation/deploy.
+**Ngoài phạm vi G0/UC-06:** đặt mật khẩu cho tài khoản chỉ dùng social, bước MFA/re-authentication mới, liên kết tài khoản, reset/recovery của UC-03, quản lý thiết bị chi tiết và implementation/deploy.
 
-## 3. Traceability va reconcile
+## 3. Truy vết và đối chiếu
 
-| Nguon | Rang buoc ke thua / gap |
+| Nguồn | Ràng buộc kế thừa / khoảng trống |
 | --- | --- |
-| UC-01 Sign Up | Policy da duoc PO ke thua cho UC-06: 8-128 ky tu, chu thuong, chu hoa, chu so, ky tu dac biet; confirm phai khop. Password giu nguyen exact characters, khong trim/normalize, va khong vao route, log, analytics hoac persistent storage. |
-| UC-02 Sign In | `SIGNIN-D09` 5 lan sai/15 phut duoc PO reuse theo subject cho UC-06. `SIGNIN-D10` token rotation la contract Sign In; UC-06 revoke toan bo session va khong cap session moi theo D03. |
-| UC-03 Forgot Password | Reset revoke toan bo session va khong auto-login la precedent ma PO da chon cho UC-06; audit khong log secret. |
-| UC-04 Account/Personal | FRS da phe duyet action `Doi mat khau` chi dieu huong sang UC-06. Tai source review, `smart-tro` dang dieu huong den placeholder `Destination`, chua co form UC-06. |
-| UC-05 Edit Personal | Pattern subject-only, server authoritative, expired/revoked/inactive session thi sign-out duoc ke thua; UC-06 da chon success ve Sign In, khong quay UC-04. |
-| services current source | Co candidate endpoint/service change-password va password hasher co salt/slow hash. Candidate thieu confirm va cap session moi sau revoke, nen G2 phai reconcile theo D01/D03/D06; source khong phai deploy evidence. |
+| UC-01 Sign Up | Chính sách PO đã kế thừa cho UC-06: 8-128 ký tự, chữ thường, chữ hoa, chữ số, ký tự đặc biệt; xác nhận phải khớp. Mật khẩu giữ nguyên ký tự chính xác, không trim/normalize, không đi vào route, log, analytics hoặc persistent storage. |
+| UC-02 Sign In | `SIGNIN-D09` với 5 lần sai/15 phút đã được PO dùng lại theo subject cho UC-06. `SIGNIN-D10` về token rotation là contract Sign In; UC-06 thu hồi toàn bộ session và không cấp session mới theo D03. |
+| UC-03 Forgot Password | Reset thu hồi toàn bộ session và không auto-login là tiền lệ mà PO đã chọn cho UC-06; audit không log secret. |
+| UC-04 Account/Personal | FRS đã phê duyệt action `Đổi mật khẩu` chỉ để điều hướng sang UC-06. Khi rà soát source, `smart-tro` đang điều hướng đến placeholder `Destination`, chưa có biểu mẫu UC-06. |
+| UC-05 Edit Personal | Kế thừa mẫu subject-only, server authoritative và sign-out khi session hết hạn/bị thu hồi/không hoạt động; UC-06 đã chọn thành công về Sign In, không quay UC-04. |
+| Mã nguồn dịch vụ hiện tại | Có endpoint/service change-password và password hasher dùng salt/slow hash. Mã nguồn hiện hữu thiếu confirm và cấp session mới sau revoke, vì vậy G2 phải reconcile theo D01/D03/D06; mã nguồn không phải deploy evidence. |
 
-## 4. Luong canonical da duoc PO phe duyet
+## 4. Luồng chuẩn đã được PO phê duyệt
 
-### 4.1 Main flow de xuat
+### 4.1. Luồng chính
 
-1. Tu UC-04, user chon `Doi mat khau`; system mo form rieng.
-2. Form hien `Mat khau hien tai`, `Mat khau moi`, `Xac nhan mat khau moi`; khong prefill field nao.
-3. User nhap gia tri va chon action chinh. UI validate client-side theo policy da duyet, doi chieu new/confirm, khoa form trong khi request.
-4. API xac thuc subject tu session, revalidate tat ca rang buoc, xac minh current password, va thuc hien mutation/session/audit trong transaction/authoritative operation.
-5. Khi API thanh cong, UI xoa ca ba field khoi memory, xu ly session/destination theo `UC06-D03` va `UC06-D04`, va thong bao ket qua an toan.
+1. Từ UC-04, người dùng chọn `Đổi mật khẩu`; hệ thống mở biểu mẫu riêng.
+2. Biểu mẫu hiển thị `Mật khẩu hiện tại`, `Mật khẩu mới`, `Xác nhận mật khẩu mới`; không prefill trường nào.
+3. Người dùng nhập giá trị và chọn action chính. UI validation phía client theo policy đã duyệt, đối chiếu mật khẩu mới/xác nhận và khóa biểu mẫu khi request đang xử lý.
+4. API xác thực subject từ session, revalidate mọi ràng buộc, xác minh mật khẩu hiện tại và thực hiện mutation/session/audit trong transaction hoặc thao tác authoritative.
+5. Khi API thành công, UI xóa cả ba trường khỏi memory, xử lý session/điểm đến theo `UC06-D03` và `UC06-D04`, rồi thông báo kết quả an toàn.
 
-### 4.2 Alternate va exception flows
+### 4.2. Luồng thay thế và ngoại lệ
 
-| Tinh huong | Hanh vi yeu cau |
+| Tình huống | Hành vi yêu cầu |
 | --- | --- |
-| Client validation fail / new-confirm khong khop / new giong current | Khong goi API neu xac dinh local duoc; hien inline feedback an toan; khong lo current password. |
-| Current password khong dung | Giu form, xoa current field, thong bao generic safe, khong phan biet account state hay raw backend message; throttle 5 lan that bai/15 phut theo subject. |
-| Session expired, revoked, inactive, subject mismatch | Khong doi password; clear sensitive form state; chay common sign-out/session-expired behavior cua UC-04/05. |
-| Rate limited / cooldown | Khong mutate; hien retry action/thoi diem theo server contract; khong suy luan account state. |
-| Timeout, offline, 5xx | Khong tu ket luan mutation fail hay retry blind. Hien retry an toan sau khi resolve authoritative state/idempotency decision; password fields khong persist. |
-| Double submit / concurrent request | UI chi mot request dang cho. Server phai xac dinh final authoritative outcome; response cho request sau khong duoc tao session/mutation thu hai. |
-| Back, cancel, app background/restart | Khi co input, back/cancel phai confirm discard; khong save draft. Bat ky exit/background/restart nao xoa ba field, khong persist secret. |
+| Client validation thất bại / mật khẩu mới-xác nhận không khớp / mật khẩu mới giống mật khẩu hiện tại | Không gọi API nếu có thể xác định cục bộ; hiển thị phản hồi nội dòng an toàn; không làm lộ mật khẩu hiện tại. |
+| Mật khẩu hiện tại không đúng | Giữ biểu mẫu, xóa trường mật khẩu hiện tại, thông báo generic an toàn, không phân biệt trạng thái tài khoản hay raw backend message; throttle 5 lần thất bại/15 phút theo subject. |
+| Session hết hạn, bị thu hồi, không hoạt động hoặc subject không khớp | Không đổi mật khẩu; xóa trạng thái nhạy cảm; chạy hành vi chung session-expired/sign-out của UC-04/05. |
+| Bị rate limited / cooldown | Không mutation; hiển thị action/thời điểm thử lại theo server contract; không suy luận trạng thái tài khoản. |
+| Timeout, offline, lỗi `5xx` | Không tự kết luận mutation thất bại và không blind retry. Chỉ retry an toàn sau khi có authoritative outcome/query; các trường mật khẩu không được persist. |
+| Double submit / request đồng thời | UI chỉ có một request đang chờ. Server phải xác định final authoritative outcome; response của request sau không được tạo mutation hay session thứ hai. |
+| Quay lại, hủy, app xuống nền/khởi động lại | Khi có input, back/cancel phải confirm discard; không save draft. Mọi exit/background/restart đều xóa ba trường và không persist secret. |
 
-## 5. Decision matrix bat buoc
+## 5. Ma trận quyết định bắt buộc
 
-| ID | Quyet dinh terminal | Rationale | Owner | Impact | Status |
+| ID | Quyết định cuối | Lý do | Chủ sở hữu | Tác động | Trạng thái |
 | --- | --- | --- | --- | --- | --- |
-| UC06-D01 | Ke thua UC-01: 8-128, lowercase, uppercase, digit, special; giu nguyen exact characters, khong trim/normalize; new khac current; chua ap dung last-N history MVP. | Nhat quan UC-01/03 ma khong thay doi secret. | PO + Security | FE validation, DTO, test boundary. | APPROVED 2026-11-04 |
-| UC06-D02 | Current-password sai tra generic safe error; throttle 5 failures/15 minutes theo subject; public code/copy on dinh, khong raw error hay account state. | Chong disclosure va brute force. | PO + Security | Status/code/copy, rate limiter, audit, UX. | APPROVED 2026-11-04 |
-| UC06-D03 | Revoke tat ca session, gom current session; khong auto-login/cap session moi; user Sign In lai. | Dong nhat recovery va giam session-theft risk. | PO + Security | Auth response, navigation, device regression. | APPROVED 2026-11-04 |
-| UC06-D04 | Success feedback an toan roi dieu huong Sign In. Back/cancel khi co input confirm discard; khong save draft; exit/background/restart xoa secrets. | UX ro rang phu thuoc D03, khong retain secret. | PO + Design | G1 visual, navigation, accessibility, UAT. | APPROVED 2026-11-04 |
-| UC06-D05 | Reuse D02 throttle; immutable audit event chi subject + metadata masked; khong email/push notification trong MVP. | Audit du traceability ma bao ve privacy. | PO + Security | Rate limiter, audit event, support/comms. | APPROVED 2026-11-04 |
-| UC06-D06 | Idempotency key + authoritative outcome/query; mot subject chi mot mutation dang xu ly; no blind retry; response cu khong ghi de final state. | Tranh duplicate mutation/session va success sai sau timeout. | PO + BE | API contract, persistence, client retry, tests. | APPROVED 2026-11-04 |
-| UC06-D07 | Giu salted slow hash hien hanh sau khi Security/BE xac minh implementation; khong migration neu compatible; cam legacy SHA-256. | Bao toan storage an toan va dung evidence truoc thay doi. | Security + PO | Compatibility review, migration, tests. | APPROVED 2026-11-04 |
-| UC06-D08 | No secret trong logs/analytics/routes/persistent storage/clipboard; khong exception MVP. | Rang buoc cross-UC da duoc phe duyet. | PO + Security | FE telemetry, API logging, QA evidence. | APPROVED 2026-11-04 |
-| UC06-D09 | Tao canonical Figma/reference moi cho form va error/loading/success/session-expired/keyboard/responsive/accessibility truoc PO visual review; legacy/mock khong phai approval. | UC-04 chi phe duyet entry, khong co UC-06 visual canonical. | PO + Design | G1 gate, screenshot review, accessibility AC. | APPROVED 2026-11-04 |
-| UC06-D10 | Web first; mobile manual only theo build/SHA duoc PO cho phep; UAT sau QA PASS. | Parent delivery gate. | PO | QA plan, release evidence. | APPROVED 2026-11-04 |
+| UC06-D01 | Kế thừa UC-01: 8-128, lowercase, uppercase, digit, special; giữ nguyên ký tự chính xác, không trim/normalize; mật khẩu mới khác mật khẩu hiện tại; chưa áp dụng last-N history trong MVP. | Nhất quán UC-01/03 mà không thay đổi secret. | PO + Security | FE validation, DTO, biên kiểm thử. | APPROVED 2026-11-04 |
+| UC06-D02 | Mật khẩu hiện tại sai trả generic safe error; throttle 5 failures/15 minutes theo subject; public code/copy ổn định, không trả raw error hay account state. | Chống disclosure và brute force. | PO + Security | Status/code/copy, rate limiter, audit, UX. | APPROVED 2026-11-04 |
+| UC06-D03 | Thu hồi toàn bộ session, gồm cả session hiện tại; không auto-login/cấp session mới; người dùng Sign In lại. | Đồng nhất recovery và giảm rủi ro session theft. | PO + Security | Auth response, navigation, regression đa thiết bị. | APPROVED 2026-11-04 |
+| UC06-D04 | Hiển thị success feedback an toàn rồi điều hướng Sign In. Back/cancel khi có input phải confirm discard; không save draft; exit/background/restart xóa secret. | UX rõ ràng theo D03, không giữ lại secret. | PO + Design | G1 giao diện, navigation, accessibility, UAT. | APPROVED 2026-11-04 |
+| UC06-D05 | Dùng lại throttle D02; immutable audit event chỉ có subject và metadata đã mask; không gửi email/push notification trong MVP. | Audit đủ truy vết nhưng bảo vệ privacy. | PO + Security | Rate limiter, audit event, hỗ trợ/truyền thông. | APPROVED 2026-11-04 |
+| UC06-D06 | Idempotency key + authoritative outcome/query; một subject chỉ có một mutation đang xử lý; không blind retry; response cũ không ghi đè final state. | Tránh mutation/session trùng và success sai sau timeout. | PO + BE | API contract, persistence, client retry, kiểm thử. | APPROVED 2026-11-04 |
+| UC06-D07 | Giữ salted slow hash hiện hành sau khi Security/BE xác minh implementation; không migration nếu compatible; cấm legacy SHA-256. | Bảo toàn lưu trữ an toàn và dùng evidence trước khi thay đổi. | Security + PO | Rà soát compatibility, migration, kiểm thử. | APPROVED 2026-11-04 |
+| UC06-D08 | Không đưa secret vào logs/analytics/routes/persistent storage/clipboard; không có exception trong MVP. | Ràng buộc cross-UC đã được phê duyệt. | PO + Security | FE telemetry, API logging, QA evidence. | APPROVED 2026-11-04 |
+| UC06-D09 | Tạo Figma/reference chuẩn mới cho biểu mẫu và các trạng thái error/loading/success/session-expired/keyboard/responsive/accessibility trước PO duyệt giao diện; mock/tài liệu cũ không phải approval. | UC-04 chỉ phê duyệt điểm vào, chưa có giao diện chuẩn UC-06. | PO + Design | Cổng G1, screenshot review, accessibility AC. | APPROVED 2026-11-04 |
+| UC06-D10 | Web trước; mobile chỉ kiểm thử thủ công theo build/SHA được PO cho phép; UAT sau QA PASS. | Cổng bàn giao của parent. | PO | Kế hoạch QA, release evidence. | APPROVED 2026-11-04 |
 
-## 6. UI/UX va accessibility requirements
+## 6. Yêu cầu UI/UX và accessibility
 
-- Entry route is UC-04 Personal; do not treat the present placeholder as a usable UC-06 screen.
-- Use one dedicated form with secure-entry show/hide controls, labels usable by screen readers, clear focus order, visible focus, keyboard-safe scroll, minimum 48 px touch targets, and error announcement.
-- Disable the primary action while submission is pending; no duplicate request; preserve only non-sensitive UI state needed to render a failure.
-- Do not copy password values to clipboard automatically. Do not prefill or retain any password after submit, cancel, background/resume, logout, account switch, or process restart.
-- Canonical Figma/reference phai duoc tao o G1 truoc PO visual review: form, copy, success, error, loading, session-expired, keyboard, responsive va accessibility states. Legacy/mock khong la visual source of truth.
+- Entry route là UC-04 Personal; không được coi placeholder hiện tại là màn UC-06 có thể sử dụng.
+- Dùng một biểu mẫu riêng với điều khiển hiện/ẩn secure-entry, nhãn dùng được với screen reader, thứ tự focus rõ ràng, focus hiển thị được, cuộn an toàn khi mở keyboard, vùng chạm tối thiểu 48 px và thông báo lỗi.
+- Vô hiệu action chính khi đang gửi; không có request trùng; chỉ giữ trạng thái UI không nhạy cảm cần thiết để hiển thị lỗi.
+- Không tự động sao chép mật khẩu vào clipboard. Không prefill hoặc giữ lại mật khẩu sau submit, cancel, background/resume, logout, đổi tài khoản hoặc khởi động lại process.
+- G1 phải tạo Figma/reference chuẩn trước PO duyệt giao diện: biểu mẫu, copy, success, error, loading, session-expired, keyboard, responsive và accessibility. Mock/tài liệu cũ không là nguồn giao diện chuẩn.
 
-## 7. API/session/security contract for G2 (approved requirement, not implementation authorization)
+## 7. Hợp đồng API/session/security cho G2 (yêu cầu đã duyệt, chưa cho phép implementation)
 
-### 7.1 Contract baseline
+### 7.1. Hợp đồng cơ sở
 
-The reviewed service exposes `POST /auth/password/change`; G2 must reconcile it to the approved contract before integration. It authenticates bearer/session subject only. The body contains current, new, and confirmation password fields; no subject ID. Requests use TLS, `Cache-Control: no-store`, prevent intermediaries from caching, and never echo secret values.
+Service đã rà soát có `POST /auth/password/change`; G2 phải reconcile endpoint này với hợp đồng đã duyệt trước integration. Endpoint chỉ xác thực bearer/session subject. Body chứa trường mật khẩu hiện tại, mới và xác nhận; không có subject ID. Request dùng TLS, `Cache-Control: no-store`, ngăn intermediary cache và không bao giờ echo secret.
 
-Success returns only acknowledgement and the Sign In next-state; it must not return or issue a new session. Error mapping uses stable safe codes without raw server messages: validation/confirmation/reuse (`400`); unauthenticated/expired/revoked (`401`); inactive/forbidden subject (`403`); current-password invalid (`400` or `401`, frozen by G2 API contract); rate limit (`429` plus retry metadata); conflict/concurrency (`409`); retryable unavailability (`5xx`).
+Khi thành công, chỉ trả acknowledgement và next-state Sign In; không được trả hoặc cấp session mới. Error mapping dùng mã an toàn, ổn định, không raw server message: validation/confirmation/reuse (`400`); unauthenticated/expired/revoked (`401`); inactive/forbidden subject (`403`); current-password invalid (`400` hoặc `401`, được đóng băng trong hợp đồng API G2); rate limit (`429` kèm retry metadata); conflict/concurrency (`409`); retryable unavailability (`5xx`).
 
-### 7.2 Server requirements
+### 7.2. Yêu cầu server
 
-- Authenticate only current subject; verify current password with timing-safe/anti-enumeration behavior and revalidate policy server-side.
-- Store only an approved one-way password representation. Current source review is evidence of a salted slow-hash candidate, not deployment verification or migration approval. SHA-256-only storage is rejected as an implementation default.
-- Atomically update password, apply one approved session-revocation scope, record privacy-safe audit event, and produce one authoritative outcome for concurrency.
-- Logs, traces, analytics, error bodies, audit payloads, persistent client stores, navigation parameters, screenshots, and test fixtures must omit password/session secrets. Do not create a new secret-bearing telemetry field.
+- Chỉ xác thực subject hiện tại; xác minh mật khẩu hiện tại theo hành vi timing-safe/anti-enumeration và revalidate policy ở server.
+- Chỉ lưu dạng biểu diễn mật khẩu một chiều đã được phê duyệt. Source hiện tại là evidence của salted slow-hash candidate, không phải xác minh deploy hay phê duyệt migration. Cấm SHA-256-only storage làm mặc định implementation.
+- Atomically cập nhật mật khẩu, áp dụng đúng phạm vi thu hồi session đã duyệt, ghi privacy-safe audit event và tạo một authoritative outcome cho concurrency.
+- Logs, traces, analytics, error body, audit payload, persistent client store, navigation parameter, screenshot và test fixture phải bỏ mật khẩu/session secret. Không tạo trường telemetry mới chứa secret.
 
-## 8. Acceptance criteria
+## 8. Tiêu chí chấp nhận
 
-### AC-06-01 - Entry and subject
+### AC-06-01 - Entry và subject
 
-- **Given** an active authenticated local-password user is on UC-04 Personal
-- **When** they choose `Doi mat khau`
-- **Then** the system opens only the approved UC-06 form and never accepts a client-selected subject.
-- **And** expired, revoked, inactive, or mismatched sessions clear sensitive fields and use common session-expired/sign-out behavior.
+- **Giả sử** người dùng có mật khẩu cục bộ, đã xác thực và đang ở UC-04 Personal
+- **Khi** họ chọn `Đổi mật khẩu`
+- **Thì** hệ thống chỉ mở biểu mẫu UC-06 đã được phê duyệt và không bao giờ nhận subject do client chọn.
+- **Và** session hết hạn, bị thu hồi, không hoạt động hoặc không khớp phải xóa trường nhạy cảm và dùng hành vi session-expired/sign-out chung.
 
-### AC-06-02 - Validation and confirmation
+### AC-06-02 - Validation và xác nhận
 
-- **Given** the form is open
-- **When** current/new/confirm values are missing, boundary-invalid, violate D01, new equals current, or confirmation differs
-- **Then** no mutation is made, feedback is accessible and safe, and no secret is retained after exit/resume.
+- **Giả sử** biểu mẫu đang mở
+- **Khi** current/new/confirm bị thiếu, không hợp lệ biên, vi phạm D01, mật khẩu mới bằng mật khẩu hiện tại hoặc xác nhận khác nhau
+- **Thì** không có mutation nào được thực hiện, phản hồi có accessibility và an toàn, secret không được giữ lại sau exit/resume.
 
-### AC-06-03 - Current verification and abuse
+### AC-06-03 - Xác minh mật khẩu hiện tại và chống lạm dụng
 
-- **Given** a valid authenticated subject submits a syntactically valid form
-- **When** current-password verification fails or the server applies D02/D05 protection
-- **Then** the password is unchanged, response/copy does not disclose extra account state, and retry/cooldown follows approved policy.
+- **Giả sử** subject hợp lệ đã xác thực gửi biểu mẫu hợp lệ về cú pháp
+- **Khi** xác minh mật khẩu hiện tại thất bại hoặc server áp dụng bảo vệ D02/D05
+- **Thì** mật khẩu không đổi, response/copy không tiết lộ thêm account state và retry/cooldown tuân thủ policy đã duyệt.
 
-### AC-06-04 - Successful mutation and session result
+### AC-06-04 - Mutation thành công và kết quả session
 
-- **Given** current verification and all validation pass
-- **When** the server processes exactly one mutation
-- **Then** the new password becomes authoritative, audit is privacy-safe, session revocation/current-session behavior follows D03, and navigation/feedback follows D04.
+- **Giả sử** xác minh mật khẩu hiện tại và mọi validation đều đạt
+- **Khi** server xử lý đúng một mutation
+- **Thì** mật khẩu mới là authoritative, audit bảo vệ privacy, hành vi session tuân thủ D03 và navigation/feedback tuân thủ D04.
 
-### AC-06-05 - Failure, timeout and concurrency
+### AC-06-05 - Lỗi, timeout và concurrency
 
-- **Given** a timeout, offline/5xx failure, double submit, or concurrent change attempt
-- **When** requests race or a response is uncertain
-- **Then** UI does not issue an uncontrolled retry or show unverified success; server provides one authoritative final state under D06; no duplicate session/mutation is created.
+- **Giả sử** xảy ra timeout, offline/lỗi `5xx`, double submit hoặc thay đổi đồng thời
+- **Khi** request tranh chấp hoặc response chưa chắc chắn
+- **Thì** UI không uncontrolled retry hoặc hiển thị thành công chưa được xác minh; server cung cấp một final authoritative state theo D06; không tạo session/mutation trùng.
 
-### AC-06-06 - Privacy and accessibility
+### AC-06-06 - Privacy và accessibility
 
-- **Given** any UI/API/test/audit path for UC-06
-- **When** it handles the form or response
-- **Then** no password/session secret appears in route params, storage, clipboard, analytics, logs, errors, screenshots, or evidence.
-- **And** secure fields, labels, focus order, error announcement, contrast, touch target, keyboard behavior, loading, and responsive states meet the approved D09 reference.
+- **Giả sử** bất kỳ đường UI/API/test/audit nào của UC-06
+- **Khi** đường đó xử lý biểu mẫu hoặc response
+- **Thì** không có password/session secret trong route parameter, storage, clipboard, analytics, log, error, screenshot hoặc evidence.
+- **Và** secure field, label, focus order, error announcement, contrast, touch target, keyboard behavior, loading và responsive state đáp ứng D09 đã duyệt.
 
-## 9. Test matrix va DoD for downstream
+## 9. Ma trận kiểm thử và DoD cho downstream
 
-| Layer | Required cases |
+| Lớp | Trường hợp bắt buộc |
 | --- | --- |
-| Unit | D01 boundary and relation validation; error mapper; no-secret state clearing; submit lock; dirty/back state; navigation per D03/D04. |
-| API/integration | subject-only auth; wrong current; policy/reuse/confirm; inactive/expired/revoked; rate-limit; safe errors; cache headers; atomic password/session/audit transaction; idempotency/concurrency; no secret logging. |
-| UI/Web | entry UC-04; loading/double-submit; all error/success destinations; focus/screen-reader/keyboard; 320/375/390/430 width and short-height evidence once D09 is approved. |
-| System/regression | UC-01 registration policy, UC-02 sign-in/session rotation/throttle, UC-03 reset all-session behavior, UC-04/05 session expiry/account-switch behavior. |
-| Mobile | Manual only after PO authorizes a named build and exact SHA; cover same functional/accessibility matrix feasible on device. |
+| Unit | Biên D01 và validation quan hệ; error mapper; xóa trạng thái no-secret; khóa submit; trạng thái dirty/back; navigation theo D03/D04. |
+| API/integration | Subject-only auth; sai mật khẩu hiện tại; policy/reuse/confirm; inactive/expired/revoked; rate limit; lỗi an toàn; cache header; transaction password/session/audit atomic; idempotency/concurrency; không log secret. |
+| UI/Web | Entry từ UC-04; loading/double-submit; mọi điểm đến lỗi/thành công; focus/screen-reader/keyboard; bằng chứng kích thước 320/375/390/430 và chiều cao ngắn sau khi D09 được hiện thực. |
+| System/regression | Chính sách đăng ký UC-01, sign-in/session rotation/throttle UC-02, reset toàn bộ session UC-03, session expiry/account-switch UC-04/05. |
+| Mobile | Chỉ thủ công sau khi PO cho phép build/SHA cụ thể; bao phủ ma trận chức năng/accessibility tương đương khả thi trên thiết bị. |
 
-**DoD:** G1 now creates the D09 canonical reference and obtains PO visual review; G2 only after that review plus Security/BE verification required by D07 and a frozen API code/status table; G3 uses real approved API, not a policy mock; Dev supplies unit-test/coverage evidence under its quality gate; QA independently tests exact merged/deployed SHA; PO UAT occurs only after QA PASS. `ROOT_SYNC` is terminal only after PO UAT and contains no sensitive data.
+**DoD:** G1 tạo D09 canonical reference và nhận PO duyệt giao diện; G2 chỉ sau lần duyệt đó, xác minh Security/BE theo D07 và bảng API code/status được đóng băng; G3 dùng API thật đã duyệt, không dùng policy mock; Dev cung cấp unit-test/coverage evidence theo quality gate; QA kiểm thử độc lập trên merge/deploy SHA chính xác; PO UAT chỉ sau QA PASS. `ROOT_SYNC` chỉ ở trạng thái cuối sau PO UAT và không chứa dữ liệu nhạy cảm.
 
-## 10. Gap and delivery impact map
+## 10. Bản đồ khoảng trống và tác động bàn giao
 
-| Repository | Read-only finding | Downstream impact |
+| Repository | Phát hiện chỉ đọc | Tác động downstream |
 | --- | --- | --- |
-| `smart-platform` | This canonical spec was legacy-only before G0; UC-04/05 baseline and FRS show entry but no canonical UC-06 visual. | Docs/G1 Design gap; no code change in G0. |
-| `smart-tro` | UC-04 action currently reaches a destination placeholder; no UC-06 form/API integration. | G1 screen/navigation; G3 real API integration after gates. |
-| `smart-platform-services` | Existing source has a change-password candidate but differs from D01 confirm/D03 no-new-session behavior and lacks deploy proof. | G2 must reconcile contract, complete D07 Security/BE verification, and add session/audit/idempotency tests; do not reuse by assumption. |
+| `smart-platform` | Đặc tả chuẩn này trước G0 chỉ là tài liệu cũ; UC-04/05 và FRS có điểm vào nhưng chưa có giao diện UC-06 chuẩn. | Khoảng trống tài liệu/G1 Design; G0 không thay đổi code. |
+| `smart-tro` | Action UC-04 hiện đến placeholder; chưa có biểu mẫu UC-06/API integration. | Màn hình/navigation G1; integration G3 với API thật sau các cổng. |
+| `smart-platform-services` | Có mã nguồn change-password nhưng khác D01 confirm/D03 không cấp session mới và chưa có deploy proof. | G2 phải reconcile hợp đồng, hoàn tất xác minh D07 Security/BE và thêm kiểm thử session/audit/idempotency; không dùng lại theo giả định. |
 
-## 11. G0 terminal handoff
+## 11. Handoff G0 cuối
 
-G0 is **DONE**: PO terminally approved `UC06-D01..D10` on 2026-11-04 and this canonical document reflects that bundle. The next action is **G1 only**: create the D09 canonical Figma/reference, have PO review the visual/accessibility states, and record terminal evidence. Do not assign, trigger, or implement FE/BE from this G0 handoff. G2 remains gated by G1 visual approval and D07 Security/BE implementation verification.
+G0 **HOÀN THÀNH**: PO đã phê duyệt cuối `UC06-D01..D10` ngày 2026-11-04 và tài liệu chuẩn này phản ánh đúng bundle đó. Hành động kế tiếp là **chỉ G1**: tạo Figma/reference chuẩn theo D09, để PO duyệt các trạng thái giao diện/accessibility và ghi evidence cuối. Không assign, trigger hoặc implementation FE/BE từ handoff G0 này. G2 vẫn bị chặn bởi PO duyệt giao diện ở G1 và xác minh Security/BE theo D07.
