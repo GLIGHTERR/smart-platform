@@ -4,13 +4,13 @@
 
 | Thuoc tinh | Gia tri |
 | --- | --- |
-| Trang thai G0 | **NEEDS_PO_DECISION** |
-| Pham vi | Doi mat khau local cho nguoi dung da xac thuc; chua la authorization de FE/BE trien khai. |
+| Trang thai G0 | **DONE - PO decisions terminal 2026-11-04** |
+| Pham vi | Doi mat khau local cho nguoi dung da xac thuc. G0 chua la authorization de FE/BE trien khai; G1 canonical reference va PO visual review van la gate. |
 | Legacy | SRS muc 3.7 la baseline tham khao, khong phai approval. Quy tac SHA-256 trong baseline bi thay the bang verdict o muc 5 va khong duoc dung mac dinh. |
 | Source heads da review | `smart-platform@19fa7ff491d5e9f5a3ba4b4a53728eec145d76da`; `smart-tro@ab463c04bc16d55c78448ac29dcb0e8f86bb9f22`; `smart-platform-services@dff03a7a49186e7c8ba82efbac9e21fa16910a6b`. |
-| Owner quyet dinh con mo | PO (Nghia Nguyen Tuan), voi Security/BE cung cap evidence ky thuat. |
+| Quyet dinh PO | `UC06-D01..D10` terminal; `UC06-D07` van yeu cau Security/BE xac minh implementation truoc G2. |
 
-Tai lieu nay tu dung va la canonical G0 cho UC-06. `OPEN` khong duoc dien giai thanh business rule, API contract, visual approval, hay license mo gate. Khong ghi gia tri password, token, cookie, credential, PII that, hoac log nhay cam trong tai lieu/evidence.
+Tai lieu nay tu dung va la canonical G0 cho UC-06. Cac decision matrix ben duoi la terminal theo `PO_APPROVED` ngay 2026-11-04; chi G1 Figma/reference va PO visual review moi cho phep mo FE/UI. Khong ghi gia tri password, token, cookie, credential, PII that, hoac log nhay cam trong tai lieu/evidence.
 
 ## 2. Muc tieu, actor va ranh gioi
 
@@ -30,14 +30,14 @@ Tai lieu nay tu dung va la canonical G0 cho UC-06. `OPEN` khong duoc dien giai t
 
 | Nguon | Rang buoc ke thua / gap |
 | --- | --- |
-| UC-01 Sign Up | Password policy hien co: 8-128 ky tu, chu thuong, chu hoa, chu so, ky tu dac biet; confirm phai khop. Password khong vao route, log, analytics hoac persistent storage. UC-06 can PO xac nhan rang policy nay ap dung nguyen ven. |
-| UC-02 Sign In | `SIGNIN-D09`: 5 lan sai lien tiep throttle 15 phut; `SIGNIN-D10`: access 15 phut, refresh 30 ngay va rotation; `SIGNIN-D11`: logout current-device va reset thu hoi moi session. UC-06 chua co quyet dinh thu hoi session sau change. |
-| UC-03 Forgot Password | Reset thanh cong revoke toan bo session, khong auto-login; audit khong log secret. Day la precedent security, khong tu dong phe duyet cho UC-06. |
+| UC-01 Sign Up | Policy da duoc PO ke thua cho UC-06: 8-128 ky tu, chu thuong, chu hoa, chu so, ky tu dac biet; confirm phai khop. Password giu nguyen exact characters, khong trim/normalize, va khong vao route, log, analytics hoac persistent storage. |
+| UC-02 Sign In | `SIGNIN-D09` 5 lan sai/15 phut duoc PO reuse theo subject cho UC-06. `SIGNIN-D10` token rotation la contract Sign In; UC-06 revoke toan bo session va khong cap session moi theo D03. |
+| UC-03 Forgot Password | Reset revoke toan bo session va khong auto-login la precedent ma PO da chon cho UC-06; audit khong log secret. |
 | UC-04 Account/Personal | FRS da phe duyet action `Doi mat khau` chi dieu huong sang UC-06. Tai source review, `smart-tro` dang dieu huong den placeholder `Destination`, chua co form UC-06. |
-| UC-05 Edit Personal | Pattern subject-only, server authoritative, expired/revoked/inactive session thi sign-out, va success quay UC-04 la reference UX; khong thay the decision success cua UC-06. |
-| services current source | Co candidate endpoint/service change-password va password hasher co salt/slow hash; candidate hien tai khong co confirm field, co behavior cap session moi sau revoke, va chua la approved UC-06 contract/deploy evidence. |
+| UC-05 Edit Personal | Pattern subject-only, server authoritative, expired/revoked/inactive session thi sign-out duoc ke thua; UC-06 da chon success ve Sign In, khong quay UC-04. |
+| services current source | Co candidate endpoint/service change-password va password hasher co salt/slow hash. Candidate thieu confirm va cap session moi sau revoke, nen G2 phai reconcile theo D01/D03/D06; source khong phai deploy evidence. |
 
-## 4. Luong canonical de PO phe duyet
+## 4. Luong canonical da duoc PO phe duyet
 
 ### 4.1 Main flow de xuat
 
@@ -52,43 +52,43 @@ Tai lieu nay tu dung va la canonical G0 cho UC-06. `OPEN` khong duoc dien giai t
 | Tinh huong | Hanh vi yeu cau |
 | --- | --- |
 | Client validation fail / new-confirm khong khop / new giong current | Khong goi API neu xac dinh local duoc; hien inline feedback an toan; khong lo current password. |
-| Current password khong dung | Giu form, xoa current field theo decision UX, thong bao chung khong phan biet account state; retry/rate-limit theo `UC06-D02`. |
+| Current password khong dung | Giu form, xoa current field, thong bao generic safe, khong phan biet account state hay raw backend message; throttle 5 lan that bai/15 phut theo subject. |
 | Session expired, revoked, inactive, subject mismatch | Khong doi password; clear sensitive form state; chay common sign-out/session-expired behavior cua UC-04/05. |
 | Rate limited / cooldown | Khong mutate; hien retry action/thoi diem theo server contract; khong suy luan account state. |
 | Timeout, offline, 5xx | Khong tu ket luan mutation fail hay retry blind. Hien retry an toan sau khi resolve authoritative state/idempotency decision; password fields khong persist. |
 | Double submit / concurrent request | UI chi mot request dang cho. Server phai xac dinh final authoritative outcome; response cho request sau khong duoc tao session/mutation thu hai. |
-| Back, cancel, app background/restart | Warning dirty state va hanh vi back/cancel la `UC06-D04`; bat ky exit/resume/restart nao xoa ba field, khong persist secret. |
+| Back, cancel, app background/restart | Khi co input, back/cancel phai confirm discard; khong save draft. Bat ky exit/background/restart nao xoa ba field, khong persist secret. |
 
 ## 5. Decision matrix bat buoc
 
-| ID | Quyet dinh / options | Recommendation | Rationale | Owner | Impact | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| UC06-D01 | Password policy: (A) ke thua UC-01 8-128 + lower/upper/digit/special; (B) policy moi; (C) policy identity service la canonical. Normalization: (A) giu nguyen exact characters; (B) trim/normalize. Reuse history: none / last-N / current-only. | A + giu nguyen exact characters + current-only, cho den khi PO/Security quyet khac. | Nhat quan UC-01/03; trim password co the thay doi secret va history chua co evidence. | PO + Security | FE validation, DTO, migration, test boundary. | OPEN |
-| UC06-D02 | Sai current password: (A) generic error + same retry control; (B) field-specific; throttle: (A) reuse SIGNIN-D09; (B) policy rieng; (C) no throttle. | A + reuse 5 fail/15 min chi neu PO xac nhan scope chung. | Can han che disclosure va brute force; precedent Sign In khong tu dong ap dung cho mutation. | PO + Security | Status/code/copy, rate limiter, audit, UX. | OPEN |
-| UC06-D03 | Session revocation: (A) revoke all incl current, sign in lai; (B) revoke other sessions, current continues/rotates; (C) revoke all va cap session moi current. | A de dong nhat UC-03 va giam session theft, nhung PO phai chap nhan UX. | UC-03 la all-session/no auto-login; source candidate C la conflict can resolve. | PO + Security | Auth response, token rotation, navigation, device regression. | OPEN |
-| UC06-D04 | Success destination: (A) Sign In; (B) UC-04; (C) home. Dirty/back/cancel: discard ngay / confirm discard / save draft. | Neu D03=A, A; neu D03=B/C, B. Confirm discard khi co input. | Destination phu thuoc session decision; khong co Figma canonical form/state. | PO + Design | G1 visual, navigation, accessibility, UAT. | OPEN |
-| UC06-D05 | Rate limit/lockout, cooldown, audit/security notification: reuse Sign In / policy rieng / no notification. | Audit immutable subject + masked metadata, no secret; notification va exact limit can PO/Security chot. | Audit precedent UC-03; notification co UX/privacy scope. | PO + Security | API headers, event schema, support/comms. | OPEN |
-| UC06-D06 | Timeout/duplicate/concurrency: (A) idempotency key + authoritative query; (B) serializable/versioned mutation; (C) server last-write policy. | A, with server-side one mutation per authenticated subject and no blind retry. | Tranh doi password/session lap va feedback sai khi timeout. | PO + BE | API contract, persistence, client retry, tests. | OPEN |
-| UC06-D07 | Hashing/storage migration: (A) keep reviewed salted slow hash; (B) approved migration; (C) legacy SHA-256. | A subject to Security verification; reject C. | Read-only source co per-record salted slow hash; legacy SHA-256 is not an approved safe storage contract. | Security + PO | DB migration, compatibility, incident risk, tests. | OPEN |
-| UC06-D08 | Privacy: no secret in logs/analytics/routes/persistent storage/clipboard by default; exceptions only explicit approval. | No exceptions. | Ke thua no-secret constraints UC-01/02/03. | PO + Security | FE telemetry, API logging, QA evidence. | APPROVED (existing cross-UC constraint) |
-| UC06-D09 | Figma/reference: (A) new canonical Figma; (B) PO-approved annotated reference; (C) infer from legacy/mock. Responsive/a11y states included/excluded. | A; require form, error, loading, success, session-expired, keyboard and responsive states. | UC-04 approves entry only; no UC-06 canonical visual was found. | PO + Design | G1 gate, screenshot review, accessibility AC. | OPEN |
-| UC06-D10 | Evidence: web first; mobile manual only per approved build/SHA; UAT boundary. | Web QA first; mobile only after explicit PO authorization for exact build/SHA. | Parent delivery gate. | PO | QA plan, release evidence. | APPROVED (parent gate) |
+| ID | Quyet dinh terminal | Rationale | Owner | Impact | Status |
+| --- | --- | --- | --- | --- | --- |
+| UC06-D01 | Ke thua UC-01: 8-128, lowercase, uppercase, digit, special; giu nguyen exact characters, khong trim/normalize; new khac current; chua ap dung last-N history MVP. | Nhat quan UC-01/03 ma khong thay doi secret. | PO + Security | FE validation, DTO, test boundary. | APPROVED 2026-11-04 |
+| UC06-D02 | Current-password sai tra generic safe error; throttle 5 failures/15 minutes theo subject; public code/copy on dinh, khong raw error hay account state. | Chong disclosure va brute force. | PO + Security | Status/code/copy, rate limiter, audit, UX. | APPROVED 2026-11-04 |
+| UC06-D03 | Revoke tat ca session, gom current session; khong auto-login/cap session moi; user Sign In lai. | Dong nhat recovery va giam session-theft risk. | PO + Security | Auth response, navigation, device regression. | APPROVED 2026-11-04 |
+| UC06-D04 | Success feedback an toan roi dieu huong Sign In. Back/cancel khi co input confirm discard; khong save draft; exit/background/restart xoa secrets. | UX ro rang phu thuoc D03, khong retain secret. | PO + Design | G1 visual, navigation, accessibility, UAT. | APPROVED 2026-11-04 |
+| UC06-D05 | Reuse D02 throttle; immutable audit event chi subject + metadata masked; khong email/push notification trong MVP. | Audit du traceability ma bao ve privacy. | PO + Security | Rate limiter, audit event, support/comms. | APPROVED 2026-11-04 |
+| UC06-D06 | Idempotency key + authoritative outcome/query; mot subject chi mot mutation dang xu ly; no blind retry; response cu khong ghi de final state. | Tranh duplicate mutation/session va success sai sau timeout. | PO + BE | API contract, persistence, client retry, tests. | APPROVED 2026-11-04 |
+| UC06-D07 | Giu salted slow hash hien hanh sau khi Security/BE xac minh implementation; khong migration neu compatible; cam legacy SHA-256. | Bao toan storage an toan va dung evidence truoc thay doi. | Security + PO | Compatibility review, migration, tests. | APPROVED 2026-11-04 |
+| UC06-D08 | No secret trong logs/analytics/routes/persistent storage/clipboard; khong exception MVP. | Rang buoc cross-UC da duoc phe duyet. | PO + Security | FE telemetry, API logging, QA evidence. | APPROVED 2026-11-04 |
+| UC06-D09 | Tao canonical Figma/reference moi cho form va error/loading/success/session-expired/keyboard/responsive/accessibility truoc PO visual review; legacy/mock khong phai approval. | UC-04 chi phe duyet entry, khong co UC-06 visual canonical. | PO + Design | G1 gate, screenshot review, accessibility AC. | APPROVED 2026-11-04 |
+| UC06-D10 | Web first; mobile manual only theo build/SHA duoc PO cho phep; UAT sau QA PASS. | Parent delivery gate. | PO | QA plan, release evidence. | APPROVED 2026-11-04 |
 
-## 6. UI/UX va accessibility proposal (non-binding while D04/D09 OPEN)
+## 6. UI/UX va accessibility requirements
 
 - Entry route is UC-04 Personal; do not treat the present placeholder as a usable UC-06 screen.
 - Use one dedicated form with secure-entry show/hide controls, labels usable by screen readers, clear focus order, visible focus, keyboard-safe scroll, minimum 48 px touch targets, and error announcement.
 - Disable the primary action while submission is pending; no duplicate request; preserve only non-sensitive UI state needed to render a failure.
 - Do not copy password values to clipboard automatically. Do not prefill or retain any password after submit, cancel, background/resume, logout, account switch, or process restart.
-- Canonical Figma/reference, text copy, success feedback, responsive viewport matrix, and dirty-discard interaction are gaps owned by PO/Design. No legacy frame/mock is visual source of truth.
+- Canonical Figma/reference phai duoc tao o G1 truoc PO visual review: form, copy, success, error, loading, session-expired, keyboard, responsive va accessibility states. Legacy/mock khong la visual source of truth.
 
-## 7. API/session/security proposal for G2 (not approved, not implementation authorization)
+## 7. API/session/security contract for G2 (approved requirement, not implementation authorization)
 
-### 7.1 Candidate contract
+### 7.1 Contract baseline
 
-`POST /auth/password/change` (path/method must be confirmed against gateway convention) with authenticated bearer/session subject only. Body contains current, new, and confirmation password fields; no subject ID. Requests must use TLS, `Cache-Control: no-store`, prevent intermediaries from caching, and never echo secret values.
+The reviewed service exposes `POST /auth/password/change`; G2 must reconcile it to the approved contract before integration. It authenticates bearer/session subject only. The body contains current, new, and confirmation password fields; no subject ID. Requests use TLS, `Cache-Control: no-store`, prevent intermediaries from caching, and never echo secret values.
 
-Success must return only the approved next-state: either an acknowledgement with sign-in destination, or a newly issued current-session representation if `UC06-D03=C`. Error mapping must use stable safe codes, without raw server messages: validation/confirmation/reuse (`400`); unauthenticated/expired/revoked (`401`); inactive/forbidden subject (`403` if approved); current-password invalid (`400` or `401`, per D02); rate limit (`429` plus retry metadata); conflict/concurrency (`409`); retryable unavailability (`5xx`). Exact public code/status table is contingent on D02/D03/D05/D06.
+Success returns only acknowledgement and the Sign In next-state; it must not return or issue a new session. Error mapping uses stable safe codes without raw server messages: validation/confirmation/reuse (`400`); unauthenticated/expired/revoked (`401`); inactive/forbidden subject (`403`); current-password invalid (`400` or `401`, frozen by G2 API contract); rate limit (`429` plus retry metadata); conflict/concurrency (`409`); retryable unavailability (`5xx`).
 
 ### 7.2 Server requirements
 
@@ -147,7 +147,7 @@ Success must return only the approved next-state: either an acknowledgement with
 | System/regression | UC-01 registration policy, UC-02 sign-in/session rotation/throttle, UC-03 reset all-session behavior, UC-04/05 session expiry/account-switch behavior. |
 | Mobile | Manual only after PO authorizes a named build and exact SHA; cover same functional/accessibility matrix feasible on device. |
 
-**DoD:** G1 only after D04/D09 visual decisions and PO review; G2 only after all security/session/API rows are terminal; G3 uses real approved API, not a policy mock; Dev supplies unit-test/coverage evidence under its quality gate; QA independently tests exact merged/deployed SHA; PO UAT occurs only after QA PASS. `ROOT_SYNC` is terminal only after PO UAT and contains no sensitive data.
+**DoD:** G1 now creates the D09 canonical reference and obtains PO visual review; G2 only after that review plus Security/BE verification required by D07 and a frozen API code/status table; G3 uses real approved API, not a policy mock; Dev supplies unit-test/coverage evidence under its quality gate; QA independently tests exact merged/deployed SHA; PO UAT occurs only after QA PASS. `ROOT_SYNC` is terminal only after PO UAT and contains no sensitive data.
 
 ## 10. Gap and delivery impact map
 
@@ -155,8 +155,8 @@ Success must return only the approved next-state: either an acknowledgement with
 | --- | --- | --- |
 | `smart-platform` | This canonical spec was legacy-only before G0; UC-04/05 baseline and FRS show entry but no canonical UC-06 visual. | Docs/G1 Design gap; no code change in G0. |
 | `smart-tro` | UC-04 action currently reaches a destination placeholder; no UC-06 form/API integration. | G1 screen/navigation; G3 real API integration after gates. |
-| `smart-platform-services` | Existing source has a change-password candidate but differs from proposed confirm/session choices and lacks G0 approval/deploy proof. | G2 must reconcile contract, security review, migration/session/audit tests; do not reuse by assumption. |
+| `smart-platform-services` | Existing source has a change-password candidate but differs from D01 confirm/D03 no-new-session behavior and lacks deploy proof. | G2 must reconcile contract, complete D07 Security/BE verification, and add session/audit/idempotency tests; do not reuse by assumption. |
 
 ## 11. G0 terminal handoff
 
-G0 has normalized the canonical requirement and surfaced decision owners. It is **not** ready for FE or BE. PO must issue terminal decisions for `UC06-D01` through `UC06-D07` and `UC06-D09`; then PM can revise this document, obtain visual approval at G1 where required, and open downstream gates in order.
+G0 is **DONE**: PO terminally approved `UC06-D01..D10` on 2026-11-04 and this canonical document reflects that bundle. The next action is **G1 only**: create the D09 canonical Figma/reference, have PO review the visual/accessibility states, and record terminal evidence. Do not assign, trigger, or implement FE/BE from this G0 handoff. G2 remains gated by G1 visual approval and D07 Security/BE implementation verification.
