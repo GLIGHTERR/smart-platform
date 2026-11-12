@@ -22,6 +22,79 @@
 | D05 | UI/Figma: canonical URL/node/capture cho Sign Up (3 steps), Sign In, Forgot Password (3 steps), Home, UC-04/05/08 và state/loading/error | PO chỉ định nguồn Figma/capture versioned hoặc quyết định không thuộc phase | **Pending** | Tất cả screen G0 | Không thể handoff FE/UI fidelity |
 | D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Dùng map ở mục 4; chỉ mở gate kế tiếp sau PO approval hiển thị của D01-D06 liên quan | **Pending** | Toàn phase đầu | Không mở implementation gate |
 
+## 2.1. Three distinct review groups
+
+### A. Missing information / references
+
+- **D05 design evidence:** repo có **không** Figma URL, node ID hoặc capture canonical cho auth, Home, personal profile và change-password. `FRS.md` là mirror legacy, không có auth/profile/Home detail dùng được làm design approval. `screens/business-verification-states.md` chỉ là textual UI state reference cho Home/business verification.
+- **D02 profile contract:** thiếu inventory field của owner, source-of-truth cho mỗi field, ownership, validation, masking và API/data mapping.
+- **D04 shared-auth contract:** chưa có quyết định platform-visible cho session duration, refresh rotation, multi-device, normal sign-out scope và change-password revocation.
+
+### B. Conflicts between living specs and legacy
+
+| Conflict | Canonical disposition pending PO approval | Impact |
+| --- | --- | --- |
+| UC-01/02/03 draft dùng email; User Stories, Requirement List và FRS legacy dùng phone/SMS | Living specs là proposal hiện hành; legacy được giữ làm provenance, không là implementation contract | D01, auth UI/API/test data |
+| UC-05 legacy coi phone immutable; UC-01 draft chỉ coi phone là contact data nếu được thu thập | Không suy diễn phone identity hoặc profile field trước D02 | profile schema/UI |
+| UC-08 legacy nêu SHA-256; UC-01 draft loại trừ SHA-256 thuần | Không dùng rule SHA-256 legacy; chờ D04 xác nhận shared password policy | security acceptance/BE |
+| US-02 legacy có phone OTP/lockout 72h; UC-02 draft không OTP normal sign-in | Chờ D01/D04; không tự mang lockout/OTP legacy sang email flow | sign-in UX/API |
+
+### C. Proposed defer / out of scope
+
+| Nội dung | Disposition đề xuất | Impact / dependency |
+| --- | --- | --- |
+| Social sign-up, social-only recovery/linking | Defer - cần UC và policy riêng | Không tự link provider theo email trong UC-01/02/03 |
+| Loại giấy tờ pháp lý, re-verification/expiry, thu hồi hồ sơ đã duyệt, draft trước approval | Out of G0/MVP theo business-verification policy | Không thay đổi `APPROVED` gate của UC-10/18/22 |
+| Mobile chain Expo exact SHA -> Mobile QA -> PO app UAT | Conditional; chỉ áp dụng nếu PO đưa mobile vào phase | Cần target/merge SHA và môi trường trước QA |
+| UX exploration bằng Canvas Design | Optional review aid, không phải FE/UI task | PO phải chấp thuận brief/artboards; G0 vẫn đóng implementation gate |
+
+## 2.2. PO review choices: D02-D04
+
+### D02 - Owner registration and personal profile fields
+
+| Question | Option A | Option B | Recommendation and trade-off | PO decision |
+| --- | --- | --- | --- | --- |
+| D02.1 Initial registration fields | Email + verification + password only; collect profile after sign-in | Collect personal profile fields during registration | **A:** khớp UC-01 flow và giảm registration friction; Home/Profile cần một completion state sau sign-in. **B:** dữ liệu sớm hơn nhưng tăng abandonment và cần design/API mới. | Pending |
+| D02.2 Personal profile minimum scope | `display name` required; `avatar` optional; verified email read-only; phone omitted until separately specified | Same, nhưng phone là optional contact field, not credential/not unique identity | **A:** không suy diễn phone legacy. **B:** hỗ trợ liên hệ nhưng bắt buộc chốt validation, masking, editability và consent. | Pending |
+| D02.3 Editability | Email immutable trong UC-05; đổi email là flow riêng nếu cần | Cho edit email ngay trong UC-05 | **A:** identity/session/audit đơn giản hơn. **B:** cần re-verification, uniqueness và session handling riêng. | Pending |
+| D02.4 Profile/business ownership | Personal profile tách business profile; legal/business fields chỉ ở UC-06/07 | Gộp business fields vào profile registration | **A:** khớp business-verification policy và D03. **B:** tăng friction, đổi sequence policy/UI. | Pending |
+
+PO cần trả lời cùng các field cụ thể nếu chọn option có phone hoặc field khác: required/optional, format/validation, uniqueness, editability, privacy/masking và API owner. Không có field nào được tự thêm vào contract.
+
+### D03 - Account, personal profile and business verification boundary
+
+| Question | Option A | Option B | Recommendation and trade-off | PO decision |
+| --- | --- | --- | --- | --- |
+| D03.1 Post-registration boundary | Email-verified account được Sign In/Home; business profile bắt đầu `NOT_SUBMITTED`, hoàn thiện ở UC-06/07 | Thu business profile ngay trong registration | **A:** đúng `SMC-BV-D01/D02`, giữ signup ngắn; cần Home CTA. **B:** dữ liệu sớm hơn nhưng mâu thuẫn flow UC-01 hiện tại và tăng friction. | Pending |
+| D03.2 Access before approval | Cho login, Home, personal/business profile và read actions được policy cho phép; block create nhà/phòng/hợp đồng | Chặn toàn bộ Home/operational surfaces cho đến `APPROVED` | **A:** khớp policy Approved/UI states. **B:** đơn giản quyền nhưng mâu thuẫn policy hiện hành và không hỗ trợ completion journey. | Pending |
+
+### D04 - Session and password policy
+
+| Question | Option A | Option B | Recommendation and trade-off | PO decision |
+| --- | --- | --- | --- | --- |
+| D04.1 Password + OTP/reset values | Adopt current UC drafts: password min 8 + upper + digit + special; email OTP/reset TTL 10 min, resend 60 sec, reset max 5 attempts | Adopt an explicit shared-platform policy with different values | **A:** có traceability hiện hữu. **B:** tránh SmartChủ-specific drift nhưng PO phải cung cấp version/value. | Pending |
+| D04.2 Anti-enumeration and normal sign-in OTP | Generic public response; no OTP for normal Sign In | Reveal account state and/or require OTP normal Sign In | **A:** khớp UC-02/03 and lower friction. **B:** thay D01/UC and increases UX/service dependency. | Pending |
+| D04.3 Session lifetime/refresh rotation/multi-device | Adopt documented shared-platform defaults; record exact reference/version | Define SmartChủ-specific duration/rotation/device cap | **A:** avoids divergence; current reference is missing and must be supplied. **B:** supports tailored risk model but creates independent contract/test burden. | Pending |
+| D04.4 Sign-out and credential-change revocation | Normal Sign Out = current session; Forgot Password and Change Password = revoke all sessions/refresh grants | Sign Out/credential changes revoke all sessions | **A:** matches UC-03 reset behavior and minimizes surprise on normal exit; Change Password still needs explicit approval. **B:** stronger containment but disrupts other devices. | Pending |
+| D04.5 Success route | Sign Up/Reset -> Sign In with email prefill, no auto-login; Change Password route explicitly selected by PO | Auto-login after one or more flows | **A:** matches UC-01/03 drafts. **B:** smoother UX but changes session/security acceptance. | Pending |
+
+## 2.3. D05 design/reference packet
+
+| Flow / screen | Exact missing state or reference | Current reference | UX question for PO |
+| --- | --- | --- | --- |
+| Sign Up - Email | default, format validation, submit loading, neutral duplicate/non-enumeration response, network error | UC-01 text flow only; no Figma/capture | What copy, CTA order and recovery path are approved? |
+| Sign Up - Email OTP | entry, wrong/expired/attempt-limit, resend cooldown/loading, resend error, app return, restart | UC-01 text rules only; no Figma/capture | How are timer, attempts, resend and restart represented without exposing sensitive data? |
+| Sign Up - Password | policy hints, confirm mismatch, submit/loading/error, success -> Sign In prefill | UC-01 text flow only; no Figma/capture | What validation timing and success transition are approved? |
+| Sign In | default, field validation, loading, generic invalid credential, unverified-account resume, network error, Sign Out return | UC-02 text flow only; no Figma/capture | What generic error copy, unverified route and Home post-login state are approved? |
+| Forgot Password - Email | default, validation, neutral sent response, loading/network error, change-email affordance | UC-03 text flow only; no Figma/capture | What exact neutral copy and placement of `Nhập email khác` are approved? |
+| Forgot Password - OTP | entry, wrong/expired/attempt-limit, resend cooldown/loading/error, change email | UC-03 text flow only; no Figma/capture | What timer/resend/error hierarchy is approved? |
+| Forgot Password - New Password | policy/mismatch, submit/loading/error, success -> Sign In prefill | UC-03 text flow only; no Figma/capture | What completion copy and navigation are approved? |
+| Home | verification banners/CTAs for four statuses, post-login loading/empty/error | `screens/business-verification-states.md` specifies four textual states; no Figma/node/capture | Which Home layout, loading/error/empty states and CTA destination are approved? |
+| Personal Profile view/edit | all fields, read/edit/loading/save/error/empty states and privacy/masking | UC-04/05 legacy only; no canonical reference | What D02 field list and visual state set are approved? |
+| Change Password | current/new/confirm, validation/loading/success/error, other-device/session outcome | UC-08 legacy only; no canonical reference | What D04 revocation behavior and success route are approved? |
+
+If PO requests UX exploration, the handoff brief is this table plus the current textual references; Canvas Design may be used to review editable artboards side-by-side. It does not authorize a FE/UI task or implementation gate.
+
 ## 3. Contract/acceptance scope sau khi PO chốt
 
 | Bề mặt | Contract tối thiểu cần được PO duyệt trước handoff Dev/QA |
