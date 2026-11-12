@@ -21,29 +21,21 @@ Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây l�
 - Trao đổi và tài liệu nghiệp vụ dùng tiếng Việt có dấu.
 - Coordinator và task Codex nhánh là control plane/điều phối, không phải agent triển khai. Multica là execution plane cho PM/BA, Dev, QA và mọi thay đổi code, tài liệu, test hoặc deploy thuộc task.
 - Codex được phép chốt scope/gate/acceptance criteria, tạo và handoff task Multica, kiểm tra evidence/PR/deploy, xử lý blocker, nhận `ROOT_SYNC` và mở gate tiếp theo. Không tự làm deliverable của task Multica trừ khi PO nói rõ trong yêu cầu hiện tại rằng Codex phải trực tiếp thực hiện.
-- Mỗi UC/workstream chỉ dùng một task Codex điều phối; task Multica theo chuỗi `DOCS → FE → BE/BE-GAP → INT → QA → UAT` khi các bước đó thực sự cần. Các task triển khai/QA/UAT là sibling trực tiếp dưới Story; Delivery Control là control record cùng cấp, không làm parent trung gian.
+- Mỗi UC/workstream chỉ dùng một task Codex điều phối; task Multica theo chuỗi `DOCS → FE → BE/BE-GAP → INT → QA → UAT` khi các bước đó thực sự cần.
 - FE dựng UI và được review trước khi triển khai BE, trừ khi task chỉ sửa defect backend độc lập đã được duyệt.
 - Không mở rộng scope hoặc tự thay đổi quyết định nghiệp vụ/Figma.
-- Không polling. Chỉ được lấy một snapshot trạng thái khi PO hỏi tiến độ hoặc khi wakeup theo sự kiện vừa fire; sau snapshot phải hành động, ghi blocker cụ thể hoặc cài wakeup kế tiếp. Cấm vòng lặp `sleep`, refresh định kỳ, đọc lặp issue/run/PR/deploy hoặc báo lại trạng thái không đổi như một tiến độ mới.
-- Mọi công việc bất đồng bộ đang chờ Dev, review, merge, CI, deploy, QA hoặc PO phải có wakeup hiển thị ngay trên task đang làm, gồm wakeup ID, điều kiện chính xác, owner kế tiếp và action khi fire. Nếu công cụ không hỗ trợ wakeup theo sự kiện thì phải nêu giới hạn, không giả lập bằng polling.
+- Không polling liên tục. Chỉ kiểm tra tiến độ khi người dùng yêu cầu hoặc khi cần một lần xác nhận ngay sau thao tác.
 - Không lưu API key, password, OTP, token, cookie hoặc secret vào Git, tài liệu hay comment task.
-- Ưu tiên connector/API/CLI có output cấu trúc; với Multica dùng `multica`, với GitHub dùng `gh`. Chỉ dùng browser khi cần review trực quan, kiểm thử UI hoặc CLI/API không có capability tương ứng. Khi bị chặn quyền môi trường, agent phải cung cấp runbook có transaction, verify và rollback rõ ràng để PO tự chạy.
+- Ưu tiên connector/API/CLI; chỉ dùng browser khi cần thao tác hoặc kiểm thử UI. Khi bị chặn quyền môi trường, agent phải cung cấp runbook có transaction, verify và rollback rõ ràng để PO tự chạy.
 - Branch ngắn hạn được xóa sau khi merge vào `master`. Build/release chính thức chỉ chạy từ `master`, trừ khi PO yêu cầu preview riêng.
-- Với Expo/EAS, authorization mobile là theo từng app, target và exact source SHA. Khi PO đã cho phép build thì Dev tự trigger build, giao build ID/fingerprint/install URL/terminal evidence; không yêu cầu PO chạy command, gắn label hoặc thao tác CI/CD.
-- Không được suy diễn việc PO review FE trên web thành mobile defer. Nếu scope yêu cầu app UAT, chuỗi bắt buộc là `Expo/EAS build → Mobile QA → PO app UAT → ROOT_SYNC`; Web UAT PASS không đủ để đóng Story. Chỉ được bỏ nhánh mobile khi PO ghi rõ no-build/defer cho đúng scope và SHA.
-- Story/Delivery Control chỉ được đóng sau khi mọi platform UAT bắt buộc đã PASS và ROOT_SYNC đã xác minh evidence. Nếu đóng sớm, phải mở lại Story/control/root-sync và các gate còn thiếu, không làm mất kết quả Web QA/UAT đã hợp lệ.
-- Lỗi quota/provider là lỗi transient, không phải product blocker. Chỉ retry bounded một lần sau reset event bằng wakeup `at`/event cụ thể; không retry ngay liên tiếp và không polling chờ quota.
 
 ## Kích hoạt agent Multica
 
 - Chỉ comment trực tiếp trong đúng task Multica và mention đúng PM, Dev hoặc QA agent mới là giao việc/kích hoạt run.
 - GitHub comment, commit, local handoff hay kênh khác chỉ là audit/reference; không thay thế trigger trên Multica.
 - Trigger nêu ngắn gọn mục tiêu, hành động, evidence/đầu ra và gate. Nếu chưa gửi được comment mention, phải báo rõ agent chưa được kích hoạt.
-- Mọi instruction/handoff cho PM, Dev, QA hoặc reviewer phải lặp lại hai guardrail: `Không polling; dùng wakeup theo sự kiện và ghi wakeup ID/condition trực tiếp trên task đang làm.` và `Ưu tiên CLI/structured tools; chỉ dùng browser khi cần kiểm tra trực quan hoặc CLI không hỗ trợ.`
 - Taxonomy Multica: Epic cho scope lớn, Story cho UC hoàn chỉnh, Task cho FE/BE/QA/UAT, Sub-Bug cho defect con và Sub-Task cho phần việc không phải defect. Defect phải nằm dưới UC/Story hiện hành.
 - PR merge không tự đồng nghĩa `done`: task chỉ đóng sau khi đủ review, evidence, QA và PO acceptance theo gate.
-- PR phải được gắn trực tiếp vào task triển khai tương ứng; comment chôn sâu không phải liên kết bàn giao đủ dùng.
-- Dev sở hữu self-merge/deploy/build sau khi đủ technical/authorization gate. PM sở hữu verification và routing bằng wakeup, không được biến listener `PR merged` thành lý do để Dev dừng chờ người khác merge.
 
 ## Tách task để giảm context
 
