@@ -6,9 +6,9 @@
 
 | Mã UC | Tên trong danh mục nguồn | Tài liệu chuẩn | Trạng thái |
 | --- | --- | --- | --- |
-| UC-01 | Đăng ký bằng số điện thoại | [Đăng ký bằng số điện thoại](UC-01-sign-up.md) | Living spec hiện hành |
-| UC-02 | Đăng nhập bằng số điện thoại | [Đăng nhập bằng số điện thoại](UC-02-sign-in.md) | Living spec hiện hành |
-| UC-03 | Quên mật khẩu | [Quên mật khẩu](UC-03-forgot-password.md) | Living spec hiện hành |
+| UC-01 | Đăng ký bằng email | [Đăng ký bằng email](UC-01-sign-up.md) | Draft — chờ G0 PO decision |
+| UC-02 | Đăng nhập bằng email và mật khẩu | [Đăng nhập bằng email và mật khẩu](UC-02-sign-in.md) | Draft — chờ G0 PO decision |
+| UC-03 | Quên mật khẩu bằng Email OTP | [Quên mật khẩu bằng Email OTP](UC-03-forgot-password.md) | Draft — chờ G0 PO decision |
 | UC-04 | Xem thông tin cá nhân | [Xem thông tin cá nhân](UC-04-xem-thong-tin-ca-nhan.md) | Baseline chuyển đổi hiện hành |
 | UC-05 | Cập nhật thông tin cá nhân | [Cập nhật thông tin cá nhân](UC-05-cap-nhat-thong-tin-ca-nhan.md) | Baseline chuyển đổi hiện hành |
 | UC-06 | Xem thông tin kinh doanh | [Xem thông tin kinh doanh](UC-06-view-business-information.md) | Living spec hiện hành |

@@ -9,6 +9,7 @@
 - FRS và mô tả màn hình: [`../../FRS/SmartChu/`](../../FRS/SmartChu/FRS.md)
 - Chính sách xác minh hồ sơ kinh doanh: [`../../../archieve/supplemental/Business_Rules/SmartChu/11-smartchu-business-verification-policy.md`](../../../archieve/supplemental/Business_Rules/SmartChu/11-smartchu-business-verification-policy.md)
 - UC review phía SmartAdmin: [`../SmartAdmin/use-cases/SMC-BV-ADM-01-review-business-profile.md`](../SmartAdmin/use-cases/SMC-BV-ADM-01-review-business-profile.md)
+- G0 decision package: [`G0-decision-package.md`](G0-decision-package.md)
 
 ## Quy tắc canonical
 
@@ -29,3 +30,7 @@
 | UC-10 — Tạo hợp đồng điện tử | [`use-cases/UC-10-create-electronic-contract.md`](use-cases/UC-10-create-electronic-contract.md) | Approved amendment — 2026-09-30 |
 | UC-18 — Tạo nhà trọ | [`use-cases/UC-18-create-property.md`](use-cases/UC-18-create-property.md) | Approved amendment — 2026-09-30 |
 | UC-22 — Tạo phòng trọ | [`use-cases/UC-22-create-room.md`](use-cases/UC-22-create-room.md) | Approved amendment — 2026-09-30 |
+
+## G0 phase đầu
+
+Trước implementation gate của phase đầu, dùng [`G0-decision-package.md`](G0-decision-package.md) để PO chốt auth, profile, business-verification boundary, session/password, UI reference và sequencing. Trạng thái G0 hiện hành là `CHANGE_REQUESTED`; các UC Draft hoặc baseline legacy không phải approval để triển khai.
