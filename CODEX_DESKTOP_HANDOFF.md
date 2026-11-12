@@ -1,6 +1,6 @@
 # Smart Platform — Context Handoff
 
-> **Cập nhật:** 2026-10-15
+> **Cập nhật:** 2026-11-12
 >
 > **Vai trò:** Context hub cô đọng cho task điều phối và các task nhánh.
 >
@@ -44,6 +44,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - SmartTrọ UC-01: [`docs/SRS/SmartTro/use-cases/UC-01-sign-up.md`](docs/SRS/SmartTro/use-cases/UC-01-sign-up.md).
 - SmartTrọ UC-02: [`docs/SRS/SmartTro/use-cases/UC-02-sign-in.md`](docs/SRS/SmartTro/use-cases/UC-02-sign-in.md).
 - SmartTrọ UC-03: [`docs/SRS/SmartTro/use-cases/UC-03-forgot-password.md`](docs/SRS/SmartTro/use-cases/UC-03-forgot-password.md).
+- SmartTrọ UC-06: [`docs/SRS/SmartTro/use-cases/UC-06-doi-mat-khau.md`](docs/SRS/SmartTro/use-cases/UC-06-doi-mat-khau.md).
 - SmartTrọ Home: [`docs/FRS/SmartTro/screens/home-screen.md`](docs/FRS/SmartTro/screens/home-screen.md).
 - SmartChủ UC index: [`docs/SRS/SmartChu/use-cases/README.md`](docs/SRS/SmartChu/use-cases/README.md).
 
@@ -107,11 +108,18 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Coordinator/task Codex là control plane; Multica là execution plane cho PM/BA, Dev, QA và deliverable code/docs/test/deploy. Codex không tự hoàn thành deliverable Multica nếu PO không yêu cầu trực tiếp trong lượt hiện tại.
 - Từ các UC mới: tạo task cha theo UC, sau đó tách task con theo vai trò thực tế.
 - Mỗi UC/workstream chỉ dùng một task Codex điều phối; không tạo task Codex nhánh cho từng task Multica Dev/QA/defect/gate con.
+- Implementation, QA và UAT là sibling trực tiếp dưới Story; Delivery Control là control record cùng cấp, không làm parent trung gian.
 - Các task Multica con được theo dõi và handoff ngay trong task Codex của UC; khi toàn workstream đóng, gửi một `ROOT_SYNC` về Coordinator gốc rồi archive task UC nếu cần.
 - Chỉ comment trực tiếp trong đúng task Multica và mention đúng agent mới kích hoạt run; GitHub comment hoặc handoff local không thay thế trigger đó. Nếu chưa trigger được, báo rõ agent chưa được kích hoạt.
+- Không polling. Một snapshot chỉ hợp lệ khi PO hỏi hoặc wakeup vừa fire; sau đó phải action/blocker/wakeup. Mọi task đang chờ phải ghi wakeup ID, condition, owner và next action ngay trên task.
+- Ưu tiên `multica`, `gh` và connector/API có output cấu trúc; browser chỉ dùng cho review trực quan hoặc capability không có trên CLI/API.
 - FE/UI được dựng và PO review trước BE. Sau đó mới BE/BE-GAP, integration, QA và UAT.
 - QA ưu tiên web/review environment khi device automation không ổn định hoặc tốn quota; PO test/UAT trên device thật khi cần.
 - Chỉ auto-build Expo khi merge/push vào `master`; không build mỗi push lên branch cá nhân của Dev.
+- Khi PO authorize Expo/EAS cho exact app/target/SHA, Dev tự build và bàn giao build ID/fingerprint/install URL/terminal evidence; PO không chạy command, gắn label hoặc thao tác CI/CD.
+- Không suy diễn Web review/UAT thành mobile defer. Nếu app UAT thuộc scope thì Web UAT PASS chưa đủ đóng Story; phải hoàn tất Mobile build → Mobile QA → PO app UAT → ROOT_SYNC. Omit mobile chỉ khi PO ghi rõ no-build/defer.
+- Dev sở hữu self-merge/deploy/build sau gate; PM xác minh và route bằng wakeup. Listener chờ PR merge không được biến thành blocker khiến Dev dừng thay vì tự merge.
+- PR phải được gắn trực tiếp vào task triển khai. Lỗi quota/provider chỉ retry bounded sau reset event bằng wakeup, không retry loop hoặc polling.
 - Không merge/deploy tự động nếu task chỉ yêu cầu tạo PR hoặc handoff review.
 - Sau merge, xóa branch ngắn hạn. Nếu sau này có `develop`/`staging`, policy sẽ được chốt lại.
 - SmartTrọ Home MVP đã chốt là FE-only với mockable data; không tạo Home BE/API hoặc integration follow-up.
@@ -119,6 +127,15 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 - Task có BA/PO UAT được trả assignee về PO sau khi disposition đã được ghi nhận.
 - Taxonomy Multica: Epic cho scope lớn, Story cho UC hoàn chỉnh, Task cho FE/BE/QA/UAT, Sub-Bug cho defect con và Sub-Task cho phần việc không phải defect; defect phải thuộc đúng UC/Story hiện hành.
 - PR merge không tự đồng nghĩa task `done`: chỉ đóng sau review/evidence/QA hoặc PO acceptance theo gate. Nếu Dev/QA bị block quyền môi trường, cung cấp runbook transaction + verify + rollback để PO tự chạy.
+
+### 4.6 SmartTrọ UC-06 — Đổi mật khẩu
+
+- Ba trường mật khẩu là secure input, che mặc định và có visibility toggle độc lập.
+- Ban đầu không hiện lỗi. Sau blur đầu tiên, trường touched validate live: required cho cả ba; pattern cho current/new; match cho confirm. Current-password correctness chỉ kiểm tra khi submit.
+- Sai mật khẩu hiện tại giữ nguyên session và ở lại form; không sign out.
+- Thành công giữ/rotate an toàn session hiện tại, thu hồi các session khác, hiển thị success và quay về Account/Profile; không về Sign In.
+- Change Password dùng component/variant riêng để giữ appearance đã duyệt; không sửa ngoài scope style/logic password field của Sign In, Sign Up hoặc Forgot Password.
+- Dirty back/cancel dùng copy theo nghĩa thao tác đổi mật khẩu chưa hoàn thiện; không nói mật khẩu tài khoản bị xóa hoặc không thể khôi phục.
 
 ## 5. Hạ tầng đã dùng
 
@@ -130,7 +147,7 @@ Không polling tiến độ liên tục. Việc đồng bộ xảy ra khi task �
 
 Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tra cấu hình, đọc trực tiếp provider hoặc environment được ủy quyền.
 
-## 6. Snapshot công việc ngày 2026-10-15
+## 6. Snapshot công việc đến ngày 2026-11-12
 
 ### SmartTrọ Sign In UI hotfix
 
@@ -173,6 +190,15 @@ Không ghi secret hoặc giá trị credential vào handoff. Khi cần kiểm tr
 - SmartTrọ implementation và defect fixes đã merge qua PR #21 đến #27; commit cuối được PO chấp nhận là `4b0c794e21234f0303c8b637d80abc85017d0f62`.
 - GitHub CI/Pages và Web QA đã pass. EAS Android preview `048156d7-d3b2-444a-b1bc-f0ac5b3f5920` đã được PO UAT trên thiết bị thật và xác nhận pass.
 - Không có open risk, replacement task hoặc Home follow-up. Không mở lại workstream nếu PO không yêu cầu.
+
+### SmartTrọ UC-06 Change Password
+
+- Web QA/UAT và Android app QA/UAT đã PASS; không còn defect mở trong scope nghiệm thu ngày 2026-11-12.
+- Docs baseline: PR #19 merge `3311956abd6ff845dee6d730ddec0d8831c59679`; session/navigation correction PR #20 merge `0262b446a94c2883c3eaeaac1655e60bf2f83128`.
+- SmartTrọ client: PR #107 merge/deploy `7445acd384ec3402d5a7e7c213252a5691d9d6a2`.
+- Backend: PR #27 merge/deploy `9d94d0980f4273ae9be3e4ccf9ef40964db8b7dd`; Render live/readiness PASS; migration `PasswordChange1700000007000` đã có trong deployed ledger.
+- Android EAS preview/internal build `46b0c648-746d-4cd8-bd57-6c93741bae29`, fingerprint `5554613157122cf3cf218ee1f445fb151adca922`; Mobile QA `GLI-258` PASS, PO app UAT `GLI-260` PASS.
+- iOS không thuộc baseline nghiệm thu này. Trước thay đổi tiếp theo phải kiểm tra lại artifact expiry/provider state và living spec UC-06.
 
 ### Hướng tiếp theo chưa tự động khởi chạy
 
