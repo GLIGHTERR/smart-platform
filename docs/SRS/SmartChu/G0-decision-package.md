@@ -1,6 +1,6 @@
 # SmartChủ G0 - Decision Package
 
-> **Trạng thái:** CHANGE_REQUESTED - chờ PO chốt các quyết định D01-D06.
+> **Trạng thái:** IN_REVIEW / AWAITING_PO_DECISIONS - PO đang chốt theo từng decision; không phải `CHANGE_REQUESTED`.
 > **Phạm vi:** G0 PM/docs/decision cho phase đầu SmartChủ. Đây không phải implementation approval và không mở gate FE, BE, integration hoặc QA.
 > **Traceability:** GLI-274; cập nhật từ snapshot `86d28400717a356bc91c3e5372ecff0dbf746729`.
 
@@ -15,12 +15,12 @@
 
 | ID | Nhóm / lựa chọn cần chốt | Khuyến nghị dựa trên nguồn hiện có | PO decision | Ảnh hưởng | Blocker nếu chưa chốt |
 | --- | --- | --- | --- | --- | --- |
-| D01 | Credential auth: email OTP cho Sign Up/Forgot Password; email + password cho Sign In, hoặc quay lại phone/SMS legacy | Chọn email theo UC-01/02/03 draft; phone chỉ là dữ liệu liên hệ nếu sau này được thu thập | **Pending** | UC-01/02/03, US-01/02/03, shared auth API | Auth UI/API/test contract không thể freeze |
+| D01 | Credential auth: email OTP cho Sign Up/Forgot Password; email + password cho Sign In, hoặc quay lại phone/SMS legacy | Chọn email theo UC-01/02/03 draft; phone chỉ là dữ liệu liên hệ nếu sau này được thu thập | **APPROVED (PO round 1)** | UC-01/02/03, US-01/02/03, shared auth API | D04/D05 vẫn chặn implementation |
 | D02 | Owner profile: danh sách field, required/optional, mutable/immutable, validation, uniqueness, ownership và API/data mapping | Chốt tối thiểu bằng bảng field contract riêng; không suy diễn từ US-04/05 legacy | **Pending** | UC-04/05, profile bootstrap, Home | Profile UI/API và migration không thể mở |
-| D03 | Boundary account/profile với business verification: thời điểm thu thập profile, quyền Home và feature vận hành | Giữ policy Approved: account email-verified khác `APPROVED`; chỉ `APPROVED` tạo nhà/phòng/hợp đồng | **Pending confirmation of phase scope** | UC-01, UC-06/07, UC-10/18/22, Home | Route/gating và response bootstrap chưa đủ contract |
-| D04 | Session/password: policy password, OTP/reset TTL/cooldown/attempts, anti-enumeration, duration/rotation, multi-device, Sign Out current/all, revoke sau reset/change, post-success route | PO xác nhận hoặc sửa các giá trị/proposal trong UC-01/02/03; UC-08 legacy (kể cả SHA-256) không được dùng làm baseline | **Pending** | UC-01/02/03/08, auth/session API, security tests | Không thể chốt security acceptance criteria |
+| D03 | Boundary account/profile với business verification: thời điểm thu thập profile, quyền Home và feature vận hành | Giữ policy Approved: account email-verified khác `APPROVED`; chỉ `APPROVED` tạo nhà/phòng/hợp đồng | **APPROVED Option A (PO round 1)**; UC-06/07 full scope pending separately | UC-01, Home, minimal status/CTA dependency | D05 chặn UI handoff |
+| D04 | Session/password: policy password, OTP/reset TTL/cooldown/attempts, anti-enumeration, duration/rotation, multi-device, Sign Out current/all, revoke sau reset/change, post-success route | PO chấp thuận có điều kiện D04.1-3, D04.5; D04.4 cần xác nhận nuance backend hiện hành | **CONDITIONAL - awaiting D04.4 PO confirmation** | UC-01/02/03/08, auth/session API, security tests | Không thể chốt change-password acceptance criteria |
 | D05 | UI/Figma: canonical URL/node/capture cho Sign Up (3 steps), Sign In, Forgot Password (3 steps), Home, UC-04/05/08 và state/loading/error | PO chỉ định nguồn Figma/capture versioned hoặc quyết định không thuộc phase | **Pending** | Tất cả screen G0 | Không thể handoff FE/UI fidelity |
-| D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Dùng map ở mục 4; chỉ mở gate kế tiếp sau PO approval hiển thị của D01-D06 liên quan | **Pending** | Toàn phase đầu | Không mở implementation gate |
+| D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Mobile thuộc phase đầu; sau docs/UI approval thực hiện preflight EAS read-only, rồi exact merge SHA -> Mobile QA -> PO app UAT | **PARTIALLY APPROVED (mobile in scope)** | Toàn phase đầu | D02/D04/D05 và docs/UI approval còn chờ; không build trong G0 |
 
 ## 2.1. Three distinct review groups
 
@@ -28,15 +28,15 @@
 
 - **D05 design evidence:** repo có **không** Figma URL, node ID hoặc capture canonical cho auth, Home, personal profile và change-password. `FRS.md` là mirror legacy, không có auth/profile/Home detail dùng được làm design approval. `screens/business-verification-states.md` chỉ là textual UI state reference cho Home/business verification.
 - **D02 profile contract:** thiếu inventory field của owner, source-of-truth cho mỗi field, ownership, validation, masking và API/data mapping.
-- **D04 shared-auth contract:** chưa có quyết định platform-visible cho session duration, refresh rotation, multi-device, normal sign-out scope và change-password revocation.
+- **D04 shared-auth contract:** session duration, refresh rotation và multi-device vẫn cần reference/version shared-platform; D04.4 đang chờ PO xác nhận nuance Change Password.
 
 ### B. Conflicts between living specs and legacy
 
 | Conflict | Canonical disposition pending PO approval | Impact |
 | --- | --- | --- |
-| UC-01/02/03 draft dùng email; User Stories, Requirement List và FRS legacy dùng phone/SMS | Living specs là proposal hiện hành; legacy được giữ làm provenance, không là implementation contract | D01, auth UI/API/test data |
+| UC-01/02/03 draft dùng email; User Stories, Requirement List và FRS legacy dùng phone/SMS | **D01 approved:** email là canonical; legacy được giữ làm provenance, không là implementation contract | D01, auth UI/API/test data |
 | UC-05 legacy coi phone immutable; UC-01 draft chỉ coi phone là contact data nếu được thu thập | Không suy diễn phone identity hoặc profile field trước D02 | profile schema/UI |
-| UC-08 legacy nêu SHA-256; UC-01 draft loại trừ SHA-256 thuần | Không dùng rule SHA-256 legacy; chờ D04 xác nhận shared password policy | security acceptance/BE |
+| UC-08 legacy nêu SHA-256; current backend dùng salted adaptive `scrypt` | Không dùng rule SHA-256 legacy; storage algorithm tách riêng password-composition policy | security acceptance/BE |
 | US-02 legacy có phone OTP/lockout 72h; UC-02 draft không OTP normal sign-in | Chờ D01/D04; không tự mang lockout/OTP legacy sang email flow | sign-in UX/API |
 
 ### C. Proposed defer / out of scope
@@ -45,7 +45,7 @@
 | --- | --- | --- |
 | Social sign-up, social-only recovery/linking | Defer - cần UC và policy riêng | Không tự link provider theo email trong UC-01/02/03 |
 | Loại giấy tờ pháp lý, re-verification/expiry, thu hồi hồ sơ đã duyệt, draft trước approval | Out of G0/MVP theo business-verification policy | Không thay đổi `APPROVED` gate của UC-10/18/22 |
-| Mobile chain Expo exact SHA -> Mobile QA -> PO app UAT | Conditional; chỉ áp dụng nếu PO đưa mobile vào phase | Cần target/merge SHA và môi trường trước QA |
+| Mobile chain Expo exact SHA -> Mobile QA -> PO app UAT | In scope phase đầu; sau docs/UI approval mới EAS identity/config preflight read-only | Không build trong G0; cần exact merge SHA và môi trường trước QA |
 | UX exploration bằng Canvas Design | Optional review aid, không phải FE/UI task | PO phải chấp thuận brief/artboards; G0 vẫn đóng implementation gate |
 
 ## 2.2. PO review choices: D02-D04
@@ -61,22 +61,40 @@
 
 PO cần trả lời cùng các field cụ thể nếu chọn option có phone hoặc field khác: required/optional, format/validation, uniqueness, editability, privacy/masking và API owner. Không có field nào được tự thêm vào contract.
 
+#### Proposed D02 field contract - PO review required
+
+| Surface | Field | Purpose | Required | Source | Editable | Validation / unique | Privacy / masking | API owner | PO decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Registration | Email | Credential identity | Yes | UC-01 / D01 approved | No in this flow | Normalize; unique identity under shared auth contract | Do not expose existence in public response | Shared auth / `smart-platform-services` | Approved by D01 |
+| Registration | Email OTP | Verify control of email | Yes | UC-01 / D01 approved | N/A | TTL/cooldown/attempts per D04 | Never log/store/render after use | Shared auth / `smart-platform-services` | D04 conditional |
+| Registration | Password + confirmation | Set credential | Yes | UC-01 | N/A | Composition policy per D04; confirmation must match | Never log/store/render after use | Shared auth / `smart-platform-services` | D04 conditional |
+| Personal Profile | Display name | Owner-facing identity | Proposed yes | D02 proposal | Proposed yes | PO must specify format/length/uniqueness | PO must specify visibility/masking | Profile API owner pending | Pending |
+| Personal Profile | Avatar | Owner-facing presentation | Proposed optional | D02 proposal | Proposed yes | PO must specify type/size/storage policy | PO must specify access/retention | Profile API owner pending | Pending |
+| Personal Profile | Verified email | Show credential identity | Proposed read-only | D01 | No; change requires separate flow if added | Already normalized/unique via auth | PO to confirm display/masking | Shared auth/profile bootstrap pending | Pending display contract |
+| Personal Profile | Phone contact | Optional contact only if PO elects | Pending | No canonical phase-one source | PO to decide | PO must specify format/uniqueness; never credential identity | PO must specify masking/consent | Profile API owner pending | Pending |
+
+**Excluded from SmartChủ contract:** legacy US-04 fields `số phòng` and `tên nhà trọ hiện đang thuê` describe a renter relationship, conflict with the SmartChủ actor, and are explicitly out of the owner personal-profile contract. They must not be carried into an owner API/UI/migration.
+
 ### D03 - Account, personal profile and business verification boundary
 
 | Question | Option A | Option B | Recommendation and trade-off | PO decision |
 | --- | --- | --- | --- | --- |
-| D03.1 Post-registration boundary | Email-verified account được Sign In/Home; business profile bắt đầu `NOT_SUBMITTED`, hoàn thiện ở UC-06/07 | Thu business profile ngay trong registration | **A:** đúng `SMC-BV-D01/D02`, giữ signup ngắn; cần Home CTA. **B:** dữ liệu sớm hơn nhưng mâu thuẫn flow UC-01 hiện tại và tăng friction. | Pending |
-| D03.2 Access before approval | Cho login, Home, personal/business profile và read actions được policy cho phép; block create nhà/phòng/hợp đồng | Chặn toàn bộ Home/operational surfaces cho đến `APPROVED` | **A:** khớp policy Approved/UI states. **B:** đơn giản quyền nhưng mâu thuẫn policy hiện hành và không hỗ trợ completion journey. | Pending |
+| D03.1 Post-registration boundary | Email-verified account được Sign In/Home; business profile bắt đầu `NOT_SUBMITTED`, hoàn thiện ở UC-06/07 | Thu business profile ngay trong registration | **A:** đúng `SMC-BV-D01/D02`, giữ signup ngắn; cần Home CTA. **B:** dữ liệu sớm hơn nhưng mâu thuẫn flow UC-01 hiện tại và tăng friction. | **APPROVED A (PO round 1)** |
+| D03.2 Access before approval | Cho login, Home, personal/business profile và read actions được policy cho phép; block create nhà/phòng/hợp đồng | Chặn toàn bộ Home/operational surfaces cho đến `APPROVED` | **A:** khớp policy Approved/UI states. **B:** đơn giản quyền nhưng mâu thuẫn policy hiện hành và không hỗ trợ completion journey. | **APPROVED A (PO round 1)** |
 
 ### D04 - Session and password policy
 
 | Question | Option A | Option B | Recommendation and trade-off | PO decision |
 | --- | --- | --- | --- | --- |
-| D04.1 Password + OTP/reset values | Adopt current UC drafts: password min 8 + upper + digit + special; email OTP/reset TTL 10 min, resend 60 sec, reset max 5 attempts | Adopt an explicit shared-platform policy with different values | **A:** có traceability hiện hữu. **B:** tránh SmartChủ-specific drift nhưng PO phải cung cấp version/value. | Pending |
-| D04.2 Anti-enumeration and normal sign-in OTP | Generic public response; no OTP for normal Sign In | Reveal account state and/or require OTP normal Sign In | **A:** khớp UC-02/03 and lower friction. **B:** thay D01/UC and increases UX/service dependency. | Pending |
-| D04.3 Session lifetime/refresh rotation/multi-device | Adopt documented shared-platform defaults; record exact reference/version | Define SmartChủ-specific duration/rotation/device cap | **A:** avoids divergence; current reference is missing and must be supplied. **B:** supports tailored risk model but creates independent contract/test burden. | Pending |
-| D04.4 Sign-out and credential-change revocation | Normal Sign Out = current session; Forgot Password and Change Password = revoke all sessions/refresh grants | Sign Out/credential changes revoke all sessions | **A:** matches UC-03 reset behavior and minimizes surprise on normal exit; Change Password still needs explicit approval. **B:** stronger containment but disrupts other devices. | Pending |
-| D04.5 Success route | Sign Up/Reset -> Sign In with email prefill, no auto-login; Change Password route explicitly selected by PO | Auto-login after one or more flows | **A:** matches UC-01/03 drafts. **B:** smoother UX but changes session/security acceptance. | Pending |
+| D04.1 Password composition and OTP/reset values | Adopt current UC drafts: password min 8 + upper + digit + special; email OTP/reset TTL 10 min, resend 60 sec, reset max 5 attempts | Adopt an explicit shared-platform policy with different values | **A:** có traceability hiện hữu. **B:** tránh SmartChủ-specific drift nhưng PO phải cung cấp version/value. Password composition is separate from storage algorithm. | **Conditionally approved (PO round 1)** |
+| D04.2 Anti-enumeration and normal sign-in OTP | Generic public response; no OTP for normal Sign In | Reveal account state and/or require OTP normal Sign In | **A:** khớp UC-02/03 and lower friction. **B:** thay D01/UC and increases UX/service dependency. | **Conditionally approved A (PO round 1)** |
+| D04.3 Session lifetime/refresh rotation/multi-device | Adopt documented shared-platform defaults; record exact reference/version | Define SmartChủ-specific duration/rotation/device cap | **A:** avoids divergence; current reference is missing and must be supplied. **B:** supports tailored risk model but creates independent contract/test burden. | **Conditionally approved A (PO round 1)** |
+| D04.4 Sign-out and credential-change revocation | Sign Out revokes current session; Forgot Password revokes all sessions and returns to Sign In; Change Password preserves current session, revokes other sessions and routes to Profile | Revoke all sessions for every sign-out/credential-change path | **A:** matches current backend behavior for `changePasswordForCurrentSession` and minimizes disruption; still needs explicit PO confirmation. **B:** stronger containment but disrupts the active user. | **Pending PO confirmation** |
+| D04.5 Success route | Sign Up/Reset -> Sign In with email prefill, no auto-login; Change Password -> Profile | Auto-login after one or more flows | **A:** matches UC-01/03 drafts and current Change Password backend next route. **B:** smoother UX but changes session/security acceptance. | **Conditionally approved A (PO round 1)** |
+
+#### D04 implementation reference (not a composition-policy decision)
+
+PO reports current `smart-platform-services` `master` hashes passwords with salted adaptive `scrypt` (`N=16384`, `r=8`, `p=1`, key length `64`) serialized as `scrypt$...`. This supersedes no business rule: storage/hash algorithm is an implementation/security control distinct from D04.1 password composition. The legacy UC-08 SHA-256 statement is not a valid implementation baseline. Current backend behavior reported for `changePasswordForCurrentSession` preserves the current session, revokes other sessions, audits `currentSessionPreserved: true`, and returns `next: profile`; Forgot Password revokes all sessions.
 
 ## 2.3. D05 design/reference packet
 
@@ -122,21 +140,22 @@ PO chốt D01-D06 (G0)
 - UC-01 -> UC-02/UC-03: dùng cùng email identity và password/session contract.
 - UC-02 -> Home: cần post-login route và profile/session bootstrap; Home phải phản ánh business-verification policy.
 - UC-04/05 -> Home: chờ D02; không được suy diễn field từ user story legacy.
-- UC-06/07 -> UC-10/18/22: policy Approved đã chặn action vận hành, nhưng bootstrap/gating UI vẫn phụ thuộc D03 và D05.
+- UC-06 = xem thông tin/trạng thái kinh doanh; UC-07 = cập nhật/gửi duyệt hồ sơ kinh doanh. Full UC-06/07 không thuộc feature scope phase đầu nếu chưa có decision mở rộng. Phase đầu chỉ phụ thuộc minimal business-verification status/CTA trên Home/Profile theo D03.
+- UC-10 = tạo hợp đồng điện tử; UC-18 = tạo nhà trọ; UC-22 = tạo phòng trọ. Chúng không thuộc feature scope phase đầu; chỉ được nhắc để bảo toàn backend authorization `businessVerificationStatus = APPROVED`, không mở Story/gate implementation.
 - UC-08 -> D04: không dùng SHA-256 legacy; change-password revocation/rotation và route cần PO chốt.
-- Nếu mobile thuộc scope: Expo exact merge SHA -> Mobile QA -> PO app UAT. Chưa có SHA/target hay quyết định scope nên không kích hoạt chain này.
+- Mobile thuộc scope phase đầu nhưng không build trong G0: sau docs/UI approval, preflight EAS project identity/config **read-only**, rồi Expo build exact merge SHA -> Mobile QA -> PO app UAT. Không yêu cầu/ghi token hoặc secret.
 
 ## 5. Readiness by story
 
 | Story / UC | Readiness | Điều kiện để chuyển gate |
 | --- | --- | --- |
-| US/UC-01 Sign Up | Conditional | D01, D04, D05 được PO chốt; shared auth contract được ghi lại |
-| US/UC-02 Sign In + Sign Out | Conditional | D01, D03, D04, D05 được PO chốt; Home route/bootstrap rõ |
-| US/UC-03 Forgot Password | Conditional | D01, D04, D05 được PO chốt |
+| US/UC-01 Sign Up | Conditional | D01 approved; D04.4/D05 và shared auth contract còn chờ |
+| US/UC-02 Sign In + Sign Out | Conditional | D01/D03 approved; D04.4/D05, Home route/bootstrap còn chờ |
+| US/UC-03 Forgot Password | Conditional | D01 approved; D04.4/D05 còn chờ |
 | US/UC-04/05 Personal Profile | Blocked | D02 và D05 được PO chốt; thay baseline legacy bằng living spec/contract |
-| UC-06/07 Business verification | Docs-ready, phase-scope pending | Policy Approved giữ nguyên; D03/D05 và scope phase phải rõ trước UI/API handoff |
-| UC-08 Change Password | Blocked | D04/D05 được PO chốt; thay password storage rule legacy |
-| UC-10/18/22 operational create | Dependency-held | Không mở trong G0; giữ gate `APPROVED` theo policy, chờ sequencing D06 |
+| UC-06/07 Business verification | Minimal dependency only | Policy Approved/D03 giữ nguyên; full UC-06/07 là scope expansion pending, D05 chặn UI handoff |
+| UC-08 Change Password | Blocked | D04.4/D05 chờ PO; storage algorithm legacy đã bị thay thế bởi current implementation reference |
+| UC-10/18/22 operational create | Out of phase-one feature scope | Không mở Story/gate; chỉ giữ backend authorization `APPROVED` theo policy |
 
 ## 6. Reconciliation record
 
@@ -144,11 +163,11 @@ PO chốt D01-D06 (G0)
 | --- | --- | --- |
 | `use-cases/README.md` | Ghi sai tên UC-01/02 là phone dù link tới living spec email | Đã sửa index để chỉ rõ email draft/chờ G0 PO decision |
 | `User-Stories.md`, `Requirements.md`, FRS legacy | Còn phone/SMS | Giữ nguyên provenance; các file tự ghi nhận là legacy/mirror và phải defer cho living spec approved |
-| UC-01/02/03 | Email proposal nhưng còn PO review | Không coi là Approved cho implementation trước G0 |
-| UC-04/05/08 | Baseline legacy, có phone/SHA-256 rule cũ | Không dùng làm contract phase đầu; cần D02/D04 |
+| UC-01/02/03 | D01 email auth approved; D04/D05 còn review | Không coi là implementation approval trước G0 |
+| UC-04/05/08 | Baseline legacy, có phone/SHA-256 rule cũ | Không dùng làm contract phase đầu; cần D02/D04. Legacy renter fields bị loại khỏi owner contract |
 
 ## 7. G0 disposition and handoff
 
-**G0 = CHANGE_REQUESTED.** Không có PO decision hiển thị cho D01-D06, do đó không mở implementation gate nào.
+**G0 = IN_REVIEW / AWAITING_PO_DECISIONS.** D01 và D03 đã approved; D04 còn chờ xác nhận D04.4; D02, D05 và phần D06 sequencing vẫn chờ decision/reference. `CHANGE_REQUESTED` chỉ dùng sau khi PO từ chối/yêu cầu sửa proposal cụ thể. Không mở implementation gate nào.
 
 **Next owner:** PO (Nghĩa Nguyễn Tuấn) quyết định D01-D06 trên GLI-274; PM cập nhật chính package/PR này khi PO yêu cầu sửa. **No polling:** chỉ xử lý event wakeup do control plane đăng ký cho PO comment; không poll trạng thái, PR hoặc hệ thống ngoài. Khi wakeup fire: PM đọc yêu cầu PO, cập nhật cùng G0/PR, rồi đăng ký wakeup kế tiếp nếu vẫn còn quyết định chờ; không tạo task G0 trùng.
