@@ -1,75 +1,34 @@
-# UC-08: Đổi mật khẩu
+# SmartChủ - UC-08 Đổi mật khẩu
 
-> **Loại tài liệu:** Baseline chuyển đổi nguyên trạng từ SRS SmartChủ lịch sử.
-> **Nguồn:** `archieve/legacy-source/SRS/SmartChu/SRS (SmartChủ).docx` — SHA-256 `fc374c30bc5c6777cb4bd7f6d8e48988b9dc801bd6b203d72fbd19b4469b58ab` — chuyển đổi 2026-09-30.
-> **Lưu ý:** Tài liệu này không tự động phản ánh quyết định PO mới nếu file DOCX nguồn chưa được sửa.
+> **Trạng thái:** Draft living spec - PO round 2; chờ D05 mockup/state reference trước handoff implementation.
+> **Thay thế:** baseline legacy SHA-256 và successful-change cap `2 lần/ngày`.
 
-## Đặc tả nguồn
+## Mục tiêu
 
-### Use Case ID
+Chủ trọ đã xác thực thay mật khẩu của account bằng mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu.
 
-UC-8
+## Canonical session behavior
 
-### Use Case Name
+- Normal Sign Out: revoke current session.
+- Forgot Password: revoke all sessions/refresh grants, quay về Sign In với email prefill và không auto-login.
+- Change Password: revoke all sessions/refresh grants, quay về Sign In; không giữ current session.
 
-Đổi mật khẩu
+Đây là latest PO decision. Backend `smart-platform-services` master hiện còn preserve current session, revoke other sessions và trả `Profile` cho Change Password; đây là implementation gap cần BE gate sau này sửa code/tests/docs, không sửa code trong G0.
 
-### Description
+## Security and throttling
 
-Cho phép người dùng đổi mật khẩu
+- Password composition dùng policy shared/auth đã chốt ở D04; storage không dùng SHA-256 thuần.
+- Current backend master throttle failed current-password attempts theo login defaults: `5/user` trong `15 phút`; `20/IP hoặc device`; lock `15 phút`.
+- Failed-current-password throttle tách khỏi successful password-change frequency. Backend hiện không hard-limit successful changes/day; không giữ legacy rule `2 lần/ngày` cho đến khi PO đánh giá recovery/lockout UX và quyết định cap riêng.
+- Không log, store hoặc đưa password vào navigation/persistent state.
 
-### Trigger
+## Luồng
 
-Người dùng muốn thay đổi mật khẩu của mình
+1. Chủ trọ mở `Đổi mật khẩu` từ tab `Cá nhân`.
+2. App thu current password, new password và confirmation theo UI reference được duyệt.
+3. Backend xác thực, áp dụng failed-attempt throttle khi cần, cập nhật password và revoke sessions theo canonical behavior.
+4. App xoá credential cục bộ và điều hướng về Sign In; Back navigation không cho truy cập bề mặt bảo vệ.
 
-### Priority
+## Pending UI
 
-1
-
-### Business Rules
-
-- BR-01. Mật khẩu phải có ít nhất 8 ký tự
-- BR-02. Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số, 1 ký tự đặc biệt
-- BR-03. Mật khẩu cũ và mật khẩu mới không được trùng nhau
-- BR-04. Mật khẩu mới và xác nhận mật khẩu phải trùng nhau
-- BR-05. Mật khẩu được đổi tối đa 2 lần 1 ngày
-
-### Actor(s)
-
-Registered Users
-
-### Related Use Case
-
-UC-2
-
-### Precondition
-
-PRE-01. Người dùng đã đăng nhập vào app SmartChủ thành công
-
-### Post-condition
-
-POS-01. Hệ thống thông báo người dùng đổi mật khẩu thành công
-
-### Basic Flow
-
-1. Màn hình hiển thị trang “Tài khoản”, tab “Cá nhân”
-1. Người dùng nhấn nút “Đổi mật khẩu”
-1. Màn hình hiển thị trang “Đổi mật khẩu”
-1. Người dùng nhập mật khẩu hiện tại, mật khẩu mới, xác nhận mật khẩu và nhấn nút “Lưu”
-1. Hệ thống xác nhận các mật khẩu hợp lệ, lưu mật khẩu mới vào DB và thông báo người dùng đã đổi mật khẩu thành công
-
-### Alternative Flow
-
-1. Tại bước 4, nếu người dùng muốn huỷ các thay đổi của mình
-- AL-08.1. Người dùng bấm nút “Huỷ”
-- AL-08.2. Màn hình trở về trang “Tài khoản”, tab “Cá nhân”
-
-### Exception Flow
-
-1. Tại bước 5, khi hệ thống phát hiện mật khẩu hiện tại sai
-- EX-08.1. Hệ thống gửi thông báo mật khẩu hiện tại sai
-
-### Non-functional Requirement
-
-- NR-01. Thời gian phản hồi < 2 giây
-- NR-02. Password phải được mã hóa bằng SHA-256
+Default/validation/loading/failed-current-password/throttled/success/error states, copy và CTA chờ D05 mockup; không suy diễn design.

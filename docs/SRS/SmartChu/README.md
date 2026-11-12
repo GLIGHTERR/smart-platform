@@ -25,6 +25,9 @@
 | UC-01 — Đăng ký bằng email | [`use-cases/UC-01-sign-up.md`](use-cases/UC-01-sign-up.md) | Draft — chờ PO review |
 | UC-02 — Đăng nhập bằng email và mật khẩu | [`use-cases/UC-02-sign-in.md`](use-cases/UC-02-sign-in.md) | Draft — chờ PO review |
 | UC-03 — Quên mật khẩu bằng Email OTP | [`use-cases/UC-03-forgot-password.md`](use-cases/UC-03-forgot-password.md) | Draft — chờ PO review |
+| UC-04 — Xem thông tin cá nhân | [`use-cases/UC-04-xem-thong-tin-ca-nhan.md`](use-cases/UC-04-xem-thong-tin-ca-nhan.md) | Draft living spec — PO round 2; chờ D05 |
+| UC-05 — Cập nhật thông tin cá nhân | [`use-cases/UC-05-cap-nhat-thong-tin-ca-nhan.md`](use-cases/UC-05-cap-nhat-thong-tin-ca-nhan.md) | Draft living spec — PO round 2; chờ D05 |
+| UC-08 — Đổi mật khẩu | [`use-cases/UC-08-doi-mat-khau.md`](use-cases/UC-08-doi-mat-khau.md) | Draft living spec — PO round 2; chờ D05 |
 | UC-06 — Xem thông tin kinh doanh | [`use-cases/UC-06-view-business-information.md`](use-cases/UC-06-view-business-information.md) | Approved — 2026-09-30 |
 | UC-07 — Cập nhật/gửi duyệt thông tin kinh doanh | [`use-cases/UC-07-submit-business-verification.md`](use-cases/UC-07-submit-business-verification.md) | Approved — 2026-09-30 |
 | UC-10 — Tạo hợp đồng điện tử | [`use-cases/UC-10-create-electronic-contract.md`](use-cases/UC-10-create-electronic-contract.md) | Approved amendment — 2026-09-30 |

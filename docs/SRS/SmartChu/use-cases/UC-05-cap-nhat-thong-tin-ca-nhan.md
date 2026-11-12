@@ -1,71 +1,39 @@
-# UC-05: Cập nhật thông tin cá nhân
+# SmartChủ - UC-05 Cập nhật thông tin cá nhân
 
-> **Loại tài liệu:** Baseline chuyển đổi nguyên trạng từ SRS SmartChủ lịch sử.
-> **Nguồn:** `archieve/legacy-source/SRS/SmartChu/SRS (SmartChủ).docx` — SHA-256 `fc374c30bc5c6777cb4bd7f6d8e48988b9dc801bd6b203d72fbd19b4469b58ab` — chuyển đổi 2026-09-30.
-> **Lưu ý:** Tài liệu này không tự động phản ánh quyết định PO mới nếu file DOCX nguồn chưa được sửa.
+> **Trạng thái:** Draft living spec - quyết định PO round 2; chờ D05 mockup/state reference trước handoff implementation.
+> **Thay thế:** baseline legacy, gồm rule phone immutable và cooldown profile 1 giờ.
 
-## Đặc tả nguồn
+## Phạm vi
 
-### Use Case ID
+Chủ trọ cập nhật personal profile của chính mình. Phase đầu không có authenticated account-email-change flow và không gồm business-profile/legal-document workflow.
 
-UC-5
+## Field behavior
 
-### Use Case Name
+| Field | Phase-one behavior | Pending detail |
+| --- | --- | --- |
+| Display name | Required; editable | Format/length/uniqueness và UI state chờ PO/mockup. |
+| Phone | Optional contact; editable; non-unique; không credential/identity | Format, masking, consent và API response chờ PO/mockup. |
+| Verified email | Read-only | Đổi email account là UC riêng sau này: re-auth/current password, new-email OTP, uniqueness, session/audit behavior. |
+| Avatar | Chưa chốt update | SmartTrọ hiện display server avatar + fallback only; profile PATCH chưa update avatar. PO phải chọn copy current behavior hoặc chốt image-picker/upload/update. |
 
-Cập nhật thông tin cá nhân
+## Rules and boundaries
 
-### Description
+- Không dùng cooldown chung 1 giờ cho personal profile. Rule legacy không giải quyết độc lập API abuse, business submission/resubmission hoặc legal consistency.
+- Rate limits là ba concern tách biệt: API abuse/failure throttle; business submission/resubmission cooldown; legal snapshot/versioning.
+- Khi UC-07 được submit, kiến trúc đề xuất để PO review là tạo immutable/versioned verification snapshot của đúng legal fields + documents để Admin review. Personal profile có thể sửa độc lập. Nếu legal-bound field đổi, tạo business draft/version mới và yêu cầu resubmit theo policy; không dựa vào profile cooldown.
+- Full UC-06/07 và snapshot implementation không thuộc phase đầu; đây là decision/dependency record, không là implementation gate.
+- OTP không xuất hiện trong personal-profile contract.
 
-Cho phép người dùng cập nhật thông tin cá nhân
+## Luồng
 
-### Trigger
+1. Chủ trọ mở UC-05 từ tab `Cá nhân`.
+2. App hiển thị các personal-profile field được phép sửa.
+3. Chủ trọ lưu thay đổi; app hiển thị outcome theo canonical mockup rồi về UC-04.
+4. Nếu đổi email account được yêu cầu sau phase đầu, điều hướng sang UC riêng, không mở rộng UC-05 ngầm định.
 
-Người dùng muốn thay đổi thông tin cá nhân của tài khoản của mình trên app
+## Acceptance direction
 
-### Priority
-
-1
-
-### Business Rules
-
-- BR-01. Không được cập nhật SĐT
-- BR-02. 2 lần cập nhật thông tin kế nhau phải cách nhau ít nhất 1h
-
-### Actor(s)
-
-Registered Users
-
-### Related Use Case
-
-UC-4
-
-### Precondition
-
-PRE-01. Người dùng đã đăng nhập thành công
-
-### Post-condition
-
-- POS-01. Hệ thống thông báo người dùng cập nhật thành công thông tin của tài khoản
-- POS-02. Hệ thống lưu thông tin cập nhật vào DB
-
-### Basic Flow
-
-1. Màn hình hiển thị trang “Tài khoản”, tab “Cá nhân”
-1. Người dùng nhấn nút “Cập nhật”
-1. Màn hình hiển thị trang “Cập nhật thông tin cá nhân”
-1. Người dùng thay đổi các trường thông tin và bấm nút “Cập nhật”
-1. Hệ thống lưu thông tin mới cập nhật, thông báo người dùng cập nhật thành công thông tin tài khoản và chuyển về trang “Tài khoản”, tab “Cá nhân”
-
-### Alternative Flow
-
-1. Tại bước 4, nếu người dùng không muốn lưu các thay đổi của mình
-- AL-05.1. Người dùng bấm nút “Huỷ”
-- AL-05.2. Màn hình trở về trang “Tài khoản”, tab “Cá nhân”
-
-### Exception Flow
-
-N/A
-
-### Non-functional Requirement
-
-NR-01. Thời gian phản hồi < 2 giây
+- Phone nếu có có thể cập nhật và không được dùng làm identity/credential/unique key.
+- Email không editable trong phase đầu.
+- Không có rule successful-profile-update cooldown cho đến khi PO quyết định policy theo đúng concern.
+- Các field legal/business không bị cập nhật qua UC-05.
