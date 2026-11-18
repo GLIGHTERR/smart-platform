@@ -1,6 +1,6 @@
 # SmartChủ - UC-08 Đổi mật khẩu
 
-> **Trạng thái:** Draft living spec - PO round 2; chờ D05 mockup/state reference trước handoff implementation.
+> **Trạng thái:** Draft living spec - quyết định PO round 3; chờ D05 mockup/state reference trước handoff implementation.
 > **Thay thế:** baseline legacy SHA-256 và successful-change cap `2 lần/ngày`.
 
 ## Mục tiêu
@@ -19,7 +19,7 @@ Chủ trọ đã xác thực thay mật khẩu của account bằng mật khẩu
 
 - Password composition dùng policy shared/auth đã chốt ở D04; storage không dùng SHA-256 thuần.
 - Current backend master throttle failed current-password attempts theo login defaults: `5/user` trong `15 phút`; `20/IP hoặc device`; lock `15 phút`.
-- Failed-current-password throttle tách khỏi successful password-change frequency. Backend hiện không hard-limit successful changes/day; không giữ legacy rule `2 lần/ngày` cho đến khi PO đánh giá recovery/lockout UX và quyết định cap riêng.
+- Failed-current-password throttle tách khỏi successful password-change frequency. Bỏ legacy rule `2 lần/ngày`; sau mỗi Change Password thành công áp dụng cooldown `5 phút` trước lần thành công tiếp theo.
 - Không log, store hoặc đưa password vào navigation/persistent state.
 
 ## Luồng
@@ -32,3 +32,26 @@ Chủ trọ đã xác thực thay mật khẩu của account bằng mật khẩu
 ## Pending UI
 
 Default/validation/loading/failed-current-password/throttled/success/error states, copy và CTA chờ D05 mockup; không suy diễn design.
+
+## Acceptance criteria
+
+### AC-CP-01 - Cooldown after successful change
+
+- **Given** chủ trọ vừa đổi mật khẩu thành công
+- **When** yêu cầu đổi lại trong vòng 5 phút
+- **Then** hệ thống từ chối với thông báo rõ ràng
+- **And** mật khẩu và session state không thay đổi.
+
+### AC-CP-02 - Change after cooldown
+
+- **Given** đã đủ 5 phút từ lần đổi mật khẩu thành công trước đó và current/new password hợp lệ
+- **When** chủ trọ gửi yêu cầu đổi mật khẩu
+- **Then** hệ thống xử lý đổi mật khẩu
+- **And** revoke toàn bộ session/refresh grants rồi đưa chủ trọ về Sign In.
+
+### AC-CP-03 - Failed-password throttle is independent
+
+- **Given** chủ trọ nhập current password sai vượt failed-attempt threshold
+- **When** gửi yêu cầu đổi mật khẩu
+- **Then** failure throttle hiện hành được áp dụng độc lập với cooldown 5 phút
+- **And** không thay đổi mật khẩu hoặc session state.

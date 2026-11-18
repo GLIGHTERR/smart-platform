@@ -8,7 +8,7 @@
 
 - Living specs UC-01, UC-02, UC-03 là nguồn đề xuất email auth; các User Story/Requirement List/FRS có phone/SMS là baseline lịch sử, không phải contract triển khai khi xung đột.
 - Chính sách xác minh kinh doanh SmartChủ đã **Approved** là nguồn duy nhất cho trạng thái và quyền vận hành; package này không thay đổi policy đó.
-- UC-04, UC-05 và UC-08 hiện là baseline legacy, chưa đủ làm contract profile/password cho phase đầu.
+- UC-04, UC-05 và UC-08 là living specs round 2/3; baseline legacy chỉ còn là provenance.
 - Không có Figma URL/node/capture SmartChủ canonical cho các screen G0 trong repo tại thời điểm lập package. Assets FRS legacy không thay thế design reference được duyệt.
 
 ## 2. Decision matrix - PO action required
@@ -16,19 +16,19 @@
 | ID | Nhóm / lựa chọn cần chốt | Khuyến nghị dựa trên nguồn hiện có | PO decision | Ảnh hưởng | Blocker nếu chưa chốt |
 | --- | --- | --- | --- | --- | --- |
 | D01 | Credential auth: email OTP cho Sign Up/Forgot Password; email + password cho Sign In, hoặc quay lại phone/SMS legacy | Chọn email theo UC-01/02/03 draft; phone chỉ là dữ liệu liên hệ nếu sau này được thu thập | **APPROVED (PO round 1)** | UC-01/02/03, US-01/02/03, shared auth API | D04/D05 vẫn chặn implementation |
-| D02 | Owner profile: danh sách field, required/optional, mutable/immutable, validation, uniqueness, ownership và API/data mapping | Registration Email -> OTP -> Personal info -> Password; display name required; phone optional/editable/non-unique; profile tách business domain | **PARTIALLY APPROVED (PO round 2)**; avatar/masking/validation/API owner still pending | UC-01, UC-04/05, profile bootstrap, Home | D05 và avatar detail chặn implementation |
+| D02 | Owner profile: danh sách field, required/optional, mutable/immutable, validation, uniqueness, ownership và API/data mapping | Registration Email -> OTP -> Personal info -> Password; display name required; phone optional/editable/non-unique; avatar display/fallback only; profile tách business domain | **APPROVED (PO round 3)** | UC-01, UC-04/05, profile bootstrap, Home | D05 chặn implementation |
 | D03 | Boundary account/profile với business verification: thời điểm thu thập profile, quyền Home và feature vận hành | Giữ policy Approved: account email-verified khác `APPROVED`; chỉ `APPROVED` tạo nhà/phòng/hợp đồng | **APPROVED Option A (PO round 1)**; UC-06/07 full scope pending separately | UC-01, Home, minimal status/CTA dependency | D05 chặn UI handoff |
-| D04 | Session/password: policy password, OTP/reset TTL/cooldown/attempts, anti-enumeration, duration/rotation, multi-device, Sign Out current/all, revoke sau reset/change, post-success route | Latest PO decision: Sign Out current; Forgot Password all -> Sign In; Change Password all -> Sign In. Separate failed-password throttle from successful-change cap. | **PARTIALLY APPROVED (PO round 2)**; exact successful-change cap pending | UC-01/02/03/08, auth/session API, security tests | D05 and successful-change cap decision remain |
+| D04 | Session/password: policy password, OTP/reset TTL/cooldown/attempts, anti-enumeration, duration/rotation, multi-device, Sign Out current/all, revoke sau reset/change, post-success route | Sign Out current; Forgot Password/Change Password all -> Sign In; keep failure throttle separate; successful Change Password cooldown = 5 minutes. | **APPROVED (PO round 3)** | UC-01/02/03/08, auth/session API, security tests | D05 and later BE implementation gap remain |
 | D05 | UI/Figma: canonical URL/node/capture cho Sign Up (4 steps), Sign In, Forgot Password (3 steps), Home, UC-04/05/08 và state/loading/error | PO chỉ định nguồn Figma/capture versioned hoặc quyết định không thuộc phase | **Pending** | Tất cả screen G0 | Không thể handoff FE/UI fidelity |
-| D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Mobile thuộc phase đầu; sau docs/UI approval thực hiện preflight EAS read-only, rồi exact merge SHA -> Mobile QA -> PO app UAT | **PARTIALLY APPROVED (mobile in scope)** | Toàn phase đầu | D02/D04/D05 và docs/UI approval còn chờ; không build trong G0 |
+| D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Mobile thuộc phase đầu; sau docs/UI approval thực hiện preflight EAS read-only, rồi exact merge SHA -> Mobile QA -> PO app UAT | **APPROVED (PO rounds 1-3)** | Toàn phase đầu | D05/docs UI approval còn chờ; không build trong G0 |
 
 ## 2.1. Three distinct review groups
 
 ### A. Missing information / references
 
 - **D05 design evidence:** repo có **không** Figma URL, node ID hoặc capture canonical cho auth, Home, personal profile và change-password. `FRS.md` là mirror legacy, không có auth/profile/Home detail dùng được làm design approval. `screens/business-verification-states.md` chỉ là textual UI state reference cho Home/business verification.
-- **D02 profile contract:** core field/sequence đã có PO decision; avatar update semantics, masking/validation và API owner vẫn thiếu.
-- **D04 shared-auth contract:** current/session-revocation outcome đã được PO chốt; session duration, refresh rotation, multi-device reference/version và exact successful-change cap vẫn cần record/decision.
+- **D02 profile contract:** behavior/field scope đã chốt; detailed UI validation/masking/copy waits for D05 mockup.
+- **D04 shared-auth contract:** policy đã chốt; backend Change Password vẫn là implementation gap và session duration/rotation/multi-device reference must be recorded at later BE gate.
 
 ### B. Conflicts between living specs and legacy
 
@@ -55,7 +55,7 @@
 | Question | Option A | Option B | Recommendation and trade-off | PO decision |
 | --- | --- | --- | --- | --- |
 | D02.1 Initial registration fields | Email -> OTP -> Personal info -> Password | Collect personal profile only after sign-in | **A:** adopted SmartTrọ sequence; Personal info = required display name + optional phone contact. **B:** lower initial friction but is not the PO decision. | **APPROVED A (PO round 2)** |
-| D02.2 Personal profile minimum scope | `display name` required; `phone` optional contact/editable/non-unique; verified email read-only; avatar display/fallback only | Same, but avatar image-picker/upload/update | **A:** matches current SmartTrọ behavior. **B:** is a distinct requirement, not current behavior; needs PO/mockup. | **Core A approved; avatar update pending** |
+| D02.2 Personal profile minimum scope | `display name` required; `phone` optional contact/editable/non-unique; verified email read-only; avatar display/fallback only | Avatar image-picker/upload/update | **A:** matches current SmartTrọ behavior and is approved phase-one behavior. **B:** is future scope because S3 upload is not ready. | **APPROVED A (PO round 3)** |
 | D02.3 Editability | Email immutable in UC-05; account-email change is a separate UC | Allow email edit in UC-05 | **A:** adopted phase-one behavior. Future UC must define re-auth/current password, new-email OTP, uniqueness, session/audit. | **APPROVED A (PO round 2)** |
 | D02.4 Profile/business ownership | Personal profile and business profile are separate tabs/domains; business tab is future-feature placeholder | Include business form/status workflow in phase one | **A:** adopted; full UC-06/07 is out of phase-one scope. **B:** is scope expansion. | **APPROVED A (PO round 2)** |
 
@@ -66,12 +66,12 @@ PO cần trả lời cùng các field cụ thể nếu chọn option có phone h
 | Surface | Field | Purpose | Required | Source | Editable | Validation / unique | Privacy / masking | API owner | PO decision |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Registration | Email | Credential identity | Yes | UC-01 / D01 approved | No in this flow | Normalize; unique identity under shared auth contract | Do not expose existence in public response | Shared auth / `smart-platform-services` | Approved by D01 |
-| Registration | Email OTP | Verify control of email | Yes | UC-01 / D01 approved | N/A | TTL/cooldown/attempts per D04 | Never log/store/render after use | Shared auth / `smart-platform-services` | D04 conditional |
+| Registration | Email OTP | Verify control of email | Yes | UC-01 / D01 approved | N/A | TTL/cooldown/attempts per D04 | Never log/store/render after use | Shared auth / `smart-platform-services` | Approved D04 |
 | Registration | Display name | Owner-facing identity | Yes | D02 round 2 | N/A in registration; editable later | Validation/length/uniqueness pending | Display/masking pending | Profile API owner pending | Approved core |
 | Registration | Phone | Optional contact | No | D02 round 2 | N/A in registration; editable later | Never credential/identity/unique; format pending | Masking/consent pending | Profile API owner pending | Approved core |
-| Registration | Password + confirmation | Set credential | Yes | UC-01 | N/A | Composition policy per D04; confirmation must match | Never log/store/render after use | Shared auth / `smart-platform-services` | D04 partial |
+| Registration | Password + confirmation | Set credential | Yes | UC-01 | N/A | Composition policy per D04; confirmation must match | Never log/store/render after use | Shared auth / `smart-platform-services` | Approved D04 |
 | Personal Profile | Display name | Owner-facing identity | Yes | D02 round 2 | Yes | Validation/length/uniqueness pending | Display/masking pending | Profile API owner pending | Approved core |
-| Personal Profile | Avatar | Owner-facing presentation | Optional/display only | SmartTrọ current behavior | Update pending PO decision | Existing behavior is server avatar + fallback only | Access/retention pending | Profile API owner pending | Pending update requirement |
+| Personal Profile | Avatar | Owner-facing presentation | Optional/display only | SmartTrọ current behavior | No update in phase one | Existing behavior is server avatar + fallback only | No upload/update in phase one; S3 not ready | Profile API owner pending | Approved phase-one behavior |
 | Personal Profile | Verified email | Show credential identity | Yes | D01/D02 | No; separate future UC if change needed | Already normalized/unique via auth | Display/masking pending | Shared auth/profile bootstrap pending | Approved read-only |
 | Personal Profile | Phone contact | Optional contact | No | D02 round 2 | Yes | Never credential/identity/unique; format pending | Masking/consent pending | Profile API owner pending | Approved core |
 
@@ -83,21 +83,22 @@ PO cần trả lời cùng các field cụ thể nếu chọn option có phone h
 | --- | --- | --- | --- | --- |
 | D03.1 Post-registration boundary | Email-verified account được Sign In/Home; business profile bắt đầu `NOT_SUBMITTED`, hoàn thiện ở UC-06/07 | Thu business profile ngay trong registration | **A:** đúng `SMC-BV-D01/D02`, giữ signup ngắn; cần Home CTA. **B:** dữ liệu sớm hơn nhưng mâu thuẫn flow UC-01 hiện tại và tăng friction. | **APPROVED A (PO round 1)** |
 | D03.2 Access before approval | Cho login, Home, personal/business profile và read actions được policy cho phép; block create nhà/phòng/hợp đồng | Chặn toàn bộ Home/operational surfaces cho đến `APPROVED` | **A:** khớp policy Approved/UI states. **B:** đơn giản quyền nhưng mâu thuẫn policy hiện hành và không hỗ trợ completion journey. | **APPROVED A (PO round 1)** |
+| D03.3 Legal-data review boundary | UC-07 submits an immutable, versioned snapshot of applicable legal fields + documents; later personal-profile edits do not mutate PENDING/APPROVED snapshots | Admin reviews mutable live profile data | **A:** preserves legal-review evidence and isolates personal-profile changes. **B:** breaks auditability and can alter data under review. | **APPROVED A (PO round 3)** |
 
 ### D04 - Session and password policy
 
 | Question | Option A | Option B | Recommendation and trade-off | PO decision |
 | --- | --- | --- | --- | --- |
-| D04.1 Password composition and OTP/reset values | Adopt current UC drafts: password min 8 + upper + digit + special; email OTP/reset TTL 10 min, resend 60 sec, reset max 5 attempts | Adopt an explicit shared-platform policy with different values | **A:** có traceability hiện hữu. **B:** tránh SmartChủ-specific drift nhưng PO phải cung cấp version/value. Password composition is separate from storage algorithm. | **Conditionally approved (PO round 1)** |
+| D04.1 Password composition and OTP/reset values | Adopt current UC drafts: password min 8 + upper + digit + special; email OTP/reset TTL 10 min, resend 60 sec, reset max 5 attempts | Adopt an explicit shared-platform policy with different values | **A:** có traceability hiện hữu. **B:** tránh SmartChủ-specific drift nhưng PO phải cung cấp version/value. Password composition is separate from storage algorithm. | **APPROVED (PO rounds 1-3)** |
 | D04.2 Anti-enumeration and normal sign-in OTP | Generic public response; no OTP for normal Sign In | Reveal account state and/or require OTP normal Sign In | **A:** khớp UC-02/03 and lower friction. **B:** thay D01/UC and increases UX/service dependency. | **Conditionally approved A (PO round 1)** |
 | D04.3 Session lifetime/refresh rotation/multi-device | Adopt documented shared-platform defaults; record exact reference/version | Define SmartChủ-specific duration/rotation/device cap | **A:** avoids divergence; current reference is missing and must be supplied. **B:** supports tailored risk model but creates independent contract/test burden. | **Conditionally approved A (PO round 1)** |
 | D04.4 Sign-out and credential-change revocation | Sign Out revokes current session; Forgot Password and Change Password each revoke all sessions/refresh grants | Preserve current session after Change Password | **A:** latest PO decision; consistent containment for password recovery/change. **B:** is current backend behavior only and is now an implementation gap. | **APPROVED A (PO round 2)** |
 | D04.5 Success route | Sign Up/Reset -> Sign In with email prefill, no auto-login; Change Password -> Sign In | Auto-login or Change Password -> Profile | **A:** latest PO decision. **B:** current backend returns Profile for Change Password and must be changed at later BE gate. | **APPROVED A (PO round 2)** |
-| D04.6 Successful password-change frequency | No hard cap until dedicated recovery/lockout UX decision | Define an exact cap | Failed-current-password throttle is a separate abuse control; legacy `2/day` is not retained. | **Pending PO decision** |
+| D04.6 Successful password-change frequency | Cooldown 5 minutes after a successful Change Password | Define another cap/window | Failure throttle remains a separate abuse control; legacy `2/day` is removed. | **APPROVED A (PO round 3)** |
 
 #### D04 implementation reference (not a composition-policy decision)
 
-PO reports current `smart-platform-services` `master` hashes passwords with salted adaptive `scrypt` (`N=16384`, `r=8`, `p=1`, key length `64`) serialized as `scrypt$...`. This supersedes no business rule: storage/hash algorithm is an implementation/security control distinct from D04.1 password composition. The legacy UC-08 SHA-256 statement is not a valid implementation baseline. Current backend behavior reported for `changePasswordForCurrentSession` preserves the current session, revokes other sessions, audits `currentSessionPreserved: true`, and returns `next: profile`; **this conflicts with D04.4/D04.5 approved round-2 behavior and is a BE implementation/test/docs gap for a later gate.** Failed-current-password attempts are throttled by current login defaults (`5/user` per `15 minutes`, `20/IP or device`, `15 minute` lock); it is separate from a successful-change frequency cap.
+PO reports current `smart-platform-services` `master` hashes passwords with salted adaptive `scrypt` (`N=16384`, `r=8`, `p=1`, key length `64`) serialized as `scrypt$...`. This supersedes no business rule: storage/hash algorithm is an implementation/security control distinct from D04.1 password composition. The legacy UC-08 SHA-256 statement is not a valid implementation baseline. Current backend behavior reported for `changePasswordForCurrentSession` preserves the current session, revokes other sessions, audits `currentSessionPreserved: true`, and returns `next: profile`; **this conflicts with D04.4/D04.5 approved behavior and is a BE implementation/test/docs gap for a later gate.** Failed-current-password attempts are throttled by current login defaults (`5/user` per `15 minutes`, `20/IP or device`, `15 minute` lock); the separate successful-change cooldown is now five minutes.
 
 ## 2.3. D05 design/reference packet
 
@@ -116,7 +117,7 @@ PO reports current `smart-platform-services` `master` hashes passwords with salt
 | Business tab placeholder | navigation, future-feature placeholder, loading/error/empty and user-facing copy | SmartTrọ has only a technical `Chữ ký` placeholder pattern; no Business tab/mapping | What non-technical copy/layout is approved? Do not copy SmartTrọ literal. |
 | Change Password | current/new/confirm, validation/loading/success/error, other-device/session outcome | UC-08 legacy only; no canonical reference | What D04 revocation behavior and success route are approved? |
 
-If PO requests UX exploration, the handoff brief is this table plus the current textual references; Canvas Design may be used to review editable artboards side-by-side. It does not authorize a FE/UI task or implementation gate.
+D05 remains **PENDING**. PO will provide mockups next; do not infer any UI before the mockups are received and reviewed. If PO requests UX exploration, the handoff brief is this table plus the current textual references; Canvas Design may be used to review editable artboards side-by-side. It does not authorize a FE/UI task or implementation gate.
 
 ## 3. Contract/acceptance scope sau khi PO chốt
 
@@ -128,6 +129,18 @@ If PO requests UX exploration, the handoff brief is this table plus the current 
 | Personal profile | từng field, required/optional, editability, validation, privacy/masking và API ownership; không dùng phone legacy làm identity ngầm định |
 | Business verification | `NOT_SUBMITTED`, `PENDING`, `APPROVED`, `REJECTED`; backend enforcement và UX CTA theo policy Approved |
 | UI reference | link/node/capture và all screen states; không có reference thì issue phải ghi rõ là gap, không tự suy ra design |
+
+### Testable acceptance criteria (policy-ready, no implementation gate)
+
+| ID | Acceptance criterion |
+| --- | --- |
+| AC-LEGAL-01 | **Given** a landlord has submitted legal fields/documents for UC-07, **When** Admin reviews the submission, **Then** the system presents the immutable, versioned snapshot submitted for that review, **And** later personal-profile edits do not alter that PENDING or APPROVED snapshot. |
+| AC-LEGAL-02 | **Given** a legal-bound field must change after a business snapshot exists, **When** the owner submits the change through the business process, **Then** the system creates a new business draft/version requiring resubmission under policy, **And** preserves the prior reviewed snapshot for traceability. |
+| AC-PROFILE-01 | **Given** an authenticated SmartChủ owner edits a personal profile, **When** valid display name and optional phone are saved, **Then** the profile reflects those values, **And** phone remains editable, non-unique and unavailable as a credential. |
+| AC-AVATAR-01 | **Given** an owner profile has an avatar value or lacks one, **When** the profile is displayed, **Then** the app shows the backend avatar when available or the fallback icon otherwise, **And** offers no image picker/upload/update in phase one. |
+| AC-PASSWORD-01 | **Given** an owner has just completed Change Password successfully, **When** the owner requests another Change Password within five minutes, **Then** the system rejects the request with a clear message, **And** leaves password and session state unchanged. |
+| AC-PASSWORD-02 | **Given** five minutes have elapsed since the last successful Change Password and submitted credentials are valid, **When** the owner changes password, **Then** the system processes the change under D04, revokes all sessions/refresh grants and routes the owner to Sign In. |
+| AC-PASSWORD-03 | **Given** an owner submits an incorrect current password, **When** the failure threshold is reached, **Then** the existing failed-attempt throttle applies independently of the successful-change cooldown, **And** no password/session change occurs. |
 
 ## 4. Dependency and gate map
 
@@ -144,22 +157,22 @@ PO chốt D01-D06 (G0)
 
 - UC-01 -> UC-02/UC-03: dùng cùng email identity và password/session contract.
 - UC-02 -> Home: cần post-login route và profile/session bootstrap; Home phải phản ánh business-verification policy.
-- UC-04/05 -> Home: D02 core field/sequence approved; D05/avatar behavior/API detail remain. Không được suy diễn field từ user story legacy.
+- UC-04/05 -> Home: D02 field/sequence/avatar behavior approved; D05 UI reference remains. Không được suy diễn field từ user story legacy.
 - UC-06 = xem thông tin/trạng thái kinh doanh; UC-07 = cập nhật/gửi duyệt hồ sơ kinh doanh. Full UC-06/07 không thuộc feature scope phase đầu nếu chưa có decision mở rộng. Phase đầu chỉ phụ thuộc minimal business-verification status/CTA trên Home/Profile theo D03.
 - UC-10 = tạo hợp đồng điện tử; UC-18 = tạo nhà trọ; UC-22 = tạo phòng trọ. Chúng không thuộc feature scope phase đầu; chỉ được nhắc để bảo toàn backend authorization `businessVerificationStatus = APPROVED`, không mở Story/gate implementation.
-- UC-08 -> D04: canonical Change Password revokes all sessions/refresh grants and routes to Sign In. Current backend behavior is a later BE gap; successful-change frequency cap remains pending.
+- UC-08 -> D04: canonical Change Password revokes all sessions/refresh grants and routes to Sign In, with a five-minute successful-change cooldown. Current backend behavior is a later BE gap.
 - Mobile thuộc scope phase đầu nhưng không build trong G0: sau docs/UI approval, preflight EAS project identity/config **read-only**, rồi Expo build exact merge SHA -> Mobile QA -> PO app UAT. Không yêu cầu/ghi token hoặc secret.
 
 ## 5. Readiness by story
 
 | Story / UC | Readiness | Điều kiện để chuyển gate |
 | --- | --- | --- |
-| US/UC-01 Sign Up | Conditional | D01/D02 core/D04 session behavior approved; D05 and remaining shared auth reference remain |
-| US/UC-02 Sign In + Sign Out | Conditional | D01/D03/D04 core approved; D05, Home route/bootstrap and shared auth reference remain |
-| US/UC-03 Forgot Password | Conditional | D01/D04 core approved; D05 remains |
-| US/UC-04/05 Personal Profile | Conditional | D02 core approved; D05, avatar decision and API/validation/masking detail remain |
+| US/UC-01 Sign Up | Conditional | D01/D02/D04 policy approved; D05 and remaining shared auth reference remain |
+| US/UC-02 Sign In + Sign Out | Conditional | D01/D03/D04 policy approved; D05, Home route/bootstrap and shared auth reference remain |
+| US/UC-03 Forgot Password | Conditional | D01/D04 policy approved; D05 remains |
+| US/UC-04/05 Personal Profile | Conditional | D02 behavior approved; D05 UI reference and implementation contract detail remain |
 | UC-06/07 Business verification | Minimal dependency only | Policy Approved/D03 giữ nguyên; full UC-06/07 là scope expansion pending, D05 chặn UI handoff |
-| UC-08 Change Password | Conditional | D04 current/session behavior approved; D05 and successful-change cap remain; later BE gap is recorded |
+| UC-08 Change Password | Conditional | D04 behavior/cooldown approved; D05 remains; later BE gap is recorded |
 | UC-10/18/22 operational create | Out of phase-one feature scope | Không mở Story/gate; chỉ giữ backend authorization `APPROVED` theo policy |
 
 ## 6. Reconciliation record
@@ -169,10 +182,10 @@ PO chốt D01-D06 (G0)
 | `use-cases/README.md` | Ghi sai tên UC-01/02 là phone dù link tới living spec email | Đã sửa index để chỉ rõ email draft/chờ G0 PO decision |
 | `User-Stories.md`, `Requirements.md`, FRS legacy | Còn phone/SMS | Giữ nguyên provenance; các file tự ghi nhận là legacy/mirror và phải defer cho living spec approved |
 | UC-01/02/03 | D01 email auth approved; D04/D05 còn review | Không coi là implementation approval trước G0 |
-| UC-04/05/08 | Draft living specs round 2 thay baseline legacy phone/SHA-256/cooldown | D02/D04 canonical behavior được ghi vào living specs; D05/UI và một số policy detail còn chờ. Legacy renter fields bị loại khỏi owner contract |
+| UC-04/05/08 | Draft living specs round 3 thay baseline legacy phone/SHA-256/cooldown | D02/D04 canonical behavior và testable AC được ghi vào living specs; D05/UI còn chờ. Legacy renter fields bị loại khỏi owner contract |
 
 ## 7. G0 disposition and handoff
 
-**G0 = IN_REVIEW / AWAITING_PO_DECISIONS.** D01/D03, D02 core và D04 session behavior đã approved; D02 avatar/API detail, D04 successful-change cap, D05 mockup/state reference và D06 remaining sequence/reference vẫn chờ. `CHANGE_REQUESTED` chỉ dùng sau khi PO từ chối/yêu cầu sửa proposal cụ thể. Không mở implementation gate nào.
+**G0 = IN_REVIEW / AWAITING_PO_DECISIONS.** D01-D04 và D06 policy/sequence đã được PO chốt; D05 mockup/state reference là blocker quyết định còn lại trước khi đánh giá G0 PASS. `CHANGE_REQUESTED` chỉ dùng sau khi PO từ chối/yêu cầu sửa proposal cụ thể. Không mở implementation gate nào.
 
 **Next owner:** PO (Nghĩa Nguyễn Tuấn) quyết định D01-D06 trên GLI-274; PM cập nhật chính package/PR này khi PO yêu cầu sửa. **No polling:** chỉ xử lý event wakeup do control plane đăng ký cho PO comment; không poll trạng thái, PR hoặc hệ thống ngoài. Khi wakeup fire: PM đọc yêu cầu PO, cập nhật cùng G0/PR, rồi đăng ký wakeup kế tiếp nếu vẫn còn quyết định chờ; không tạo task G0 trùng.

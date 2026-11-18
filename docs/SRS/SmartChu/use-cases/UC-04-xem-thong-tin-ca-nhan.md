@@ -14,7 +14,7 @@ Chủ trọ đã đăng nhập xem thông tin cá nhân của chính mình trong
 | Display name | Có | Personal-profile field bắt buộc theo D02 PO round 2. Validation chi tiết chờ PO/mockup. |
 | Verified email | Có | Credential identity; read-only trong phase đầu. Không có authenticated account-email-change flow. |
 | Phone | Có nếu đã cung cấp | Optional contact, editable, non-unique và không phải credential/identity. Masking/format chờ PO/mockup. |
-| Avatar | Display/fallback pending | SmartTrọ hiện chỉ có server-avatar display + fallback; chưa có profile upload/update. PO phải chọn copy behavior này hoặc chốt image-picker/update requirement. |
+| Avatar | Display/fallback only | Hiển thị avatar backend nếu có, nếu không dùng fallback icon. Không có image picker/upload/update phase đầu vì S3 upload chưa sẵn sàng; đây là future scope. |
 
 Không hiển thị hoặc map `số phòng` hay `tên nhà trọ hiện đang thuê`: đó là renter data, không phù hợp actor Chủ trọ.
 
