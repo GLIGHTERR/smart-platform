@@ -23,7 +23,7 @@ Tài liệu này là baseline chung cho PM, Dev và QA. Figma quy định presen
 
 Không thêm ô OTP động vào màn nhập email. Không gộp màn nhập email và màn OTP nếu chưa có quyết định PO và Figma revision mới.
 
-## 3. Figma traceability và capture
+## 3. Nguồn thiết kế và Activity Diagram
 
 | Bước | Node | Nội dung đã xác minh |
 | --- | --- | --- |
@@ -33,19 +33,56 @@ Không thêm ô OTP động vào màn nhập email. Không gộp màn nhập ema
 
 Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng node ID + nội dung hiển thị để truy vết, không suy luận flow từ tên layer.
 
-### Capture 1 — Nhập email
+### Editable canvas refresh — 2026-11-18
 
-![SmartTrọ Quên mật khẩu — nhập email](../../../FRS/SmartTro/assets/auth/forgot-password-email.png)
+- Artifact canonical của hướng refactor UI: [`smarttro-auth-flow-canvas-2026-11-18.zip`](../assets/auth/smarttro-auth-flow-canvas-2026-11-18.zip).
+- Artboard thuộc UC-03: `06 - Quên mật khẩu / Email`, `07 - Quên mật khẩu / OTP`, `08 - Quên mật khẩu / Mật khẩu mới`.
+- Destination block OTP dùng chung với UC-01: dòng `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
+- Tiêu đề, back navigation và recovery state vẫn theo ngữ cảnh UC-03; update không thay anti-enumeration, challenge/reset-token semantics hoặc session revocation.
 
-### Capture 2 — Nhập OTP email
+Capture happy path được đặt tại đúng đặc tả màn hình ở mục 4. ZIP ở trên chỉ dùng khi cần mở/chỉnh editable canvas.
 
-![SmartTrọ Quên mật khẩu — nhập OTP](../../../FRS/SmartTro/assets/auth/forgot-password-otp.png)
+- Activity Diagram canonical: [`SmartTro-auth-email.drawio.xml`](../activity-diagrams/SmartTro-auth-email.drawio.xml), page `AD_Forgot Password`, page ID `XTYLWtGMusPGoomU_qol`.
+- Node trọng tâm: nhập email `Xek2mY_xYS014ffLprHc-4`, eligibility decision `I-irvnMbw9T40XeqaJsz-0`, OTP decision `c3eX8QOnYDbT1643O61G-12`, reset/revoke session `c3eX8QOnYDbT1643O61G-31`.
 
-### Capture 3 — Đặt mật khẩu mới
+### Activity Diagram render — Forgot Password
 
-![SmartTrọ Quên mật khẩu — đặt mật khẩu mới](../../../FRS/SmartTro/assets/auth/forgot-password-new-password.png)
+![SmartTrọ UC-03 — Activity Diagram Forgot Password](../assets/activity-diagrams/uc-03-forgot-password.png)
 
-## 4. Quyết định đã duyệt
+PNG này là bản đọc/review được export trực tiếp từ page canonical nêu trên; mọi thay đổi XML phải regenerate ảnh trong cùng revision.
+
+## 4. UI specification
+
+### 4.1. Màn nhập email recovery
+
+![SmartTrọ — Quên mật khẩu, nhập email](../assets/auth/canvas-2026-11-18/06-forgot-password-email.png)
+
+- Entry point: link `Quên mật khẩu` từ Sign In.
+- Field `Email`: bắt buộc, trim/lowercase theo shared identity normalization.
+- Primary action: `Gửi OTP`; chặn double-submit và không gửi request khi format không hợp lệ.
+- Thành công public luôn dùng response trung tính `Nếu email tồn tại, mã xác thực đã được gửi.` rồi chuyển sang màn OTP riêng.
+- Back quay về Sign In; không persist recovery state qua app restart.
+
+### 4.2. Màn nhập OTP recovery
+
+![SmartTrọ — Quên mật khẩu, nhập OTP](../assets/auth/canvas-2026-11-18/07-forgot-password-otp.png)
+
+- Destination block: `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
+- OTP chỉ nhận 6 chữ số, cho phép paste; `Tiếp tục` disabled khi chưa đủ mã hoặc đang verify.
+- `Gửi lại mã OTP` tuân theo cooldown; OTP mới vô hiệu OTP cũ.
+- `Đổi email` quay về màn email và xóa OTP đang nhập.
+- Lỗi tối thiểu: OTP sai, hết hạn, bị thay thế, đã dùng hoặc vượt số lần thử.
+
+### 4.3. Màn tạo mật khẩu mới
+
+![SmartTrọ — Quên mật khẩu, tạo mật khẩu mới](../assets/auth/canvas-2026-11-18/08-forgot-password-new-password.png)
+
+- Hai field `Mật khẩu mới` và `Xác nhận mật khẩu`; có show/hide và không persist/log.
+- Primary action: `Xác nhận`; chỉ khả dụng khi hai field hợp lệ và khớp nhau.
+- Thành công: đổi mật khẩu, thu hồi toàn bộ session và về Sign In với email prefill; không auto-login.
+- Reset token hết hạn/replay/sai binding: không đổi mật khẩu, thông báo rõ và đưa người dùng bắt đầu lại khi cần.
+
+## 5. Quyết định đã duyệt
 
 | ID | Quyết định | Trạng thái |
 | --- | --- | --- |
@@ -74,7 +111,7 @@ UC-03 không dùng account social-only làm fixture bắt buộc. Khi chuẩn b�
 - Hệ thống không tự tạo password account, không tự link/unlink provider và không âm thầm chuyển kiểu đăng nhập.
 - Behavior tiếp theo (provider re-authentication, password enrollment hay linking flow) chỉ được triển khai sau khi PO chốt requirement và UI riêng.
 
-## 5. Acceptance Criteria
+## 6. Acceptance Criteria
 
 ### AC-01 — Gửi yêu cầu recovery
 
@@ -119,20 +156,20 @@ UC-03 không dùng account social-only làm fixture bắt buộc. Khi chuẩn b�
 - Không persist email, OTP, challenge, password hoặc reset token của flow recovery qua app restart.
 - Lỗi mạng ở màn email có thể giữ email trong memory để sửa/thử lại; lỗi ở màn OTP/password không được lưu OTP/password.
 
-## 6. Trạng thái đồng bộ tài liệu
+## 7. Trạng thái đồng bộ tài liệu
 
 | Tài liệu | Cập nhật |
 | --- | --- |
 | `docs/Requirement_List/SmartTro/Requirements.md` | `SM004` bổ sung baseline nghiệp vụ, security, state lifecycle và thứ tự FE-first |
 | `docs/User_Stories/SmartTro/User-Stories.md` | `US 3.0` đổi từ SĐT sang email OTP và thêm AC testable |
 | `docs/SRS/SmartTro/SRS.md` | `UC-3` bổ sung đặc tả, alternate flow và hậu điều kiện |
-| `Activity_Diagrams/AD_Forgot Password.puml` | Bổ sung flow email OTP, generic response, expiry/resend/attempt và reset session |
+| `docs/SRS/SmartTro/activity-diagrams/SmartTro-auth-email.drawio.xml`, page `AD_Forgot Password` | Canonical flow email OTP, generic response, expiry/resend/attempt, reset token và revoke session |
 | `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md` | Cập nhật liên kết UC-03 thành Approved |
-| `docs/FRS/SmartTro/FRS.md` | Không sửa trong revision này vì source FRS hiện chỉ đặc tả chi tiết UC-12/14/15; UC-03 dùng file này + SRS làm baseline |
+| `docs/FRS/SmartTro/FRS.md` | Legacy/noncanonical; bản chuyển đổi Markdown còn thiếu/sai lệch và không dùng làm baseline UC-03 |
 
 Các file DOCX/XLSX gốc chưa được thay đổi trong revision Markdown này. Khi source office được cập nhật, phải đồng bộ lại Markdown và SHA-256 theo `docs/README.md`.
 
-## 7. Gate bàn giao và thứ tự triển khai
+## 8. Gate bàn giao và thứ tự triển khai
 
 1. FE dựng đúng ba màn Figma, state/validation và deploy preview/mobile build để PO review.
 2. Chỉ sau khi PO duyệt UI, BE mới triển khai challenge, OTP, reset token, password mutation, session revocation và audit.

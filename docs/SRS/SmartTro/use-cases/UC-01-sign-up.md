@@ -6,13 +6,13 @@
 | --- | --- |
 | Trạng thái nghiệp vụ | **Approved** |
 | Trạng thái bàn giao PM | **Ready — đã xác minh Figma và xuất capture email ngày 2026-09-16** |
-| Phạm vi | Luồng đăng ký SmartTrọ bằng email, OTP email và mật khẩu |
+| Phạm vi | Luồng đăng ký SmartTrọ bằng email, OTP email, thông tin cá nhân tối thiểu và mật khẩu |
 | Nền tảng | React Native + Expo cho iOS, Android và Expo Web preview |
 | Dữ liệu ở giai đoạn UI | Mock trong bộ nhớ; chưa gọi API và chưa gửi email thật |
 | Ngày lập | 2026-09-15 |
 | Ngày cập nhật quyết định email | 2026-09-16 |
 | Ngày cập nhật typography sau GLI-48 | 2026-09-17 |
-| Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D20` |
+| Phê duyệt | PO đã duyệt `SIGNUP-D01` đến `SIGNUP-D21` |
 
 Tài liệu này là nguồn triển khai trực tiếp cho Sign Up SmartTrọ. Quyết định mới nhất thay thế yêu cầu đăng ký bằng số điện thoại trong các tài liệu cũ: **email là định danh đăng nhập duy nhất của tài khoản MVP; số điện thoại chỉ là dữ liệu liên hệ tùy chọn và không dùng để xác định tài khoản duy nhất**.
 
@@ -20,11 +20,12 @@ Tài liệu và capture hiện đã khớp với luồng email. PM, Dev và QA p
 
 ## 2. Mục tiêu và kết quả mong đợi
 
-Luồng đăng ký gồm ba bước:
+Luồng đăng ký gồm bốn bước:
 
 1. Nhập email và yêu cầu mã OTP.
 2. Nhập mã OTP 6 chữ số nhận qua email.
-3. Tạo mật khẩu, xác nhận mật khẩu và hoàn tất đăng ký.
+3. Nhập thông tin cá nhân tối thiểu: tên hiển thị bắt buộc và số điện thoại liên hệ không bắt buộc, không unique.
+4. Tạo mật khẩu, xác nhận mật khẩu và hoàn tất đăng ký.
 
 Sau khi đăng ký thành công, ứng dụng chuyển về Sign In và không tự đăng nhập.
 
@@ -47,27 +48,17 @@ Figma file `Smart Platform`, file key `rsjbGO3ul8lzKKKTj38r0t`, page `SmartTrọ
 | --- | --- | --- |
 | Nhập email | `237:1161` — `Sign Up (Input Email) - iPhone` | **Ready** — label `Email`, action `Gửi OTP` |
 | Nhập OTP | `237:1137` — `Sign Up (Input OTP) - iPhone` | **Ready** — OTP và resend đã hiển thị |
+| Thông tin cá nhân | Canvas artboard `04 - Đăng ký / Cá nhân` | **Ready** — tên hiển thị bắt buộc; SĐT liên hệ không bắt buộc, không unique |
 | Tạo mật khẩu | `237:1185` — `Sign Up (Input Password) - iPhone` | **Ready** — mật khẩu, xác nhận mật khẩu và action đăng ký |
 
-Capture baseline đã xuất từ đúng page `SmartTrọ` ngày 2026-09-16 và đặt tại `docs/assets/smarttro-auth/`:
+#### Editable canvas refresh — 2026-11-18
 
-- `sign-up-email.png`.
-- `sign-up-otp.png`.
-- `sign-up-password.png`.
+- Artifact canonical của hướng refactor UI: [`smarttro-auth-flow-canvas-2026-11-18.zip`](../assets/auth/smarttro-auth-flow-canvas-2026-11-18.zip).
+- Artboard thuộc UC-01: `02 - Đăng ký / Email`, `03 - Đăng ký / OTP`, `04 - Đăng ký / Cá nhân`, `05 - Đăng ký / Mật khẩu`.
+- PO đã chốt thống nhất destination block OTP với UC-03: dòng `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
+- Update này thay visual/copy presentation trong backlog `GLI-275`; không thay OTP semantics, validation, API contract hoặc tự cho phép triển khai.
 
-Các file cũ trong `docs/assets/smarttro-sign-up/` chỉ là lịch sử và không còn là baseline nội dung.
-
-#### Capture 1 — Nhập email
-
-![SmartTrọ Sign Up — nhập email](../../../FRS/SmartTro/assets/auth/sign-up-email.png)
-
-#### Capture 2 — Nhập OTP email
-
-![SmartTrọ Sign Up — nhập OTP email](../../../FRS/SmartTro/assets/auth/sign-up-otp.png)
-
-#### Capture 3 — Tạo mật khẩu
-
-![SmartTrọ Sign Up — tạo mật khẩu](../../../FRS/SmartTro/assets/auth/sign-up-password.png)
+Capture happy path được đặt tại đúng đặc tả màn hình tương ứng ở mục 7 để Dev và QA đọc behavior cùng visual, không dùng phần nguồn tài liệu như một gallery ảnh.
 
 ### 3.2. Nguồn requirement
 
@@ -77,7 +68,15 @@ Các file cũ trong `docs/assets/smarttro-sign-up/` chỉ là lịch sử và kh
 - `User_Stories/User Story - SmartTrọ.xlsx`, sheet `Đăng kýĐăng nhập`, User Story `1.0`.
 - `SRS/SRS (SmartTrọ).docx`, UC Sign Up sau khi cập nhật.
 
-Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong `Activity_Diagrams/`. Các bản `By Phone` chỉ là lịch sử và không còn là baseline MVP.
+- Activity Diagram canonical: [`SmartTro-auth-email.drawio.xml`](../activity-diagrams/SmartTro-auth-email.drawio.xml), page `AD_Sign Up (By Email)`, page ID `DwF1WitfKi-ZixSD_8tH`.
+- Các node trọng tâm: email `8eRr943gss0spf7AQDu7-6`, OTP decision `62G0FJVdS8SaGgNECkPI-0`, Personal info `auth-personal-input`, tạo tài khoản `62G0FJVdS8SaGgNECkPI-18`.
+- Các `.puml` và diagram `By Phone` cũ chỉ là lịch sử, không còn là nguồn triển khai canonical.
+
+#### Activity Diagram render — Sign Up by Email
+
+![SmartTrọ UC-01 — Activity Diagram Sign Up by Email](../assets/activity-diagrams/uc-01-sign-up-by-email.png)
+
+PNG này là bản đọc/review được export trực tiếp từ page canonical nêu trên; mọi thay đổi XML phải regenerate ảnh trong cùng revision.
 
 ### 3.3. Quy tắc khi có mâu thuẫn
 
@@ -88,7 +87,7 @@ Hai Activity Diagram email đã được cập nhật cùng source `.puml` trong
 5. Figma cho phần trình bày trực quan.
 6. Code foundation cho convention kỹ thuật.
 
-Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, capture Figma tại mục 3.1 là baseline bắt buộc. Foundation chỉ được ưu tiên khi Figma không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
+Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, canvas/capture đặt tại mục 7 là baseline bắt buộc. Foundation chỉ được ưu tiên khi visual không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
 
 Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giải quyết được, PM phải comment vào task và tag PO để chốt trước khi giao Dev.
 
@@ -111,13 +110,14 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 | SIGNUP-D11 | Resend cách nhau tối thiểu 60 giây, tối đa 5 lần/giờ/email; backend phải có thêm giới hạn IP/device chống abuse | Approved 2026-09-16 |
 | SIGNUP-D12 | Endpoint công khai dùng response generic, không xác nhận riêng email đã tồn tại; UI cung cấp lối sang Sign In | Approved 2026-09-16 |
 | SIGNUP-D13 | Email provider được bọc sau adapter; chưa khóa vendor trong requirement nghiệp vụ | Approved 2026-09-16 |
-| SIGNUP-D14 | Capture Figma là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16 |
+| SIGNUP-D14 | Canvas/capture canonical trong mục 7 là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16; visual refreshed 2026-11-18 |
 | SIGNUP-D15 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
 | SIGNUP-D16 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
 | SIGNUP-D17 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
 | SIGNUP-D18 | Be Vietnam Pro và brand icon phải dùng asset/package được quản lý trong repo; chỉ import weight thực sự dùng; không dùng emoji, ký tự thay thế, icon gần giống hoặc system-font fallback cho application content | Approved 2026-09-16, revised after GLI-48 on 2026-09-17 |
 | SIGNUP-D19 | Các state vận hành không có trên frame tĩnh vẫn phải bổ sung, nhưng giữ cùng ngôn ngữ thị giác của Figma và không làm thay đổi happy-path composition | Approved 2026-09-16 |
 | SIGNUP-D20 | Chỉ chuẩn bị Android APK sau khi PO phê duyệt web preview; backend production vẫn giữ gate riêng tại mục 14.2 | Approved 2026-09-16 |
+| SIGNUP-D21 | Sau OTP hợp lệ, thu thập tên hiển thị bắt buộc và SĐT liên hệ không bắt buộc; SĐT editable, không unique và không phải credential | Approved 2026-11-19 |
 
 ### 4.2. Thứ tự triển khai đã phê duyệt
 
@@ -143,11 +143,18 @@ Nếu vẫn có conflict, deferred decision hoặc ambiguity mà PM không giả
 1. Hiển thị email đã mask để người dùng biết mã được gửi tới đâu.
 2. Người dùng nhập đúng 6 chữ số.
 3. Người dùng chọn `Tiếp tục`.
-4. Nếu OTP hợp lệ, chuyển sang bước tạo mật khẩu.
+4. Nếu OTP hợp lệ, chuyển sang bước Thông tin cá nhân.
 5. Nếu OTP sai/hết hạn, giữ người dùng ở bước OTP và hiển thị lỗi phù hợp.
 6. `Gửi lại mã` chỉ khả dụng sau cooldown; OTP mới làm OTP cũ mất hiệu lực khi backend thật được triển khai.
 
-### 5.3. Bước Mật khẩu
+### 5.3. Bước Thông tin cá nhân
+
+1. Người dùng nhập tên hiển thị bắt buộc.
+2. Người dùng có thể nhập SĐT liên hệ; trường này không bắt buộc, không unique và không dùng để đăng nhập.
+3. Người dùng chọn `Tiếp tục`.
+4. Nếu thông tin hợp lệ, chuyển sang bước tạo mật khẩu; nếu không hợp lệ, giữ nguyên dữ liệu đã nhập và hiển thị lỗi tại trường tương ứng.
+
+### 5.4. Bước Mật khẩu
 
 1. Nhập mật khẩu và xác nhận mật khẩu.
 2. FE kiểm tra tối thiểu 8 ký tự, ít nhất một chữ hoa, một chữ số và một ký tự đặc biệt theo requirement hiện tại.
@@ -164,6 +171,8 @@ email_input
   -> requesting_otp
   -> otp_input
   -> verifying_otp
+  -> personal_info_input
+  -> validating_personal_info
   -> password_input
   -> creating_account
   -> success
@@ -194,7 +203,8 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 
 ### 6.3. Back, close và resume
 
-- Back từ Password về OTP: xóa password và confirm password.
+- Back từ Password về Personal info: xóa password và confirm password; giữ tên hiển thị/SĐT trong memory của attempt hiện tại.
+- Back từ Personal info về OTP: giữ thông tin cá nhân trong memory, xóa OTP đã nhập khỏi field.
 - Back từ OTP về Email: xóa OTP; giữ email để sửa.
 - Rời flow: xóa toàn bộ dữ liệu nhạy cảm; attempt có thể được resume theo policy backend nếu còn hiệu lực.
 - App background/foreground: giữ step và email; không reload/reset UI chỉ vì người dùng mở ứng dụng email.
@@ -222,6 +232,8 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 
 ### 7.2. Bước Email
 
+![SmartTrọ — Đăng ký bằng email](../assets/auth/canvas-2026-11-18/02-sign-up-email.png)
+
 - Title hiển thị: `Đăng ký`.
 - Không hiển thị external label ở happy path; dùng placeholder `Email` theo capture và accessibility label riêng cho screen reader.
 - Placeholder: `Email`.
@@ -234,15 +246,30 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 
 ### 7.3. Bước OTP
 
+![SmartTrọ — Nhập OTP đăng ký](../assets/auth/canvas-2026-11-18/03-sign-up-otp.png)
+
 - Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Xác thực email`.
-- Helper: `Nhập mã 6 chữ số đã gửi tới <email đã mask>`.
+- Destination block: `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
 - OTP chỉ nhận chữ số, tối đa 6 ký tự, cho phép paste toàn bộ mã.
 - Primary action: `Tiếp tục` disabled khi chưa đủ 6 số hoặc đang verify.
 - Secondary action: `Gửi lại mã` cùng countdown.
 - Happy-path composition vẫn giữ title `Đăng ký`, OTP input, action `Gửi lại mã OTP`, action `Tiếp tục`, separator/social stack và account link như capture; helper/error/countdown được chèn gần OTP field mà không đổi style tổng thể.
 - Lỗi tối thiểu: mã sai, mã hết hạn, vượt giới hạn thử, resend thất bại.
 
-### 7.4. Bước Mật khẩu
+### 7.4. Bước Thông tin cá nhân
+
+![SmartTrọ — Thông tin cá nhân khi đăng ký](../assets/auth/canvas-2026-11-18/04-sign-up-personal.png)
+
+- Visible title: `Thông tin cá nhân`.
+- Field `Tên hiển thị`: bắt buộc, editable; trim khoảng trắng đầu/cuối; không cho submit khi rỗng sau normalize.
+- Field `Số điện thoại`: không bắt buộc, editable và không unique; chỉ là contact, không dùng làm credential hoặc OTP destination trong UC này.
+- Primary action: `Tiếp tục`; disabled khi tên hiển thị chưa hợp lệ hoặc đang xử lý.
+- Back đưa về OTP; không đưa Personal info vào route parameters, analytics hoặc log.
+- Lỗi tối thiểu: tên hiển thị trống/không hợp lệ và SĐT sai format khi người dùng có nhập.
+
+### 7.5. Bước Mật khẩu
+
+![SmartTrọ — Tạo mật khẩu khi đăng ký](../assets/auth/canvas-2026-11-18/05-sign-up-password.png)
 
 - Visible title vẫn là `Đăng ký` để khớp capture; semantic/accessibility screen name là `Tạo mật khẩu`.
 - Hai field: `Mật khẩu` và `Xác nhận mật khẩu`.
@@ -261,7 +288,9 @@ Countdown phải tính từ timestamp tuyệt đối, không chỉ giảm một 
 | Gửi OTP thất bại | Giữ email và cho retry an toàn |
 | OTP chưa đủ 6 số | Disable `Tiếp tục` |
 | OTP sai | Xóa/đánh dấu field theo thiết kế; giữ ở bước OTP |
-| OTP hết hạn | Cho resend theo policy; không sang Password |
+| OTP hết hạn | Cho resend theo policy; không sang Personal info |
+| Tên hiển thị trống/không hợp lệ | Giữ ở Personal info; hiển thị lỗi inline; không chuyển sang Password |
+| SĐT liên hệ sai format khi có nhập | Hiển thị lỗi inline; không áp dụng kiểm tra unique |
 | Password không đạt rule | Hiển thị rule chưa đạt; không submit |
 | Confirm password không khớp | Lỗi tại confirm field |
 | Tạo tài khoản trùng do race condition | Không tạo user thứ hai; hướng dẫn Sign In/khôi phục tài khoản |
@@ -274,7 +303,7 @@ Giữ implementation theo foundation hiện có. Nếu tên thư mục khác, De
 Tách tối thiểu:
 
 - Screen/container cho từng bước hoặc một flow container với step components rõ ràng.
-- Validation schema cho email/password.
+- Validation schema cho email, Personal info và password.
 - `SignUpGateway` interface tách mock khỏi API thật.
 - Auth flow state có thể restore phần không nhạy cảm.
 - Shared input/button/token từ design foundation.
@@ -307,13 +336,14 @@ Tối thiểu phải có:
 
 - Email trim/lowercase/format validation.
 - OTP trống, ngắn, đủ 6 số, ký tự không phải số, paste 6 số.
+- Tên hiển thị bắt buộc; SĐT bỏ trống hợp lệ; SĐT có nhập chỉ kiểm tra format và không gọi unique check.
 - Password rule và confirm mismatch.
-- Email → OTP → Password → Success → Sign In.
+- Email → OTP → Personal info → Password → Success → Sign In.
 - Back/resume/background và attempt hết hạn.
 - Duplicate email và retry sau network failure.
 - Không có OTP/password trong route params, log hoặc storage.
 - Accessibility label, focus order, keyboard behavior và vùng chạm.
-- Visual regression/manual screenshot ở `375 × 812` cho đủ ba bước, đối chiếu trực tiếp với ba capture tại mục 3.1.
+- Visual regression/manual screenshot ở `375 × 812` cho đủ bốn bước, đối chiếu trực tiếp với bốn capture tại mục 7.
 - Responsive smoke test ở `320 × 568`, `390 × 844`, `430 × 932` và web viewport lớn hơn `430 px`; không clip, không horizontal scroll, không kéo canvas thành desktop form.
 - Social buttons hiển thị đúng asset/thứ tự ở review build, không thực hiện OAuth và bị ẩn khi production flag tắt.
 
@@ -328,8 +358,8 @@ Tối thiểu phải có:
 
 ## 13. Definition of Done
 
-- Ba bước hoạt động đúng với mock gateway trên mobile và Expo Web preview.
-- UI bám capture Figma mới đã đổi sang email, các quyết định `SIGNUP-D14` đến `SIGNUP-D20` và các khác biệt `UI-D01` đến `UI-D07`.
+- Bốn bước hoạt động đúng với mock gateway trên mobile và Expo Web preview.
+- UI bám bốn capture canvas canonical tại mục 7, các quyết định `SIGNUP-D14` đến `SIGNUP-D21` và các khác biệt `UI-D01` đến `UI-D07`.
 - Có screenshot evidence ở `375 × 812`; sai lệch spacing/alignment/radius trong happy path không vượt quá `4 px`, trừ khác biệt safe-area/OS chrome và accessibility đã ghi rõ.
 - Responsive checks `320 × 568`, `390 × 844`, `430 × 932` pass.
 - State restore không làm lộ hoặc persist OTP/password.
@@ -346,11 +376,11 @@ Chỉ chuyển trạng thái tài liệu thành `Ready for PM` khi đủ:
 
 - [x] Figma node đầu tiên đổi từ Phone sang Email.
 - [x] OTP helper đổi từ SMS/số điện thoại sang email đã mask.
-- [x] Ba capture mới được xuất cùng một revision Figma và nhúng lại vào tài liệu.
+- [x] Bốn capture canvas canonical được nhúng vào đúng đặc tả màn hình tại mục 7.
 - [x] Requirement List `SM001` dùng email.
 - [x] User Story `1.0` dùng email OTP 6 chữ số.
 - [x] SRS heading/logic Sign Up dùng email.
-- [x] Activity Diagram Sign Up by Email không còn bước/text số điện thoại; có source `.puml`.
+- [x] Activity Diagram Sign Up by Email không còn định danh số điện thoại; có bước Personal info và source Draw.io canonical.
 - [x] Hành vi sau đăng ký và các ràng buộc liên UC được truy vết tới `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md`.
 
 - [ ] FE mock được triển khai và unit/component tests pass.

@@ -1,13 +1,13 @@
-# SmartTrọ — UC-02 Sign In Implementation Specification
+# SmartTrọ — UC-02 Sign In / Sign Out Implementation Specification
 
 ## 1. Trạng thái tài liệu
 
 | Thuộc tính | Giá trị |
 | --- | --- |
-| Use Case | `UC-02` — Đăng nhập bằng email và mật khẩu |
+| Use Case | `UC-02` — Đăng nhập bằng email và mật khẩu; đăng xuất phiên hiện tại |
 | Trạng thái nghiệp vụ | **Approved cho FE mock và UI review** |
 | Trạng thái bàn giao PM | **Ready cho FE mock; backend production còn các policy phải chốt tại mục 4.2** |
-| Phạm vi | Sign In SmartTrọ bằng email và mật khẩu; không yêu cầu OTP trong luồng thông thường |
+| Phạm vi | Sign In SmartTrọ bằng email và mật khẩu; không yêu cầu OTP trong luồng thông thường; Sign Out phiên hiện tại |
 | Nền tảng | React Native + Expo cho iOS, Android và Expo Web preview |
 | Dữ liệu ở giai đoạn UI | Mock gateway; chưa phát hành session/token production |
 | Ngày chốt email identity | 2026-09-16 |
@@ -21,7 +21,7 @@ Email đã chuẩn hóa là định danh đăng nhập duy nhất trong MVP. S�
 
 ## 2. Mục tiêu và kết quả mong đợi
 
-Người dùng có tài khoản đã kích hoạt có thể đăng nhập bằng email và mật khẩu để tạo session và truy cập ứng dụng.
+Người dùng có tài khoản đã kích hoạt có thể đăng nhập bằng email và mật khẩu để tạo session và truy cập ứng dụng; khi chọn Đăng xuất, phiên hiện tại bị thu hồi và ứng dụng trở về Sign In.
 
 Kết quả cần đạt:
 
@@ -31,7 +31,8 @@ Kết quả cần đạt:
 - UI ngăn gửi request lặp trong lúc đang xử lý.
 - Thông báo credential sai không tiết lộ riêng việc email có tồn tại hay không.
 - Email từ `UC-01 Sign Up` có thể được điền sẵn an toàn sau khi đăng ký thành công; OTP và mật khẩu không được truyền sang Sign In.
-- UI bám capture Figma hiện tại nhưng có đầy đủ error, loading, keyboard và accessibility state cần cho vận hành.
+- Sign Out xóa credential cục bộ, thu hồi phiên hiện tại theo contract và chặn Back navigation quay lại dữ liệu bảo vệ.
+- UI bám canvas/capture canonical tại mục 7.2 nhưng có đầy đủ error, loading, keyboard và accessibility state cần cho vận hành.
 
 ## 3. Nguồn và thứ tự ưu tiên
 
@@ -43,11 +44,9 @@ Figma file `Smart Platform`, file key `rsjbGO3ul8lzKKKTj38r0t`, page `SmartTrọ
 | --- | --- | --- |
 | Sign In | `237:822` | **Ready** — có field `Email`, `Mật khẩu`, action `Đăng nhập`, `Quên mật khẩu` và điều hướng sang `Đăng ký` |
 
-Capture baseline đã xuất từ đúng page `SmartTrọ` ngày 2026-09-16:
+Editable canvas của hướng refactor UI ngày 2026-11-18 được lưu tại [`smarttro-auth-flow-canvas-2026-11-18.zip`](../assets/auth/smarttro-auth-flow-canvas-2026-11-18.zip); màn Sign In là artboard `01 - Đăng nhập`. Canvas thuộc backlog `GLI-275`, giữ nguyên email/password behavior, feature flag social login và toàn bộ BE/API/session contract.
 
-![SmartTrọ Sign In — email và mật khẩu](../../../FRS/SmartTro/assets/auth/sign-in-email.png)
-
-Capture là baseline trình bày. Requirement về validation, lỗi, loading, security và accessibility trong tài liệu này có ưu tiên cao hơn các state không thể hiện trên frame tĩnh.
+Capture happy path được đặt tại đặc tả màn Sign In ở mục 7.2. ZIP chỉ dùng khi cần mở/chỉnh editable canvas.
 
 ### 3.2. Nguồn requirement
 
@@ -55,7 +54,20 @@ Capture là baseline trình bày. Requirement về validation, lỗi, loading, s
 - `Requirement_List/Requirements List - SmartTrọ.xlsx`, `SM002`.
 - `User_Stories/User Story - SmartTrọ.xlsx`, sheet `Đăng kýĐăng nhập`, User Story `2.0`.
 - `SRS/SRS (SmartTrọ).docx`, `UC-2`.
-- Activity Diagram Sign In by Email và source `.puml` trong `Activity_Diagrams/`.
+- Activity Diagram canonical: [`SmartTro-auth-email.drawio.xml`](../activity-diagrams/SmartTro-auth-email.drawio.xml).
+- `AD_Sign In (By Email)`, page ID `82HsPPPpyxdnw5wZpFSg`; node credential `MzLh7MvPFJbDZgQiAAbO-9`, decision `MzLh7MvPFJbDZgQiAAbO-29`, nhánh chưa xác minh `auth-resume-signup-otp`.
+- `AD_Sign Out`, page ID `QFWOeHwN71s2og-BIGGR`; node action `cjnTIpnNan7ArjKUCE9Z-13`, revoke/xóa credential `ijAeuzC8Iia17ykZBsW7-26`.
+- Source `.puml` cũ chỉ là lịch sử, không còn là diagram canonical.
+
+#### Activity Diagram render — Sign In by Email
+
+![SmartTrọ UC-02 — Activity Diagram Sign In by Email](../assets/activity-diagrams/uc-02-sign-in-by-email.png)
+
+#### Activity Diagram render — Sign Out
+
+![SmartTrọ UC-02 — Activity Diagram Sign Out](../assets/activity-diagrams/uc-02-sign-out.png)
+
+Hai PNG là bản đọc/review được export trực tiếp từ hai page canonical; mọi thay đổi XML phải regenerate ảnh trong cùng revision.
 - `docs/SRS/SmartTro/use-cases/UC-01-sign-up.md` cho hành vi chuyển về Sign In sau đăng ký.
 - `docs/SRS/SmartTro/use-cases/UC-03-forgot-password.md` cho flow khi chọn `Quên mật khẩu`; UC-03 đã được PO duyệt ngày 2026-09-23 và triển khai theo thứ tự FE-first.
 
@@ -67,7 +79,7 @@ Capture là baseline trình bày. Requirement về validation, lỗi, loading, s
 4. Figma cho phần trình bày trực quan.
 5. Code foundation cho convention kỹ thuật.
 
-Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, capture Figma tại mục 3.1 là baseline bắt buộc. Foundation chỉ được ưu tiên khi Figma không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
+Riêng với **bố cục, màu, typography, kích thước tương đối, thứ tự thành phần và cảm nhận thị giác**, canvas/capture tại mục 7.2 là baseline bắt buộc. Foundation chỉ được ưu tiên khi visual không mô tả state hoặc khi cần áp dụng khác biệt accessibility đã duyệt; Dev không được thay bằng một giao diện foundation khác phong cách chỉ vì component đó đã tồn tại.
 
 Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ thông tin, PM phải comment ngay trên task và tag PO để chốt trước khi giao Dev. Không tạo một tài liệu quyết định tổng hợp để thay thế việc chốt trong UC.
 
@@ -89,7 +101,7 @@ Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ t
 | SIGNIN-D10 | Access token 15 phút; refresh session 30 ngày; refresh token phải rotation | Approved 2026-09-16 |
 | SIGNIN-D11 | Logout mặc định kết thúc thiết bị hiện tại; hỗ trợ logout toàn bộ thiết bị; reset mật khẩu revoke toàn bộ session cũ | Approved 2026-09-16 |
 | SIGNIN-D12 | Account chưa xác minh trả `ACCOUNT_UNVERIFIED` và chuyển về bước OTP của UC-01 với email prefill; không tạo account mới | Approved 2026-09-16 |
-| SIGNIN-D13 | Capture Figma là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16 |
+| SIGNIN-D13 | Canvas/capture canonical tại mục 7.2 là nguồn chuẩn cho visual hierarchy, màu nền, typography, độ bo, thứ tự và phong cách của Auth UI; foundation chỉ bổ sung state còn thiếu và convention kỹ thuật | Approved 2026-09-16; visual refreshed 2026-11-18 |
 | SIGNIN-D14 | `375 × 812` là viewport baseline để review/screenshot, không phải kích thước hard-code; layout phải dùng được từ rộng `320–430 px` và cao từ `568 px` trở lên | Approved 2026-09-16 |
 | SIGNIN-D15 | Expo Web chỉ render mobile canvas rộng tối đa `430 px`, căn giữa khi viewport lớn; không tạo desktop composition riêng trong task này | Approved 2026-09-16 |
 | SIGNIN-D16 | Social buttons phải hiện trong review build để đối chiếu Figma nhưng chỉ visual-only; production ẩn bằng feature flag đến khi có UC/task riêng | Approved 2026-09-16 |
@@ -127,7 +139,15 @@ Nếu có conflict, deferred decision hoặc ambiguity mà PM không có đủ t
 
 - `Đăng ký` → `UC-01 Sign Up`.
 - `Quên mật khẩu` → `UC-03 Forgot Password`; UC-03 dùng ba màn riêng Email → OTP → Mật khẩu mới và không thêm OTP inline vào màn Email.
-- Account chưa xác minh → resume `UC-01` theo contract được chốt tại `SIGNIN-Q04`.
+- Account chưa xác minh → resume `UC-01` theo contract được chốt tại `SIGNIN-D12`.
+
+### 5.4. Sign Out
+
+1. Người dùng đang có phiên hợp lệ mở màn Tài khoản.
+2. Người dùng chọn `Đăng xuất`.
+3. Hệ thống thu hồi phiên đăng nhập hiện tại theo contract backend và xóa credential/session cục bộ.
+4. Ứng dụng reset auth navigation stack và hiển thị Sign In.
+5. Back navigation không được mở lại Home, Tài khoản hoặc dữ liệu bảo vệ của phiên vừa đăng xuất.
 
 ## 6. Trạng thái và dữ liệu UI
 
@@ -146,6 +166,11 @@ submitting
   -> locked_or_rate_limited
   -> unverified_account
   -> idle
+
+authenticated
+  -> signing_out
+  -> signed_out
+  -> sign_in
 ```
 
 Không tạo session hoặc điều hướng vào app khi gateway chưa xác nhận thành công.
@@ -193,6 +218,8 @@ Không persist hoặc đưa vào route parameters/log:
 
 ### 7.2. Form Sign In
 
+![SmartTrọ — Đăng nhập](../assets/auth/canvas-2026-11-18/01-sign-in.png)
+
 - Field `Email`: keyboard email, tắt auto-capitalization, hỗ trợ autofill phù hợp.
 - Field `Mật khẩu`: secure entry, có show/hide và hỗ trợ password manager/content type phù hợp.
 - Happy path không hiển thị external label; placeholder lần lượt là `Email` và `Mật khẩu` theo capture, còn screen reader dùng accessibility label riêng.
@@ -208,6 +235,15 @@ Không persist hoặc đưa vào route parameters/log:
 - Khi người dùng nhấn ở review build, chỉ hiển thị feedback an toàn `Chức năng chưa khả dụng trong bản preview`; không điều hướng và không tạo mock session.
 - Production mặc định ẩn bằng feature flag cho đến khi có requirement, provider configuration, account-linking rule và test riêng.
 
+### 7.4. Action Sign Out
+
+- Entry point: màn Tài khoản khi phiên hiện tại còn hợp lệ; UC này không tạo thêm một màn Auth mới cho Sign Out.
+- Action hiển thị: `Đăng xuất`.
+- Khi action được kích hoạt, UI chặn submit lặp trong lúc revoke/xóa credential đang xử lý.
+- Thành công: xóa credential cục bộ, reset auth navigation stack và về Sign In.
+- Nếu revoke server thất bại nhưng credential cục bộ đã bị xóa, người dùng vẫn phải trở về Sign In; client không được khôi phục phiên chỉ để retry ngầm.
+- Không tự mở rộng thành `Đăng xuất tất cả thiết bị`; đó là action riêng theo `SIGNIN-D11` và cần entry point/confirmation riêng nếu triển khai.
+
 ## 8. Validation và error contract tối thiểu
 
 | Tình huống | Hành vi bắt buộc |
@@ -220,6 +256,8 @@ Không persist hoặc đưa vào route parameters/log:
 | Account chưa xác minh | Trả `ACCOUNT_UNVERIFIED`; chuyển về OTP của UC-01 với email prefill; không tạo account trùng |
 | Account bị khóa/rate limited | Hiển thị hành động/thời điểm tiếp theo theo contract backend |
 | Gateway lỗi 5xx | Không tạo session; thông báo tạm thời và cho retry an toàn |
+| Sign Out được bấm lặp | Chỉ xử lý một lần; không phát sinh nhiều navigation/reset cạnh tranh |
+| Revoke server lỗi khi Sign Out | Xóa credential cục bộ và về Sign In; ghi nhận lỗi an toàn để backend xử lý theo contract |
 
 ## 9. Technical mapping cho repository `smart-tro`
 
@@ -272,7 +310,9 @@ Tối thiểu phải có:
 - Không có password/token trong log, route parameters hoặc storage không an toàn.
 - Accessibility label, focus order, keyboard, password manager và vùng chạm.
 - Social action không hoạt động ở production khi chưa có feature riêng.
-- Visual regression/manual screenshot ở `375 × 812`, đối chiếu trực tiếp capture tại mục 3.1.
+- Sign Out thu hồi phiên hiện tại, xóa credential cục bộ, reset navigation và không cho Back vào dữ liệu bảo vệ.
+- Sign Out vẫn về Sign In khi revoke server lỗi; không tự khôi phục credential cục bộ.
+- Visual regression/manual screenshot ở `375 × 812`, đối chiếu trực tiếp capture tại mục 7.2.
 - Responsive smoke test ở `320 × 568`, `390 × 844`, `430 × 932` và web viewport lớn hơn `430 px`; không clip, không horizontal scroll, không kéo canvas thành desktop form.
 - Social buttons hiển thị đúng asset/thứ tự ở review build, không thực hiện OAuth và bị ẩn khi production flag tắt.
 
@@ -290,10 +330,11 @@ QA chỉ test sau khi PR đã merge và môi trường review/develop chạy đ�
 ## 13. Definition of Done
 
 - Sign In hoạt động đúng với mock gateway trên mobile và Expo Web preview.
-- UI bám capture Figma, các quyết định `SIGNIN-D13` đến `SIGNIN-D19` và các khác biệt `UI-SI01` đến `UI-SI06`.
+- UI bám capture canvas canonical, các quyết định `SIGNIN-D13` đến `SIGNIN-D19` và các khác biệt `UI-SI01` đến `UI-SI06`.
 - Có screenshot evidence ở `375 × 812`; sai lệch spacing/alignment/radius trong happy path không vượt quá `4 px`, trừ khác biệt safe-area/OS chrome và accessibility đã ghi rõ.
 - Responsive checks `320 × 568`, `390 × 844`, `430 × 932` pass.
 - Không yêu cầu OTP trong happy path Sign In.
+- Sign Out phiên hiện tại hoạt động đúng theo page `AD_Sign Out` và không mở rộng ngầm thành logout all devices.
 - Unit/component tests cho logic mới đạt 100% coverage và tất cả test pass.
 - Lint/typecheck pass.
 - PR ghi rõ test evidence, preview URL/build và các deviation còn lại.
@@ -303,11 +344,12 @@ QA chỉ test sau khi PR đã merge và môi trường review/develop chạy đ�
 
 ### 14.1. FE mock/UI review
 
-- [x] Figma Sign In dùng `Email` và `Mật khẩu`.
-- [x] Capture được xuất từ page SmartTrọ và nhúng vào UC.
+- [x] Sign In canonical dùng `Email` và `Mật khẩu`.
+- [x] Capture canvas được nhúng tại đúng đặc tả màn Sign In.
 - [x] Requirement List `SM002` dùng email + mật khẩu.
 - [x] User Story `2.0` dùng email + mật khẩu và không yêu cầu OTP trong Sign In thông thường.
-- [x] SRS `UC-2` và Activity Diagram đã bỏ OTP bắt buộc sau Sign In.
+- [x] SRS `UC-2` và page `AD_Sign In (By Email)` đã bỏ OTP bắt buộc sau Sign In.
+- [x] Page `AD_Sign Out` được truy vết trong UC-02 và mô tả thu hồi phiên hiện tại/xóa credential cục bộ.
 - [x] Hành vi liên kết `UC-01` và `UC-03` được ghi rõ.
 
 - [ ] FE mock được điều chỉnh theo visual baseline và unit/component tests pass.
