@@ -3,7 +3,7 @@
 > Bản Markdown được đồng bộ từ [`FRS - SmartTrọ.docx`](../../../archieve/legacy-source/FRS/SmartTro/FRS%20-%20SmartTro%CC%A3.docx) ngày 2026-09-16.
 > SHA-256 nguồn: `782c1e18ef1dfb5934c0d22177ff45f89a0f3cc029642aa1f4255c30d55caaef`.
 > File DOCX gốc vẫn là nguồn định dạng chính thức; bản này phục vụ agent tìm kiếm, đọc requirement và truy vết use case.
-> Lưu ý: đây là bản chuyển đổi nguyên trạng. Các nội dung auth cũ nếu xuất hiện không được dùng để ghi đè tài liệu của UC tương ứng tại `docs/SRS/SmartTro/use-cases/`.
+> Lưu ý: đây là bản chuyển đổi nguyên trạng. Nội dung cũ hoặc template legacy không được dùng để ghi đè living spec đã được PO duyệt tại `docs/SRS/SmartTro/use-cases/` hoặc `docs/FRS/SmartTro/screens/`.
 
 ![image2.png](assets/source/image-001.png)
 

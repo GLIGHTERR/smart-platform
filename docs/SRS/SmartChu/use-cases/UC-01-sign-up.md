@@ -31,9 +31,9 @@
 | M8 | Chủ trọ | Nhập OTP và chọn `Tiếp tục`. | OTP gồm đủ 6 chữ số. |
 | M9 | Hệ thống SmartChủ | Xác thực OTP. | OTP đúng, còn hạn và chưa vượt số lần thử. |
 | M10 | Hệ thống SmartChủ | Hiển thị màn hình Thông tin cá nhân. | OTP hợp lệ. |
-| M11 | Chủ trọ | Nhập tên hiển thị, tùy chọn nhập SĐT liên hệ và chọn `Tiếp tục`. | Tên bắt buộc; SĐT không bắt buộc, không unique. |
+| M11 | Chủ trọ | Nhập họ và tên dùng làm tên hiển thị, tùy chọn nhập SĐT liên hệ và chọn `Tiếp tục`. | Họ và tên bắt buộc; SĐT không bắt buộc, không unique. |
 | M12 | Hệ thống SmartChủ | Kiểm tra thông tin cá nhân và hiển thị màn hình Tạo mật khẩu. | Thông tin hợp lệ. |
-| M13 | Chủ trọ | Nhập mật khẩu, xác nhận mật khẩu và chọn `Đăng ký`. | Hai giá trị hợp lệ và trùng nhau. |
+| M13 | Chủ trọ | Nhập mật khẩu, nhập lại mật khẩu và chọn `Tạo tài khoản`. | Hai giá trị hợp lệ và trùng nhau. |
 | M14 | Hệ thống SmartChủ | Tạo tài khoản với email đã xác minh. | Không tạo phiên đăng nhập tự động. |
 | M15 | Hệ thống SmartChủ | Thông báo thành công và chuyển về Đăng nhập với email điền sẵn. | Không điền sẵn mật khẩu. |
 
@@ -60,8 +60,9 @@
 | Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
 | --- | --- | --- |
 | A2.1 | Chủ trọ | Chọn `Đổi email`. |
-| A2.2 | Hệ thống SmartChủ | Xóa OTP đang nhập và đưa chủ trọ về màn hình Email. |
-| A2.3 | Chủ trọ | Sửa email và gửi lại yêu cầu OTP. |
+| A2.2 | Hệ thống SmartChủ | Xóa OTP đang nhập và đưa chủ trọ về màn hình Email với email hiện tại được điền sẵn. |
+| A2.3 | Chủ trọ | Sửa email nếu cần và chọn `Gửi OTP`. |
+| A2.4 | Hệ thống SmartChủ | Nếu email chuẩn hóa thay đổi và yêu cầu mới thành công, vô hiệu OTP cũ và gửi OTP mới; nếu email không thay đổi, giữ phiên đăng ký và thời gian chờ hiện tại, không tự động gửi lại mã. |
 
 - Kết quả/Điểm quay lại: Quay lại `M5`.
 
@@ -95,7 +96,7 @@
 #### E3. Thông tin cá nhân không hợp lệ
 
 - Bắt đầu tại: `M12`
-- Điều kiện: Tên hiển thị rỗng sau chuẩn hóa hoặc SĐT có nhập nhưng sai định dạng.
+- Điều kiện: Họ và tên rỗng sau chuẩn hóa hoặc SĐT có nhập nhưng sai định dạng.
 
 | Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
 | --- | --- | --- |
@@ -124,12 +125,15 @@
 | BR-02 | OTP gồm 6 chữ số, có hiệu lực 10 phút và tối đa 5 lần nhập sai cho mỗi lần xác minh. | M7-M9 |
 | BR-03 | Gửi lại OTP có thời gian chờ tối thiểu 60 giây, tối đa 5 lần trong một giờ cho mỗi email; hệ thống áp dụng thêm giới hạn chống lạm dụng theo IP hoặc thiết bị. | A1 |
 | BR-04 | OTP mới làm OTP cũ mất hiệu lực. | A1.3 |
-| BR-05 | Tên hiển thị bắt buộc; SĐT là contact tùy chọn, editable, không unique và không dùng để đăng nhập hoặc nhận OTP trong UC này. | M11-M12 |
+| BR-05 | Họ và tên dùng làm tên hiển thị là bắt buộc; hệ thống trim đầu/cuối, gộp khoảng trắng lặp và chấp nhận tên một từ. SĐT là liên hệ tùy chọn, editable, không unique, để trống thì không lưu giá trị và không dùng để đăng nhập hoặc nhận OTP trong UC này. | M11-M12 |
 | BR-06 | Mật khẩu có tối thiểu 8 ký tự, gồm ít nhất một chữ hoa, một chữ số và một ký tự đặc biệt; xác nhận mật khẩu phải trùng khớp. | M13 |
 | BR-07 | OTP, mật khẩu và xác nhận mật khẩu không được ghi nhật ký, đưa vào tham số điều hướng hoặc lưu trong vùng lưu trữ bền vững. | M8-M14 |
 | BR-08 | Khi ứng dụng chuyển nền rồi quay lại và phiên đăng ký còn hiệu lực, hệ thống giữ bước hiện tại cùng email; không khôi phục OTP hoặc mật khẩu sau khi tiến trình bị đóng. | M7-M13 |
 | BR-09 | Đăng ký thành công không tự động đăng nhập; chỉ điền sẵn email tại màn hình Đăng nhập. | M14-M15 |
 | BR-10 | Nút đăng ký mạng xã hội chỉ hiển thị khi chức năng tương ứng đã được phê duyệt; hành vi đăng ký qua mạng xã hội không thuộc UC này. | M4 |
+| BR-11 | Khi đổi email, chỉ yêu cầu thành công cho một email chuẩn hóa khác mới vô hiệu OTP cũ; nếu email không đổi thì giữ phiên đăng ký và thời gian chờ hiện tại, không tự động gửi lại OTP. | A2 |
+| BR-12 | Thời gian hết hạn OTP và thời điểm được gửi lại phải được tính từ mốc thời gian tuyệt đối để không bị đặt lại khi ứng dụng chuyển nền rồi quay lại. | M7-M9, A1 |
+| BR-13 | Tài khoản, họ tên và SĐT chỉ được lưu khi thao tác `Tạo tài khoản` hoàn tất thành công. | M13-M14 |
 
 ## 2. Activity Diagram
 
@@ -244,7 +248,7 @@
 | --- | --- | --- | --- | --- | --- |
 | Chọn `Tiếp tục` | OTP đủ 6 chữ số | Không | Xác thực OTP. | Mở màn hình 04 khi hợp lệ. | Hiển thị lỗi OTP tương ứng. |
 | Chọn `Gửi lại mã OTP` | Thời gian chờ đã kết thúc | Không | Gửi OTP mới và vô hiệu OTP cũ. | Ở lại màn hình, đặt lại thời gian chờ. | Thông báo không thể gửi lại. |
-| Chọn `Đổi email` | Luôn khả dụng | Không | Xóa OTP đã nhập. | Quay về màn hình 02. | Không áp dụng. |
+| Chọn `Đổi email` | Luôn khả dụng | Không | Xóa OTP đã nhập và giữ email hiện tại để chủ trọ chỉnh sửa. | Quay về màn hình 02. | Không áp dụng. |
 
 #### Trạng thái màn hình
 
@@ -274,9 +278,9 @@
 
 | STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Tên hiển thị | Trường nhập | Tên hiển thị trong ứng dụng | Có | Có | Trim khoảng trắng; không rỗng sau chuẩn hóa | Luôn hiển thị. |
-| 2 | Số điện thoại | Trường nhập | SĐT liên hệ | Không | Có | Kiểm tra định dạng khi có nhập; không unique | Luôn hiển thị. |
-| 3 | Tiếp tục | Nút chính | `Tiếp tục` | Không | Không | Chỉ khả dụng khi tên hợp lệ và không đang xử lý | Luôn hiển thị. |
+| 1 | Họ và tên | Trường nhập | `Họ và tên (bắt buộc)`; dùng làm tên hiển thị trong ứng dụng | Có | Có | Trim đầu/cuối, gộp khoảng trắng lặp; không rỗng sau chuẩn hóa; chấp nhận một từ | Luôn hiển thị. |
+| 2 | Số điện thoại | Trường nhập | `Số điện thoại (không bắt buộc)` | Không | Có | Kiểm tra định dạng khi có nhập; không unique; để trống thì không lưu giá trị | Luôn hiển thị. |
+| 3 | Tiếp tục | Nút chính | `Tiếp tục` | Không | Không | Chỉ khả dụng khi họ và tên hợp lệ và không đang xử lý | Luôn hiển thị. |
 
 #### Thao tác
 
@@ -289,8 +293,8 @@
 
 | Trạng thái | Điều kiện | Hiển thị/Hành vi |
 | --- | --- | --- |
-| Ban đầu | Chưa có tên hợp lệ | Nút `Tiếp tục` chưa khả dụng. |
-| Hợp lệ | Tên hợp lệ; SĐT trống hoặc đúng định dạng | Cho phép tiếp tục. |
+| Ban đầu | Chưa có họ và tên hợp lệ | Nút `Tiếp tục` chưa khả dụng. |
+| Hợp lệ | Họ và tên hợp lệ; SĐT trống hoặc đúng định dạng | Cho phép tiếp tục. |
 | Lỗi validation | Một trường không hợp lệ | Giữ dữ liệu và hiển thị lỗi tương ứng. |
 
 ### 05 — Đăng ký / Mật khẩu
@@ -313,22 +317,23 @@
 | STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Mật khẩu | Trường mật khẩu | Mật khẩu tài khoản | Có | Có | Tối thiểu 8 ký tự, có chữ hoa, chữ số và ký tự đặc biệt | Luôn hiển thị. |
-| 2 | Xác nhận mật khẩu | Trường mật khẩu | Nhập lại mật khẩu | Có | Có | Phải trùng mật khẩu | Luôn hiển thị. |
+| 2 | Nhập lại mật khẩu | Trường mật khẩu | Nhập lại mật khẩu | Có | Có | Phải trùng mật khẩu | Luôn hiển thị. |
 | 3 | Hiện/ẩn mật khẩu | Nút biểu tượng | Đổi trạng thái che ký tự | Không | Không | Không thay đổi giá trị | Khi trường mật khẩu hiển thị. |
-| 4 | Đăng ký | Nút chính | `Đăng ký` | Không | Không | Chỉ khả dụng khi hai trường hợp lệ và khớp | Luôn hiển thị. |
+| 4 | Tạo tài khoản | Nút chính | `Tạo tài khoản` | Không | Không | Chỉ khả dụng khi hai trường hợp lệ và khớp | Luôn hiển thị. |
+| 5 | Quay lại | Nút phụ | `Quay lại` | Không | Không | Không khả dụng khi đang tạo tài khoản | Luôn hiển thị. |
 
 #### Thao tác
 
 | Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
 | --- | --- | --- | --- | --- | --- |
-| Chọn `Đăng ký` | Hai mật khẩu hợp lệ và khớp | Không | Tạo tài khoản. | Thông báo thành công; về màn hình 01 với email điền sẵn. | Hiển thị lỗi validation hoặc lỗi tạo tài khoản. |
+| Chọn `Tạo tài khoản` | Hai mật khẩu hợp lệ và khớp | Không | Tạo tài khoản và lưu thông tin cá nhân. | Thông báo thành công; về màn hình 01 với email điền sẵn. | Hiển thị lỗi validation hoặc lỗi tạo tài khoản. |
 | Quay lại | Không đang tạo tài khoản | Không | Xóa hai giá trị mật khẩu. | Trở về màn hình 04. | Không áp dụng. |
 
 #### Trạng thái màn hình
 
 | Trạng thái | Điều kiện | Hiển thị/Hành vi |
 | --- | --- | --- |
-| Ban đầu | Chưa nhập đủ hai trường | Nút `Đăng ký` chưa khả dụng. |
+| Ban đầu | Chưa nhập đủ hai trường | Nút `Tạo tài khoản` chưa khả dụng. |
 | Lỗi validation | Mật khẩu không đạt chính sách hoặc không khớp | Hiển thị lỗi tương ứng. |
 | Đang tạo tài khoản | Đã gửi yêu cầu hợp lệ | Khóa thao tác gửi lặp. |
 | Thành công | Tài khoản được tạo | Thông báo thành công và về Đăng nhập. |

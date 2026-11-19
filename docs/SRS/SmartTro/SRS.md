@@ -3,6 +3,7 @@
 > Bản Markdown được đồng bộ từ [`SRS (SmartTrọ).docx`](../../../archieve/legacy-source/SRS/SmartTro/SRS%20%28SmartTro%CC%A3%29.docx) ngày 2026-09-16.
 > SHA-256 nguồn: `8cfae5992ace32ba2a206e879ce3ced370a526cf5d96cbb708f6157b94173d34`.
 > File DOCX gốc vẫn là nguồn định dạng chính thức; bản này phục vụ tìm kiếm, đọc và lập kế hoạch cho agent.
+> Cảnh báo: file nguồn có các đoạn template legacy không thuộc SmartTrọ, gồm tham chiếu `VIS`, sản phẩm, đơn hàng, quyên góp, loyalty và voucher. Không dùng các đoạn đó làm requirement triển khai. Khi có living spec đã được PO duyệt, living spec là nguồn chuẩn; Home dùng [`docs/FRS/SmartTro/screens/home-screen.md`](../../FRS/SmartTro/screens/home-screen.md).
 
 ![image3.png](assets/image-001.png)
 
@@ -520,17 +521,15 @@ Dành cho nhà phát triển muốn tích hợp ứng dụng với hệ thống 
 
 ## Chức năng chính:
 
-- Trang chủ: Hiển thị danh mục sản phẩm, sản phẩm nổi bật, và các chương trình khuyến mãi.
+> Quyết định PO ngày 2026-10-02: nội dung e-commerce mẫu về sản phẩm nổi bật, khuyến mãi và loyalty program không áp dụng cho SmartTrọ. Phạm vi Home hiện hành dùng [`docs/FRS/SmartTro/screens/home-screen.md`](../../FRS/SmartTro/screens/home-screen.md) làm nguồn chuẩn.
 
-- Tìm kiếm: Thanh tìm kiếm cho phép lọc sản phẩm theo danh mục, giá cả, tình trạng.
+- Trang chủ: Dashboard chào mừng, tóm tắt hợp đồng active và điều hướng tới các chức năng SmartTrọ; không hiển thị discovery content.
 
-- Quản lý tài khoản: Hiển thị thông tin cá nhân, lịch sử giao dịch, và điểm tích lũy.
+- Danh sách phòng: Người dùng truy cập từ `D.S.Trọ`; tìm kiếm, lọc và sắp xếp nằm trong màn đích, không nằm trên Home.
 
-- Trang loyalty program: Hiển thị số điểm hiện tại, cấp bậc thành viên (Basic, Silver, Gold), và danh sách voucher có thể đổi.
+- Quản lý tài khoản: Hiển thị thông tin cá nhân và các chức năng hồ sơ tương ứng.
 
-- Trang chi tiết sản phẩm: Hiển thị hình ảnh sản phẩm, mô tả chi tiết, giá cả, tình trạng còn hàng.
-
-- Trang thanh toán: Giao diện đơn giản với các tùy chọn thanh toán như ví điện tử hoặc thẻ ngân hàng.
+- Thanh toán: Home chỉ điều hướng tới màn Thanh Toán; chi tiết nghiệp vụ thuộc các UC thanh toán riêng.
 
 ## Tiêu chuẩn UI/UX:
 

@@ -1,0 +1,68 @@
+# AGENTS.md — Smart Platform
+
+Tài liệu này áp dụng cho toàn bộ repository `smart-platform`. Đây là repository tài liệu và context hub của hệ sinh thái Smart Platform.
+
+## Bắt đầu một task
+
+1. Đọc [`CODEX_DESKTOP_HANDOFF.md`](CODEX_DESKTOP_HANDOFF.md).
+2. Đọc [`docs/README.md`](docs/README.md) và living specification đúng sản phẩm/Use Case.
+3. Kiểm tra trạng thái động trên Multica, GitHub và môi trường triển khai khi task cần thông tin đó. Không suy diễn trạng thái hiện tại từ snapshot trong handoff.
+4. Chỉ nạp context liên quan trực tiếp tới task; không sao chép toàn bộ lịch sử hội thoại vào prompt.
+
+## Nguồn chuẩn
+
+- `docs/`: tài liệu Markdown hiện hành cho PM, Dev, QA và agent.
+- `archieve/`: nguồn cũ, bản bị thay thế hoặc tài liệu truy vết; không được tự động coi là yêu cầu hiện hành.
+- `CODEX_DESKTOP_HANDOFF.md`: quyết định xuyên repo, quy trình và snapshot điều phối gần nhất; không thay thế living specification.
+- Multica/GitHub/deployment provider: nguồn trạng thái thực thi hiện tại.
+
+## Quy tắc vận hành
+
+- Trao đổi và tài liệu nghiệp vụ dùng tiếng Việt có dấu.
+- Coordinator và task Codex nhánh là control plane/điều phối, không phải agent triển khai. Multica là execution plane cho PM/BA, Dev, QA và mọi thay đổi code, tài liệu, test hoặc deploy thuộc task.
+- Codex được phép chốt scope/gate/acceptance criteria, tạo và handoff task Multica, kiểm tra evidence/PR/deploy, xử lý blocker, nhận `ROOT_SYNC` và mở gate tiếp theo. Không tự làm deliverable của task Multica trừ khi PO nói rõ trong yêu cầu hiện tại rằng Codex phải trực tiếp thực hiện.
+- Mỗi UC/workstream chỉ dùng một task Codex điều phối; task Multica theo chuỗi `DOCS → FE → BE/BE-GAP → INT → QA → UAT` khi các bước đó thực sự cần.
+- FE dựng UI và được review trước khi triển khai BE, trừ khi task chỉ sửa defect backend độc lập đã được duyệt.
+- Không mở rộng scope hoặc tự thay đổi quyết định nghiệp vụ/Figma.
+- Không polling liên tục. Chỉ kiểm tra tiến độ khi người dùng yêu cầu hoặc khi cần một lần xác nhận ngay sau thao tác.
+- Không lưu API key, password, OTP, token, cookie hoặc secret vào Git, tài liệu hay comment task.
+- Ưu tiên connector/API/CLI; chỉ dùng browser khi cần thao tác hoặc kiểm thử UI. Khi bị chặn quyền môi trường, agent phải cung cấp runbook có transaction, verify và rollback rõ ràng để PO tự chạy.
+- Branch ngắn hạn được xóa sau khi merge vào `master`. Build/release chính thức chỉ chạy từ `master`, trừ khi PO yêu cầu preview riêng.
+
+## Kích hoạt agent Multica
+
+- Chỉ comment trực tiếp trong đúng task Multica và mention đúng PM, Dev hoặc QA agent mới là giao việc/kích hoạt run.
+- GitHub comment, commit, local handoff hay kênh khác chỉ là audit/reference; không thay thế trigger trên Multica.
+- Trigger nêu ngắn gọn mục tiêu, hành động, evidence/đầu ra và gate. Nếu chưa gửi được comment mention, phải báo rõ agent chưa được kích hoạt.
+- Taxonomy Multica: Epic cho scope lớn, Story cho UC hoàn chỉnh, Task cho FE/BE/QA/UAT, Sub-Bug cho defect con và Sub-Task cho phần việc không phải defect. Defect phải nằm dưới UC/Story hiện hành.
+- PR merge không tự đồng nghĩa `done`: task chỉ đóng sau khi đủ review, evidence, QA và PO acceptance theo gate.
+
+## Tách task để giảm context
+
+- Task điều phối gốc giữ quyết định toàn hệ thống và điều phối thứ tự.
+- Khi PO yêu cầu bắt đầu một UC/workstream, tạo tối đa một task Codex nhánh cho toàn UC với context tối thiểu.
+- Không tạo thêm task Codex nhánh cho từng task Multica như Dev, QA, defect hoặc gate con; quản lý chúng ngay trong task Codex của UC.
+- Task Codex UC chỉ nhận: mục tiêu, repo, living spec, quyết định liên quan, acceptance criteria và điều kiện kết thúc.
+- Không truyền toàn bộ transcript của task gốc cho task nhánh.
+- Nếu cần làm song song trong cùng repo, dùng worktree/branch riêng để tránh đè working tree.
+
+## Bắt buộc đồng bộ ngược khi đóng task
+
+Trước khi một task nhánh được coi là hoàn tất, agent phải phát một khối `ROOT_SYNC` theo mẫu tại [`.codex/handoffs/TEMPLATE.md`](.codex/handoffs/TEMPLATE.md).
+
+- Với task Codex UC: gửi một khối này về task điều phối gốc khi toàn workstream đóng, sau đó task có thể được archive.
+- Với task Multica: thêm khối này vào comment cuối của issue.
+- Chỉ ghi delta tạo ra bởi task, không kể lại toàn bộ project.
+- Task điều phối sau đó kiểm tra commit/PR đã merge, cập nhật `CODEX_DESKTOP_HANDOFF.md` nếu có quyết định bền vững, rồi ghi nhận tại [`.codex/handoffs/ledger.md`](.codex/handoffs/ledger.md).
+- Không đóng task với mô tả chung chung như “done”; phải có bằng chứng commit, PR, test/build/deploy hoặc lý do N/A.
+
+## Quy tắc sửa tài liệu
+
+- Một mục đích tài liệu chỉ có một bản hiện hành trong `docs/`.
+- Khi living spec thay đổi, cập nhật traceability liên quan trong cùng PR.
+- UC, SRS và FRS phải mô tả đầy đủ current canonical behavior để người mới đọc độc lập. Không thay phần thân bằng changelog, delta hay bản tổng hợp update.
+- Dùng cấu trúc/format hiện hành của tài liệu trên branch gốc làm skeleton; tích hợp quyết định mới vào đúng mục, giữ context còn hiệu lực và sửa hoặc đánh dấu superseded nội dung cũ.
+- Revision history chỉ ghi lịch sử thay đổi, không thay thế specification; task PM/docs phải kiểm tra consistency, decision traceability, validation, acceptance criteria, test/DoD và delivery gates.
+- Không tái tạo thư mục `markdown/`.
+- Giữ nguyên thay đổi không liên quan của người dùng và agent khác.
+- Dùng `apply_patch` cho chỉnh sửa thủ công.
