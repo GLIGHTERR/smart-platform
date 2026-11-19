@@ -1,128 +1,236 @@
-# SmartChủ — UC-02 Sign In / Sign Out Implementation Specification
+# UC-02 — Đăng nhập và đăng xuất
 
-## 1. Metadata
+## 1. Mô tả Use Case
 
-| Thuộc tính | Giá trị |
+### 1.1 Thông tin chung
+
+| Trường | Nội dung |
 | --- | --- |
-| Use Case | `UC-02` — Đăng nhập bằng email và mật khẩu; đăng xuất phiên hiện tại |
-| Actor | Chủ trọ |
-| Trạng thái | Draft — canonical Auth canvas đã bổ sung; implementation gate chưa mở |
-| Ngày cập nhật | 2026-11-18 |
-| Parent task | `GLI-83` |
-| Source lịch sử | `SRS/SRS (SmartChủ).docx` |
+| Mã Use Case | UC-02 |
+| Tên Use Case | Đăng nhập và đăng xuất |
+| Mục tiêu | Chủ trọ đăng nhập bằng email và mật khẩu để sử dụng SmartChủ, đồng thời có thể kết thúc phiên hiện tại bằng thao tác đăng xuất. |
+| Phạm vi | SmartChủ / Xác thực và quản lý phiên |
+| Tác nhân chính | Chủ trọ |
+| Tác nhân phụ/Hệ thống liên quan | Hệ thống SmartChủ |
+| Sự kiện kích hoạt | Chủ trọ mở ứng dụng khi chưa có phiên hợp lệ hoặc chọn `Đăng xuất` khi đang đăng nhập. |
+| Tiền điều kiện | Đăng nhập: tài khoản đã được tạo và chưa có phiên hợp lệ. Đăng xuất: chủ trọ đang có phiên hợp lệ. |
+| Hậu điều kiện thành công | Đăng nhập: hệ thống tạo và lưu phiên, sau đó hiển thị Trang chủ. Đăng xuất: phiên hiện tại và thông tin phiên trên thiết bị bị xóa, sau đó hiển thị Đăng nhập. |
+| Đảm bảo tối thiểu khi không thành công | Không tạo phiên cho thông tin đăng nhập không hợp lệ; không để chủ trọ truy cập dữ liệu bảo vệ sau khi đã chọn đăng xuất. |
 
-## 1.1. Canonical design reference
+### 1.2 Luồng chính
 
-- Editable artifact: [`smartchu-auth-flow-canvas-2026-11-18.zip`](../assets/auth/smartchu-auth-flow-canvas-2026-11-18.zip).
-- Artboard thuộc UC-02: `01 - Đăng nhập`.
-- Visual sử dụng theme SmartChủ riêng nhưng cùng Auth layout family và component contract với SmartTrọ; không yêu cầu hai app giống tuyệt đối.
-- Canvas chỉ thay presentation. Email/password, session, logout, social feature flag và BE/API contract giữ nguyên.
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi | Điều kiện/Quy tắc |
+| --- | --- | --- | --- |
+| M1 | Chủ trọ | Mở ứng dụng SmartChủ. | Chưa có phiên đăng nhập hợp lệ. |
+| M2 | Hệ thống SmartChủ | Hiển thị màn hình Đăng nhập. |  |
+| M3 | Chủ trọ | Nhập email và mật khẩu. |  |
+| M4 | Chủ trọ | Chọn `Đăng nhập`. | Dữ liệu đầu vào hợp lệ về định dạng. |
+| M5 | Hệ thống SmartChủ | Chuẩn hóa email và xác thực thông tin đăng nhập. | Không thay đổi giá trị mật khẩu. |
+| M6 | Hệ thống SmartChủ | Kiểm tra email đã được xác minh. | Credential hợp lệ. |
+| M7 | Hệ thống SmartChủ | Tạo và lưu phiên đăng nhập. | Email đã xác minh. |
+| M8 | Hệ thống SmartChủ | Hiển thị Trang chủ. |  |
+| M9 | Chủ trọ | Chọn `Quản lý` khi muốn kết thúc phiên. | Phiên còn hiệu lực. |
+| M10 | Hệ thống SmartChủ | Hiển thị màn hình Quản lý. |  |
+| M11 | Chủ trọ | Chọn `Đăng xuất`. |  |
+| M12 | Hệ thống SmartChủ | Thu hồi phiên hiện tại và xóa thông tin phiên trên thiết bị. | Xử lý một lần cho mỗi thao tác. |
+| M13 | Hệ thống SmartChủ | Xóa auth navigation stack và hiển thị màn hình Đăng nhập. | Back không mở lại dữ liệu của phiên cũ. |
 
-Capture happy path được đặt tại đặc tả màn Sign In ở mục 5. ZIP chỉ dùng khi cần mở/chỉnh editable canvas.
+### 1.3 Luồng thay thế
 
-- Activity Diagram canonical: [`SmartChu-auth-email.drawio.xml`](../activity-diagrams/SmartChu-auth-email.drawio.xml).
-- `AD_Sign In (By Email)`, page ID `EaeZUJY0AySNMO07osjg`: credential `llL8XYXRJV3uZxQj6A8Z-46`, decision `llL8XYXRJV3uZxQj6A8Z-62`, nhánh chưa xác minh `auth-resume-signup-otp`.
-- `AD_Sign Out`, page ID `x089BlYzUgXplZQq6lxx`: action `8YSoJiMQPqwq8XEEb7fi-15`, revoke/xóa credential `8YSoJiMQPqwq8XEEb7fi-19`.
+#### A1. Tài khoản chưa xác minh email
 
-### Activity Diagram render — Sign In by Email
+- Bắt đầu tại: `M6`
+- Điều kiện: Credential đúng nhưng email của tài khoản chưa được xác minh.
 
-![SmartChủ UC-02 — Activity Diagram Sign In by Email](../assets/activity-diagrams/uc-02-sign-in-by-email.png)
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| A1.1 | Hệ thống SmartChủ | Không tạo phiên đăng nhập. |
+| A1.2 | Hệ thống SmartChủ | Chuyển tới bước OTP của UC-01 với email điền sẵn. |
 
-### Activity Diagram render — Sign Out
+- Kết quả/Điểm quay lại: Kết thúc UC-02 và tiếp tục tại UC-01.
 
-![SmartChủ UC-02 — Activity Diagram Sign Out](../assets/activity-diagrams/uc-02-sign-out.png)
+#### A2. Điều hướng sang đăng ký hoặc quên mật khẩu
 
-Hai PNG là bản đọc/review được export trực tiếp từ hai page canonical; mọi thay đổi XML phải regenerate ảnh trong cùng revision.
+- Bắt đầu tại: `M2`
+- Điều kiện: Chủ trọ chưa có tài khoản hoặc không nhớ mật khẩu.
 
-## 2. Mục tiêu và thay đổi nguồn
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| A2.1 | Chủ trọ | Chọn `Đăng ký` hoặc `Quên mật khẩu`. |
+| A2.2 | Hệ thống SmartChủ | Mở lần lượt UC-01 hoặc UC-03. |
 
-Chủ trọ đăng nhập bằng email và mật khẩu. Flow đăng nhập thông thường **không yêu cầu OTP**. Đề xuất này thay thế SRS cũ dùng số điện thoại và yêu cầu OTP sau credential.
+- Kết quả/Điểm quay lại: Kết thúc UC-02 tại màn hình tương ứng.
 
-## 3. Luồng đề xuất
+### 1.4 Luồng ngoại lệ
 
-1. Chủ trọ nhập email và mật khẩu.
-2. FE validate định dạng tối thiểu và gửi request một lần.
-3. Backend xác thực email normalized, mật khẩu và trạng thái tài khoản.
-4. Nếu hợp lệ, backend tạo session/token theo shared auth contract.
-5. App lưu session bằng secure storage phù hợp nền tảng và điều hướng vào Home SmartChủ.
+#### E1. Email hoặc mật khẩu không đúng
 
-### 3.1. Luồng Sign Out
+- Bắt đầu tại: `M5`
+- Điều kiện: Hệ thống không xác thực được thông tin đăng nhập.
 
-1. Chủ trọ đang có phiên hợp lệ mở màn Tài khoản.
-2. Chủ trọ chọn `Đăng xuất`.
-3. Hệ thống thu hồi phiên hiện tại và xóa credential/session cục bộ.
-4. App reset auth navigation stack và trở về Sign In.
-5. Back navigation không được mở lại dữ liệu bảo vệ của phiên vừa đăng xuất.
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E1.1 | Hệ thống SmartChủ | Không tạo phiên và hiển thị thông báo chung rằng email hoặc mật khẩu không đúng. |
+| E1.2 | Chủ trọ | Sửa thông tin và thử lại. |
 
-## 4. Rules
+- Kết quả/Điểm quay lại: Quay lại `M3`.
 
-- Không dùng số điện thoại làm credential.
-- Không gửi OTP trong Sign In bình thường.
-- Sai email hoặc mật khẩu dùng thông báo chung, không xác nhận tài khoản có tồn tại.
-- Account chưa xác minh trả error code riêng cho FE và resume bước OTP của UC-01 với email prefill; không tạo account mới.
-- Access token/refresh token không được lưu plaintext trong `localStorage`; mobile dùng secure storage, web dùng cơ chế cookie/token đã được platform duyệt.
-- Chặn double-submit và trả UI về trạng thái thao tác được sau timeout/lỗi mạng.
-- Sign Out thu hồi/đóng session theo contract, xóa credential cục bộ và trở về Sign In.
-- Không tự link/unlink social provider dựa trên email trong UC này.
+#### E2. Không thể hoàn tất đăng nhập
 
-## 5. UI specification
+- Bắt đầu tại: `M5`
+- Điều kiện: Xảy ra lỗi kết nối, timeout hoặc lỗi xử lý hệ thống.
 
-### 5.1. Màn Sign In
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E2.1 | Hệ thống SmartChủ | Không tạo phiên, kết thúc trạng thái xử lý và thông báo không thể đăng nhập. |
+| E2.2 | Chủ trọ | Thử lại khi điều kiện cho phép. |
+
+- Kết quả/Điểm quay lại: Quay lại `M3`.
+
+#### E3. Thu hồi phiên trên máy chủ thất bại
+
+- Bắt đầu tại: `M12`
+- Điều kiện: Hệ thống không thể xác nhận thu hồi phiên với máy chủ.
+
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E3.1 | Hệ thống SmartChủ | Vẫn xóa thông tin phiên trên thiết bị và thiết lập lại luồng điều hướng xác thực. |
+| E3.2 | Hệ thống SmartChủ | Đưa chủ trọ về màn hình Đăng nhập. |
+
+- Kết quả/Điểm quay lại: Tiếp tục tại `M13`.
+
+### 1.5 Quy tắc nghiệp vụ
+
+| Mã | Quy tắc nghiệp vụ | Áp dụng tại bước |
+| --- | --- | --- |
+| BR-01 | Đăng nhập thông thường sử dụng email và mật khẩu, không yêu cầu OTP. | M3-M7 |
+| BR-02 | Email được trim và chuẩn hóa trước khi xác thực; mật khẩu được giữ nguyên khi kiểm tra. | M5 |
+| BR-03 | Credential sai phải dùng thông báo chung, không xác nhận email có tồn tại hay không. | E1 |
+| BR-04 | Tài khoản chưa xác minh email không được tạo phiên và phải tiếp tục tại bước OTP của UC-01. | A1 |
+| BR-05 | Credential phiên phải được lưu bằng cơ chế bảo mật đã được nền tảng phê duyệt; không lưu plaintext trong vùng lưu trữ không an toàn. | M7 |
+| BR-06 | Nút `Đăng nhập` và `Đăng xuất` không xử lý lặp khi yêu cầu trước đang chạy. | M4, M11 |
+| BR-07 | Đăng xuất phải xóa thông tin phiên trên thiết bị, thiết lập lại luồng điều hướng xác thực và ngăn Back mở lại dữ liệu bảo vệ. | M12-M13 |
+| BR-08 | Đăng xuất trong UC này chỉ áp dụng cho phiên hiện tại, không bao gồm `Đăng xuất tất cả thiết bị`. | M11-M12 |
+| BR-09 | Nút đăng nhập mạng xã hội chỉ hoạt động khi chức năng và UC tương ứng đã được phê duyệt. | M2 |
+
+## 2. Activity Diagram
+
+- File nguồn: [SmartChu-auth-email.drawio.xml](../activity-diagrams/SmartChu-auth-email.drawio.xml)
+- Page: `AD_Sign In (By Email)`
+
+![Activity Diagram — UC-02 Đăng nhập](../assets/activity-diagrams/uc-02-sign-in-by-email.png)
+
+- Page: `AD_Sign Out`
+
+![Activity Diagram — UC-02 Đăng xuất](../assets/activity-diagrams/uc-02-sign-out.png)
+
+## 3. Mô tả màn hình
+
+### 01 — Đăng nhập
 
 ![SmartChủ — Đăng nhập](../assets/auth/canvas-2026-11-18/01-sign-in.png)
 
-- Hai field `Email` và `Mật khẩu`; email được normalize, mật khẩu không bị biến đổi.
-- Primary action `Đăng nhập`; disabled khi dữ liệu chưa hợp lệ hoặc request đang xử lý.
-- Link `Quên mật khẩu` sang UC-03; link `Đăng ký` sang UC-01.
-- Credential sai dùng thông báo chung; account chưa verify resume OTP của UC-01 với email prefill.
-- Social buttons chỉ theo feature flag/phạm vi đã duyệt, không tự suy diễn OAuth behavior từ canvas.
+#### Thông tin chung
 
-### 5.2. Action Sign Out
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | 01 |
+| Tên màn hình | Đăng nhập |
+| Mục đích | Thu thập thông tin đăng nhập để tạo phiên và cung cấp điều hướng tới đăng ký hoặc khôi phục mật khẩu. |
+| Điểm vào | Mở ứng dụng khi chưa có phiên, sau đăng ký, sau đặt lại mật khẩu hoặc sau đăng xuất. |
+| Điểm ra/Điều hướng | Thành công tới Trang chủ; `Đăng ký` tới UC-01; `Quên mật khẩu` tới UC-03; tài khoản chưa xác minh tới OTP của UC-01. |
+| Vai trò/Quyền | Chủ trọ chưa đăng nhập. |
 
-- Entry point: màn Tài khoản khi phiên còn hợp lệ; không có màn Auth riêng cho Sign Out.
-- Action `Đăng xuất` chỉ xử lý một lần khi đang revoke/xóa credential.
-- Thành công: xóa credential cục bộ, reset navigation và về Sign In.
-- Revoke server lỗi không được khôi phục credential cục bộ; người dùng vẫn về Sign In.
-- Không tự mở rộng thành `Đăng xuất tất cả thiết bị` trong action này.
+#### Thành phần giao diện
 
-## 6. Acceptance Criteria
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Email | Trường nhập | Email đăng nhập | Có | Có | Định dạng email; trim; không tự viết hoa | Luôn hiển thị. |
+| 2 | Mật khẩu | Trường mật khẩu | Mật khẩu tài khoản | Có | Có | Không biến đổi giá trị; cho phép hiện/ẩn | Luôn hiển thị. |
+| 3 | Quên mật khẩu | Liên kết | `Quên mật khẩu` | Không | Không | Không áp dụng | Luôn hiển thị. |
+| 4 | Đăng nhập | Nút chính | `Đăng nhập` | Không | Không | Chỉ khả dụng khi dữ liệu hợp lệ và không đang xử lý | Luôn hiển thị. |
+| 5 | Nhóm đăng nhập mạng xã hội | Nút phụ | Facebook, Google, Apple | Không | Không | Ngoài phạm vi UC này | Khi chức năng tương ứng đã được phê duyệt và bật. |
+| 6 | Đăng ký | Liên kết | Lời nhắc chưa có tài khoản và `Đăng ký` | Không | Không | Không áp dụng | Luôn hiển thị. |
 
-### AC-SMC-SI-01 — Đăng nhập thành công
+#### Thao tác
 
-- **Given** tài khoản email/password đã xác minh và đang active
-- **When** người dùng nhập credential đúng
-- **Then** hệ thống tạo session hợp lệ
-- **And** app điều hướng vào Home SmartChủ.
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Đăng nhập` | Email và mật khẩu hợp lệ về định dạng | Không | Xác thực thông tin đăng nhập và trạng thái email. | Tới Trang chủ hoặc OTP của UC-01. | Hiển thị lỗi chung hoặc lỗi kết nối; không tiết lộ trạng thái tài khoản. |
+| Chọn `Quên mật khẩu` | Luôn khả dụng | Không | Khởi tạo UC-03. | Mở màn hình quên mật khẩu. | Giữ màn hình nếu không thể điều hướng. |
+| Chọn `Đăng ký` | Luôn khả dụng | Không | Khởi tạo UC-01. | Mở màn hình đăng ký email. | Giữ màn hình nếu không thể điều hướng. |
 
-### AC-SMC-SI-02 — Credential không hợp lệ
+#### Trạng thái màn hình
 
-- **Given** email hoặc mật khẩu không đúng
-- **When** người dùng đăng nhập
-- **Then** UI hiển thị thông báo chung
-- **And** không tiết lộ email có tồn tại hay không.
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Ban đầu | Chưa đủ thông tin đăng nhập | Nút `Đăng nhập` chưa khả dụng. |
+| Hợp lệ | Email và mật khẩu đã nhập hợp lệ | Cho phép đăng nhập. |
+| Đang xử lý | Đã gửi yêu cầu đăng nhập | Khóa thao tác gửi lặp. |
+| Lỗi thông tin đăng nhập | Xác thực thất bại | Hiển thị thông báo chung và cho phép sửa thông tin. |
+| Lỗi hệ thống | Kết nối hoặc xử lý thất bại | Kết thúc loading và cho phép thử lại. |
 
-### AC-SMC-SI-03 — Account chưa xác minh
+### Trang chủ — Trang chủ
 
-- **Given** email/password đúng nhưng account chưa hoàn tất email OTP
-- **When** đăng nhập
-- **Then** app điều hướng tới bước OTP của UC-01 với email prefill
-- **And** không tạo tài khoản hoặc session trùng.
+#### Thông tin chung
 
-### AC-SMC-SI-04 — Sign Out
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | Trang chủ |
+| Tên màn hình | Trang chủ |
+| Mục đích | Xác nhận chủ trọ đã vào vùng có xác thực và cung cấp lối tới Quản lý. |
+| Điểm vào | Sau khi đăng nhập thành công hoặc mở ứng dụng với phiên còn hiệu lực. |
+| Điểm ra/Điều hướng | `Quản lý` mở màn hình Quản lý. |
+| Vai trò/Quyền | Chủ trọ đã đăng nhập. |
 
-- **Given** người dùng đã đăng nhập
-- **When** chọn Sign Out
-- **Then** session cục bộ bị xóa và backend xử lý refresh/session theo contract
-- **And** người dùng trở về Sign In, không xem được dữ liệu bảo vệ bằng Back navigation.
+#### Thành phần giao diện
 
-## 7. Implementation notes
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Quản lý | Điều hướng | Lối vào khu vực Quản lý | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
 
-- Foundation local đã có email/password validation và SecureStore, nhưng endpoint `/owner/auth/login` và payload hiện tại chỉ là adapter ban đầu, chưa phải contract được duyệt.
-- FE phải dựng đúng canonical SmartChủ canvas trước khi map API thật.
-- Validation/loading/error state phải được đối chiếu khi PO mở FE gate; Dev không được tự suy diễn từ happy path.
+#### Thao tác
 
-## 8. Điểm chờ PO review
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Quản lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý. | Yêu cầu đăng nhập lại nếu phiên hết hạn. |
 
-- Xác nhận post-login route/Home state của SmartChủ.
-- Xác nhận session duration, multi-device và sign-out-current/all behavior dùng chung toàn platform.
-- PO mở implementation gate riêng sau khi tài liệu và operational states đủ rõ; hiện chưa assign/run Dev.
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Đã xác thực | Phiên còn hiệu lực | Cho phép truy cập lối vào Quản lý. |
+| Phiên hết hạn | Phiên không còn hiệu lực | Xóa thông tin phiên trên thiết bị và chuyển về Đăng nhập. |
+
+### Quản lý — Quản lý
+
+#### Thông tin chung
+
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | Quản lý |
+| Tên màn hình | Quản lý |
+| Mục đích | Cho phép chủ trọ kết thúc phiên hiện tại. |
+| Điểm vào | Từ Trang chủ qua thao tác `Quản lý`. |
+| Điểm ra/Điều hướng | Hoàn tất đăng xuất về màn hình Đăng nhập. |
+| Vai trò/Quyền | Chủ trọ đã đăng nhập. |
+
+#### Thành phần giao diện
+
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Đăng xuất | Nút/Action | `Đăng xuất` | Không | Không | Chỉ xử lý một lần khi đang đăng xuất | Khi có phiên hợp lệ. |
+
+#### Thao tác
+
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Đăng xuất` | Phiên hợp lệ; không đang xử lý | Không | Thu hồi phiên hiện tại, xóa thông tin phiên trên thiết bị và thiết lập lại luồng điều hướng. | Về màn hình Đăng nhập. | Nếu máy chủ lỗi, vẫn xóa thông tin phiên trên thiết bị và về Đăng nhập. |
+
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Sẵn sàng | Phiên hợp lệ | Action `Đăng xuất` khả dụng. |
+| Đang đăng xuất | Đã chọn action | Khóa thao tác lặp. |
+| Hoàn tất | Credential cục bộ đã xóa | Chuyển về Đăng nhập và không cho Back vào vùng bảo vệ. |

@@ -1,180 +1,288 @@
-# SmartTrọ — UC-03 Quên mật khẩu bằng Email OTP
+# UC-03 — Quên mật khẩu bằng email OTP
 
-## 1. Trạng thái tài liệu
+## 1. Mô tả Use Case
 
-| Thuộc tính | Giá trị |
+### 1.1 Thông tin chung
+
+| Trường | Nội dung |
 | --- | --- |
-| Trạng thái | **Approved** |
-| Ngày chốt | 2026-09-23 |
-| Phạm vi | Quên mật khẩu SmartTrọ bằng email, OTP 6 chữ số và mật khẩu mới |
-| Figma | Đã xác minh và xuất capture từ page `SmartTrọ` ngày 2026-09-16 |
-| Bàn giao | **Ready cho FE-first implementation**; BE chỉ bắt đầu sau khi PO duyệt UI/deploy preview |
+| Mã Use Case | UC-03 |
+| Tên Use Case | Quên mật khẩu bằng email OTP |
+| Mục tiêu | Người thuê trọ xác minh quyền kiểm soát email và thiết lập mật khẩu mới cho tài khoản SmartTrọ. |
+| Phạm vi | SmartTrọ / Khôi phục mật khẩu |
+| Tác nhân chính | Người thuê trọ |
+| Tác nhân phụ/Hệ thống liên quan | Hệ thống SmartTrọ; dịch vụ gửi email |
+| Sự kiện kích hoạt | Người dùng chọn `Quên mật khẩu` tại màn hình Đăng nhập. |
+| Tiền điều kiện | Người dùng chưa đăng nhập; có thể truy cập email đã dùng để đăng ký tài khoản. |
+| Hậu điều kiện thành công | Mật khẩu được cập nhật; mọi phiên cũ của tài khoản bị thu hồi; người dùng được đưa về Đăng nhập với email điền sẵn và không tự động đăng nhập. |
+| Đảm bảo tối thiểu khi không thành công | Mật khẩu không thay đổi; không tạo phiên mới; phản hồi yêu cầu OTP không làm lộ email có tồn tại hay không. |
 
-Tài liệu này là baseline chung cho PM, Dev và QA. Figma quy định presentation; các business, security, lifecycle và test rule trong tài liệu này quy định behavior.
+### 1.2 Luồng chính
 
-## 2. Luồng nghiệp vụ đã duyệt
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi | Điều kiện/Quy tắc |
+| --- | --- | --- | --- |
+| M1 | Người thuê trọ | Mở SmartTrọ và chọn `Quên mật khẩu`. |  |
+| M2 | Hệ thống SmartTrọ | Hiển thị màn hình Quên mật khẩu / Email. |  |
+| M3 | Người thuê trọ | Nhập email đã dùng đăng ký và chọn `Gửi OTP`. |  |
+| M4 | Hệ thống SmartTrọ | Chuẩn hóa email, kiểm tra định dạng, giới hạn yêu cầu và điều kiện khôi phục mật khẩu. |  |
+| M5 | Hệ thống SmartTrọ | Gửi OTP 6 chữ số nếu tài khoản đủ điều kiện; luôn hiển thị phản hồi trung tính và màn hình nhập OTP. | Không tiết lộ trạng thái tài khoản. |
+| M6 | Người thuê trọ | Nhập OTP và chọn `Tiếp tục`. | OTP gồm đủ 6 chữ số. |
+| M7 | Hệ thống SmartTrọ | Xác thực OTP. | OTP đúng, còn hạn và chưa vượt số lần thử. |
+| M8 | Hệ thống SmartTrọ | Cấp quyền đặt lại mật khẩu dùng một lần và hiển thị màn hình Mật khẩu mới. | OTP hợp lệ. |
+| M9 | Người thuê trọ | Nhập mật khẩu mới, xác nhận mật khẩu và chọn `Xác nhận`. | Hai giá trị hợp lệ và trùng nhau. |
+| M10 | Hệ thống SmartTrọ | Kiểm tra và cập nhật mật khẩu. | Quyền đặt lại mật khẩu còn hiệu lực. |
+| M11 | Hệ thống SmartTrọ | Thu hồi toàn bộ phiên hiện có của tài khoản. | Mật khẩu cập nhật thành công. |
+| M12 | Hệ thống SmartTrọ | Chuyển về Đăng nhập với email điền sẵn, không tự động đăng nhập. |  |
 
-1. Từ Sign In, người dùng chọn `Quên mật khẩu` và được chuyển sang **màn nhập email riêng**.
-2. Người dùng nhập email; hệ thống trim, lowercase và validate theo cùng normalization của UC-01/UC-02.
-3. Hệ thống luôn phản hồi trung tính: `Nếu email tồn tại, mã xác thực đã được gửi.`
-4. Nếu email ánh xạ tới account đủ điều kiện recovery, hệ thống gửi OTP email 6 chữ số và app chuyển sang **màn nhập OTP riêng**.
-5. Khi OTP hợp lệ, server cấp reset token ngắn hạn và app chuyển sang **màn đặt mật khẩu mới riêng**.
-6. Khi mật khẩu mới hợp lệ, hệ thống đổi mật khẩu, thu hồi toàn bộ session đang hoạt động và đưa người dùng về Sign In với email được điền sẵn; không auto-login.
+### 1.3 Luồng thay thế
 
-Không thêm ô OTP động vào màn nhập email. Không gộp màn nhập email và màn OTP nếu chưa có quyết định PO và Figma revision mới.
+#### A1. Email không tồn tại hoặc tài khoản không đủ điều kiện khôi phục
 
-## 3. Nguồn thiết kế và Activity Diagram
+- Bắt đầu tại: `M4`
+- Điều kiện: Email không gắn với tài khoản có thể khôi phục bằng mật khẩu.
 
-| Bước | Node | Nội dung đã xác minh |
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
 | --- | --- | --- |
-| Nhập email | `2005:3286` — `Forget Password (Input Email) - iPhone` | `Email`, `Gửi OTP` |
-| Nhập OTP | `2005:3261` — tên layer còn là `Sign Up (Input OTP) - iPhone` | Heading `Quên mật khẩu`, `Mã OTP`, `Tiếp tục`, `Gửi lại mã OTP` |
-| Đặt mật khẩu mới | `2005:3310` — tên layer còn là `Sign Up (Input Password) - iPhone` | Heading `Quên mật khẩu`, mật khẩu, nhập lại mật khẩu, `Xác nhận` |
+| A1.1 | Hệ thống SmartTrọ | Không gửi OTP. |
+| A1.2 | Hệ thống SmartTrọ | Hiển thị cùng phản hồi trung tính và màn hình nhập OTP như trường hợp đủ điều kiện. |
 
-Tên của hai frame sau còn dùng prefix `Sign Up`; Dev và PM phải dùng node ID + nội dung hiển thị để truy vết, không suy luận flow từ tên layer.
+- Kết quả/Điểm quay lại: Tiếp tục tại `M6`; không cho phép hoàn tất khôi phục nếu không có OTP hợp lệ.
 
-### Editable canvas refresh — 2026-11-18
+#### A2. Gửi lại OTP
 
-- Artifact canonical của hướng refactor UI: [`smarttro-auth-flow-canvas-2026-11-18.zip`](../assets/auth/smarttro-auth-flow-canvas-2026-11-18.zip).
-- Artboard thuộc UC-03: `06 - Quên mật khẩu / Email`, `07 - Quên mật khẩu / OTP`, `08 - Quên mật khẩu / Mật khẩu mới`.
-- Destination block OTP dùng chung với UC-01: dòng `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
-- Tiêu đề, back navigation và recovery state vẫn theo ngữ cảnh UC-03; update không thay anti-enumeration, challenge/reset-token semantics hoặc session revocation.
+- Bắt đầu tại: `M6`
+- Điều kiện: Người dùng chưa nhận được mã hoặc mã đã hết hạn và thời gian chờ gửi lại đã kết thúc.
 
-Capture happy path được đặt tại đúng đặc tả màn hình ở mục 4. ZIP ở trên chỉ dùng khi cần mở/chỉnh editable canvas.
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| A2.1 | Người thuê trọ | Chọn `Gửi lại mã OTP`. |
+| A2.2 | Hệ thống SmartTrọ | Kiểm tra giới hạn, gửi OTP mới nếu đủ điều kiện và vô hiệu OTP cũ. |
+| A2.3 | Hệ thống SmartTrọ | Đặt lại thời gian chờ và giữ màn hình nhập OTP. |
 
-- Activity Diagram canonical: [`SmartTro-auth-email.drawio.xml`](../activity-diagrams/SmartTro-auth-email.drawio.xml), page `AD_Forgot Password`, page ID `XTYLWtGMusPGoomU_qol`.
-- Node trọng tâm: nhập email `Xek2mY_xYS014ffLprHc-4`, eligibility decision `I-irvnMbw9T40XeqaJsz-0`, OTP decision `c3eX8QOnYDbT1643O61G-12`, reset/revoke session `c3eX8QOnYDbT1643O61G-31`.
+- Kết quả/Điểm quay lại: Quay lại `M6`.
 
-### Activity Diagram render — Forgot Password
+#### A3. Đổi email khôi phục
 
-![SmartTrọ UC-03 — Activity Diagram Forgot Password](../assets/activity-diagrams/uc-03-forgot-password.png)
+- Bắt đầu tại: `M6`
+- Điều kiện: Người dùng muốn sử dụng email khác.
 
-PNG này là bản đọc/review được export trực tiếp từ page canonical nêu trên; mọi thay đổi XML phải regenerate ảnh trong cùng revision.
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| A3.1 | Người thuê trọ | Chọn `Đổi email`. |
+| A3.2 | Hệ thống SmartTrọ | Xóa OTP đang nhập và quay về màn hình Email. |
 
-## 4. UI specification
+- Kết quả/Điểm quay lại: Quay lại `M3`.
 
-### 4.1. Màn nhập email recovery
+### 1.4 Luồng ngoại lệ
+
+#### E1. Email sai định dạng hoặc vượt giới hạn yêu cầu
+
+- Bắt đầu tại: `M4`
+- Điều kiện: Email sai định dạng hoặc yêu cầu vượt giới hạn tần suất.
+
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E1.1 | Hệ thống SmartTrọ | Không gửi OTP và hiển thị lỗi định dạng hoặc thông báo thử lại sau. |
+| E1.2 | Người thuê trọ | Sửa email hoặc chờ hết giới hạn. |
+
+- Kết quả/Điểm quay lại: Quay lại `M3`.
+
+#### E2. OTP không hợp lệ
+
+- Bắt đầu tại: `M7`
+- Điều kiện: OTP sai, hết hạn, đã dùng, đã bị thay thế hoặc vượt số lần thử.
+
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E2.1 | Hệ thống SmartTrọ | Từ chối xác minh và hiển thị lỗi phù hợp. |
+| E2.2 | Người thuê trọ | Nhập lại hoặc yêu cầu mã mới khi đủ điều kiện. |
+
+- Kết quả/Điểm quay lại: Quay lại `M6`.
+
+#### E3. Mật khẩu mới hoặc quyền đặt lại không hợp lệ
+
+- Bắt đầu tại: `M10`
+- Điều kiện: Mật khẩu không đạt chính sách, hai giá trị không khớp hoặc quyền đặt lại đã hết hạn/đã dùng.
+
+| Bước | Tác nhân/Hệ thống | Hành động hoặc phản hồi |
+| --- | --- | --- |
+| E3.1 | Hệ thống SmartTrọ | Không cập nhật mật khẩu và hiển thị lỗi tương ứng. |
+| E3.2 | Người thuê trọ | Nhập lại mật khẩu hoặc bắt đầu lại luồng nếu quyền đặt lại không còn hiệu lực. |
+
+- Kết quả/Điểm quay lại: Quay lại `M9` hoặc kết thúc và trở về Đăng nhập.
+
+### 1.5 Quy tắc nghiệp vụ
+
+| Mã | Quy tắc nghiệp vụ | Áp dụng tại bước |
+| --- | --- | --- |
+| BR-01 | Phản hồi công khai sau yêu cầu OTP phải trung tính, không xác nhận email có tồn tại hay tài khoản có đủ điều kiện khôi phục mật khẩu. | M4-M5, A1 |
+| BR-02 | OTP gồm 6 chữ số, có hiệu lực 10 phút và tối đa 5 lần nhập sai cho mỗi lần xác minh. | M5-M7 |
+| BR-03 | Gửi lại OTP có thời gian chờ tối thiểu 60 giây; OTP mới làm OTP cũ mất hiệu lực. | A2 |
+| BR-04 | Quyền đặt lại mật khẩu chỉ dùng một lần, có hiệu lực 10 phút và không được lưu hoặc ghi log dưới dạng đọc được ở client. | M8-M10 |
+| BR-05 | Mật khẩu mới có tối thiểu 8 ký tự, gồm ít nhất một chữ hoa, một chữ số và một ký tự đặc biệt; xác nhận phải trùng khớp. | M9-M10 |
+| BR-06 | Đặt lại mật khẩu thành công phải thu hồi toàn bộ phiên và thông tin làm mới phiên hiện có của tài khoản. | M11 |
+| BR-07 | OTP, quyền đặt lại và mật khẩu không được đưa vào tham số điều hướng, dữ liệu phân tích, nhật ký hoặc vùng lưu trữ bền vững. | M6-M11 |
+| BR-08 | Khi ứng dụng chuyển nền rồi quay lại và phiên khôi phục còn hiệu lực, hệ thống giữ bước cùng email; sau khi tiến trình bị đóng, người dùng bắt đầu lại luồng. | M5-M10 |
+| BR-09 | Tài khoản chỉ dùng xác thực qua mạng xã hội nằm ngoài phạm vi UC này; hệ thống không tự tạo mật khẩu hoặc tự liên kết nhà cung cấp. | M4 |
+
+## 2. Activity Diagram
+
+- File nguồn: [SmartTro-auth-email.drawio.xml](../activity-diagrams/SmartTro-auth-email.drawio.xml)
+- Page: `AD_Forgot Password`
+
+![Activity Diagram — UC-03 Quên mật khẩu bằng email OTP](../assets/activity-diagrams/uc-03-forgot-password.png)
+
+## 3. Mô tả màn hình
+
+### 01 — Đăng nhập
+
+![SmartTrọ — Đăng nhập](../assets/auth/canvas-2026-11-18/01-sign-in.png)
+
+#### Thông tin chung
+
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | 01 |
+| Tên màn hình | Đăng nhập |
+| Mục đích | Cung cấp điểm vào luồng khôi phục mật khẩu. |
+| Điểm vào | Người dùng mở ứng dụng khi chưa đăng nhập. |
+| Điểm ra/Điều hướng | `Quên mật khẩu` mở màn hình 06. |
+| Vai trò/Quyền | Người dùng chưa đăng nhập. |
+
+#### Thành phần giao diện
+
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Quên mật khẩu | Liên kết | `Quên mật khẩu` | Không | Không | Không áp dụng | Luôn hiển thị. |
+
+#### Thao tác
+
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Quên mật khẩu` | Luôn khả dụng | Không | Khởi tạo luồng khôi phục mật khẩu. | Mở màn hình 06. | Giữ màn hình nếu không thể điều hướng. |
+
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Ban đầu | Chưa đăng nhập | Hiển thị link `Quên mật khẩu`. |
+
+### 06 — Quên mật khẩu / Email
 
 ![SmartTrọ — Quên mật khẩu, nhập email](../assets/auth/canvas-2026-11-18/06-forgot-password-email.png)
 
-- Entry point: link `Quên mật khẩu` từ Sign In.
-- Field `Email`: bắt buộc, trim/lowercase theo shared identity normalization.
-- Primary action: `Gửi OTP`; chặn double-submit và không gửi request khi format không hợp lệ.
-- Thành công public luôn dùng response trung tính `Nếu email tồn tại, mã xác thực đã được gửi.` rồi chuyển sang màn OTP riêng.
-- Back quay về Sign In; không persist recovery state qua app restart.
+#### Thông tin chung
 
-### 4.2. Màn nhập OTP recovery
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | 06 |
+| Tên màn hình | Quên mật khẩu / Email |
+| Mục đích | Thu thập email dùng để yêu cầu OTP khôi phục mật khẩu. |
+| Điểm vào | Từ link `Quên mật khẩu` tại màn hình 01 hoặc `Đổi email` tại màn hình 07. |
+| Điểm ra/Điều hướng | Yêu cầu hợp lệ mở màn hình 07; quay lại trở về màn hình 01. |
+| Vai trò/Quyền | Người dùng chưa đăng nhập. |
+
+#### Thành phần giao diện
+
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Email | Trường nhập | Email đã dùng đăng ký | Có | Có | Định dạng email; trim; không tự viết hoa | Luôn hiển thị. |
+| 2 | Gửi OTP | Nút chính | `Gửi OTP` | Không | Không | Chỉ khả dụng khi email hợp lệ và không đang xử lý | Luôn hiển thị. |
+
+#### Thao tác
+
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Gửi OTP` | Email hợp lệ | Không | Kiểm tra giới hạn, gửi OTP nếu đủ điều kiện và trả phản hồi trung tính. | Mở màn hình 07. | Lỗi định dạng hiển thị tại trường; vượt giới hạn tần suất thì yêu cầu thử lại sau. |
+| Quay lại | Không đang xử lý | Không | Hủy phiên khôi phục trên thiết bị. | Về màn hình 01. | Không áp dụng. |
+
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Ban đầu | Email chưa hợp lệ | Nút `Gửi OTP` chưa khả dụng. |
+| Đang gửi | Đã gửi yêu cầu | Khóa thao tác gửi lặp. |
+| Lỗi validation | Email sai định dạng | Hiển thị lỗi tại trường email. |
+| Bị giới hạn | Yêu cầu vượt giới hạn tần suất | Hiển thị thông báo thử lại sau. |
+
+### 07 — Quên mật khẩu / OTP
 
 ![SmartTrọ — Quên mật khẩu, nhập OTP](../assets/auth/canvas-2026-11-18/07-forgot-password-otp.png)
 
-- Destination block: `Mã xác thực đã được gửi tới`, email masked ở dòng riêng được nhấn mạnh, sau đó là action `Đổi email`.
-- OTP chỉ nhận 6 chữ số, cho phép paste; `Tiếp tục` disabled khi chưa đủ mã hoặc đang verify.
-- `Gửi lại mã OTP` tuân theo cooldown; OTP mới vô hiệu OTP cũ.
-- `Đổi email` quay về màn email và xóa OTP đang nhập.
-- Lỗi tối thiểu: OTP sai, hết hạn, bị thay thế, đã dùng hoặc vượt số lần thử.
+#### Thông tin chung
 
-### 4.3. Màn tạo mật khẩu mới
+| Trường | Nội dung |
+| --- | --- |
+| Mã màn hình | 07 |
+| Tên màn hình | Quên mật khẩu / OTP |
+| Mục đích | Xác minh OTP trước khi cho phép đặt mật khẩu mới. |
+| Điểm vào | Sau phản hồi yêu cầu OTP tại màn hình 06. |
+| Điểm ra/Điều hướng | OTP hợp lệ mở màn hình 08; `Đổi email` quay về màn hình 06. |
+| Vai trò/Quyền | Người dùng có phiên khôi phục hiện tại. |
+
+#### Thành phần giao diện
+
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Nơi nhận mã | Văn bản | `Mã xác thực đã được gửi tới` và email masked ở dòng riêng | Không | Không | Email được che một phần | Luôn hiển thị. |
+| 2 | Đổi email | Liên kết | `Đổi email` | Không | Không | Không áp dụng | Luôn hiển thị. |
+| 3 | OTP | Trường nhập | Mã xác thực | Có | Có | Tối đa 6 chữ số; cho phép dán mã | Luôn hiển thị. |
+| 4 | Gửi lại mã | Liên kết/Nút phụ | `Gửi lại mã OTP` kèm thời gian chờ | Không | Không | Theo giới hạn gửi lại | Luôn hiển thị. |
+| 5 | Tiếp tục | Nút chính | `Tiếp tục` | Không | Không | Chỉ khả dụng khi đủ 6 số và không đang xử lý | Luôn hiển thị. |
+
+#### Thao tác
+
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Tiếp tục` | OTP đủ 6 số | Không | Xác thực OTP và cấp quyền reset dùng một lần. | Mở màn hình 08. | Hiển thị lỗi OTP tương ứng. |
+| Chọn `Gửi lại mã OTP` | Thời gian chờ kết thúc | Không | Gửi OTP mới nếu đủ điều kiện; vô hiệu OTP cũ. | Ở lại màn hình và đặt lại thời gian chờ. | Thông báo không thể gửi lại. |
+| Chọn `Đổi email` | Luôn khả dụng | Không | Xóa OTP đã nhập. | Quay về màn hình 06. | Không áp dụng. |
+
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Chờ nhập | OTP chưa đủ 6 số | Nút `Tiếp tục` chưa khả dụng. |
+| Đang xác thực | Đã gửi OTP để kiểm tra | Khóa thao tác gửi lặp. |
+| Đang chờ gửi lại | Chưa thể gửi lại | Hiển thị thời gian còn lại. |
+| Lỗi OTP | OTP không hợp lệ | Giữ màn hình và cho phép nhập lại theo giới hạn. |
+
+### 08 — Quên mật khẩu / Mật khẩu mới
 
 ![SmartTrọ — Quên mật khẩu, tạo mật khẩu mới](../assets/auth/canvas-2026-11-18/08-forgot-password-new-password.png)
 
-- Hai field `Mật khẩu mới` và `Xác nhận mật khẩu`; có show/hide và không persist/log.
-- Primary action: `Xác nhận`; chỉ khả dụng khi hai field hợp lệ và khớp nhau.
-- Thành công: đổi mật khẩu, thu hồi toàn bộ session và về Sign In với email prefill; không auto-login.
-- Reset token hết hạn/replay/sai binding: không đổi mật khẩu, thông báo rõ và đưa người dùng bắt đầu lại khi cần.
+#### Thông tin chung
 
-## 5. Quyết định đã duyệt
-
-| ID | Quyết định | Trạng thái |
-| --- | --- | --- |
-| `FORGOT-D01` | Định danh recovery bằng email đã normalize giống Sign Up/Sign In. | Approved |
-| `FORGOT-D02` | Dùng OTP email 6 chữ số; không dùng magic link trong MVP. | Approved |
-| `FORGOT-D03` | OTP hết hạn sau 10 phút. | Approved |
-| `FORGOT-D04` | Resend có cooldown 60 giây; OTP mới làm vô hiệu OTP cũ. | Approved |
-| `FORGOT-D05` | Tối đa 5 lần nhập sai/challenge; vượt ngưỡng phải hủy challenge và yêu cầu gửi mã mới. | Approved |
-| `FORGOT-D06` | Rate limit theo email + IP + device: tối đa 5 request/15 phút/email và 20 request/giờ/IP. | Approved |
-| `FORGOT-D07` | Giữ ba màn riêng đúng Figma. Sau submit email, luôn hiển thị `Nếu email tồn tại, mã xác thực đã được gửi.`; không tiết lộ email tồn tại và không chèn ô OTP động vào màn email. | Approved |
-| `FORGOT-D08` | Sau OTP hợp lệ, server cấp reset token ngắn hạn; không dùng OTP trực tiếp để đổi mật khẩu. | Approved |
-| `FORGOT-D09` | Reset token có TTL 10 phút, one-time-use, bind với account + challenge + device/session context phù hợp. | Approved |
-| `FORGOT-D10` | Mật khẩu mới dùng đúng policy UC-01; không cho trùng mật khẩu hiện tại nếu backend có thể kiểm tra an toàn. | Approved |
-| `FORGOT-D11` | Reset thành công thu hồi toàn bộ access/refresh session đang hoạt động của account. | Approved |
-| `FORGOT-D12` | Không auto-login; về Sign In với email prefill và thông báo đổi mật khẩu thành công. | Approved |
-| `FORGOT-D13` | Nếu app chỉ background và process còn sống: giữ bước hiện tại trong memory nếu challenge/reset token còn hạn, nhưng luôn xóa hai ô mật khẩu khi resume. Nếu app bị force-close/process bị kill hoặc mở lại sau restart: xóa toàn bộ recovery state, mở entry point Sign In; người dùng phải bắt đầu lại từ bước email và nhận OTP mới. Không persist email, OTP, challenge, mật khẩu hoặc reset token qua app restart. | Approved |
-| `FORGOT-D14` | Account email/password chưa verify không được tự tạo account mới; vẫn dùng response trung tính. Account social-only và provider linking không thuộc phạm vi triển khai/QA của UC-03, mà phải được đặc tả và kiểm thử trong UC Đăng ký/Đăng nhập bằng tài khoản social. | Approved |
-| `FORGOT-D15` | Audit request/resend/verify/reset/revoke theo immutable user ID; mask email; không log OTP/token/password. | Approved |
-
-### Phạm vi deferred sang UC Social Authentication
-
-UC-03 không dùng account social-only làm fixture bắt buộc. Khi chuẩn bị UC Đăng ký/Đăng nhập bằng tài khoản social, PM và QA phải bổ sung ít nhất các trường hợp sau vào chính tài liệu UC đó:
-
-- Account chỉ có social provider, chưa có password local, gửi yêu cầu quên mật khẩu bằng cùng email.
-- Response không được làm lộ email/account/provider có tồn tại hay không.
-- Hệ thống không tự tạo password account, không tự link/unlink provider và không âm thầm chuyển kiểu đăng nhập.
-- Behavior tiếp theo (provider re-authentication, password enrollment hay linking flow) chỉ được triển khai sau khi PO chốt requirement và UI riêng.
-
-## 6. Acceptance Criteria
-
-### AC-01 — Gửi yêu cầu recovery
-
-- **Given** người dùng đang ở màn nhập email của UC-03
-- **When** người dùng nhập email đúng định dạng và chọn `Gửi OTP`
-- **Then** app gửi đúng một request với email đã normalize, chống double-submit và hiển thị response trung tính bất kể email có tồn tại hay không.
-- **And** nếu account hợp lệ, OTP 6 chữ số được gửi qua email và app điều hướng sang màn OTP riêng.
-- **And** nếu account email/password chưa verify, hệ thống không tạo account trùng và không chuyển sang reset-password flow.
-- **And** UI không thêm input OTP vào màn email.
-
-### AC-02 — Xác minh OTP
-
-- **Given** challenge còn hạn
-- **When** người dùng nhập đúng OTP 6 chữ số
-- **Then** server cấp reset token one-time-use TTL 10 phút và app chuyển sang màn đặt mật khẩu mới.
-- **When** OTP sai, hết hạn, đã bị thay thế hoặc đã dùng
-- **Then** không được chuyển bước; số lần thử và message phải theo policy đã duyệt.
-
-### AC-03 — Resend và anti-abuse
-
-- `Gửi lại mã OTP` chỉ khả dụng sau 60 giây.
-- OTP mới vô hiệu OTP cũ ngay khi challenge mới được phát hành.
-- Quá 5 lần sai/challenge phải hủy challenge.
-- Request vượt rate limit phải bị từ chối bằng response không làm lộ account existence.
-
-### AC-04 — Đặt mật khẩu mới
-
-- Hai trường mật khẩu phải khớp và dùng policy UC-01: tối thiểu 8 ký tự, có ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt.
-- Reset token hết hạn, replay hoặc sai binding không được đổi mật khẩu.
-- Reset thành công phải revoke toàn bộ session, điều hướng về Sign In, prefill email và không auto-login.
-
-### AC-05 — Background, resume và app restart
-
-- Khi app chỉ chuyển background/foreground và process còn sống, app giữ đúng bước nếu credential recovery còn hạn.
-- Khi resume ở bước mật khẩu, các ô mật khẩu luôn rỗng dù reset token vẫn còn hạn.
-- Khi challenge/reset token hết hạn trong lúc background, app đưa người dùng về bước email với message rõ ràng.
-- Khi app bị force-close/process bị kill hoặc app được mở lại sau restart, app không khôi phục flow recovery; entry point là Sign In và toàn bộ recovery state cũ phải bị xóa.
-
-### AC-06 — Dữ liệu nhạy cảm và lỗi mạng
-
-- Không truyền OTP, password hoặc reset token qua route parameters, analytics hoặc log.
-- Không persist email, OTP, challenge, password hoặc reset token của flow recovery qua app restart.
-- Lỗi mạng ở màn email có thể giữ email trong memory để sửa/thử lại; lỗi ở màn OTP/password không được lưu OTP/password.
-
-## 7. Trạng thái đồng bộ tài liệu
-
-| Tài liệu | Cập nhật |
+| Trường | Nội dung |
 | --- | --- |
-| `docs/Requirement_List/SmartTro/Requirements.md` | `SM004` bổ sung baseline nghiệp vụ, security, state lifecycle và thứ tự FE-first |
-| `docs/User_Stories/SmartTro/User-Stories.md` | `US 3.0` đổi từ SĐT sang email OTP và thêm AC testable |
-| `docs/SRS/SmartTro/SRS.md` | `UC-3` bổ sung đặc tả, alternate flow và hậu điều kiện |
-| `docs/SRS/SmartTro/activity-diagrams/SmartTro-auth-email.drawio.xml`, page `AD_Forgot Password` | Canonical flow email OTP, generic response, expiry/resend/attempt, reset token và revoke session |
-| `docs/SRS/SmartTro/use-cases/UC-02-sign-in.md` | Cập nhật liên kết UC-03 thành Approved |
-| `docs/FRS/SmartTro/FRS.md` | Legacy/noncanonical; bản chuyển đổi Markdown còn thiếu/sai lệch và không dùng làm baseline UC-03 |
+| Mã màn hình | 08 |
+| Tên màn hình | Quên mật khẩu / Mật khẩu mới |
+| Mục đích | Cho phép người dùng đặt mật khẩu mới sau khi xác minh OTP. |
+| Điểm vào | Sau khi OTP khôi phục hợp lệ. |
+| Điểm ra/Điều hướng | Thành công về màn hình 01 với email điền sẵn; phiên khôi phục hết hạn cũng trở về màn hình 01. |
+| Vai trò/Quyền | Người dùng có quyền reset dùng một lần còn hiệu lực. |
 
-Các file DOCX/XLSX gốc chưa được thay đổi trong revision Markdown này. Khi source office được cập nhật, phải đồng bộ lại Markdown và SHA-256 theo `docs/README.md`.
+#### Thành phần giao diện
 
-## 8. Gate bàn giao và thứ tự triển khai
+| STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Mật khẩu mới | Trường mật khẩu | Mật khẩu thay thế | Có | Có | Tối thiểu 8 ký tự, có chữ hoa, chữ số và ký tự đặc biệt | Luôn hiển thị. |
+| 2 | Xác nhận mật khẩu | Trường mật khẩu | Nhập lại mật khẩu mới | Có | Có | Phải trùng mật khẩu mới | Luôn hiển thị. |
+| 3 | Hiện/ẩn mật khẩu | Nút biểu tượng | Đổi trạng thái che ký tự | Không | Không | Không thay đổi giá trị | Khi trường mật khẩu hiển thị. |
+| 4 | Xác nhận | Nút chính | `Xác nhận` | Không | Không | Chỉ khả dụng khi hai trường hợp lệ và khớp | Luôn hiển thị. |
 
-1. FE dựng đúng ba màn Figma, state/validation và deploy preview/mobile build để PO review.
-2. Chỉ sau khi PO duyệt UI, BE mới triển khai challenge, OTP, reset token, password mutation, session revocation và audit.
-3. Sau khi BE deploy ổn định, FE map API và xử lý error/loading/lifecycle trên runtime thật.
-4. QA test trên build + backend đã deploy, dùng dữ liệu và cấu hình thật của môi trường review; phải test cả UC-01/UC-02 regression.
-5. PO thực hiện UAT sau khi QA pass.
+#### Thao tác
 
-PM phải comment và tag PO nếu phát hiện conflict, deferred decision hoặc ambiguity mới. Dev không được tự thay đổi ba màn, identity rule, security policy hoặc app-state behavior đã duyệt.
+| Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
+| --- | --- | --- | --- | --- | --- |
+| Chọn `Xác nhận` | Hai mật khẩu hợp lệ; quyền reset còn hiệu lực | Không | Cập nhật mật khẩu và thu hồi toàn bộ phiên cũ. | Về màn hình 01 với email điền sẵn. | Hiển thị lỗi mật khẩu hoặc yêu cầu bắt đầu lại khi quyền reset hết hạn. |
+
+#### Trạng thái màn hình
+
+| Trạng thái | Điều kiện | Hiển thị/Hành vi |
+| --- | --- | --- |
+| Ban đầu | Chưa nhập đủ hai trường | Nút `Xác nhận` chưa khả dụng. |
+| Lỗi validation | Mật khẩu không đạt chính sách hoặc không khớp | Hiển thị lỗi tương ứng. |
+| Đang cập nhật | Đã gửi yêu cầu hợp lệ | Khóa thao tác gửi lặp. |
+| Thành công | Mật khẩu đã cập nhật và phiên cũ đã thu hồi | Về Đăng nhập, không auto-login. |
+| Hết hạn/Lỗi xử lý | Quyền reset hết hạn hoặc cập nhật thất bại | Không đổi mật khẩu; cho phép bắt đầu lại khi cần. |
