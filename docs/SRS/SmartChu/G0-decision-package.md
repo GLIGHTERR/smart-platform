@@ -1,15 +1,15 @@
 # SmartChủ G0 - Decision Package
 
-> **Trạng thái:** IN_REVIEW / AWAITING_PO_DECISIONS - PO đang chốt theo từng decision; không phải `CHANGE_REQUESTED`.
+> **Trạng thái:** IN_REVIEW / PARTIAL_DESIGN_READY - Auth, Home và UC-04 đã có nguồn visual; UC-05/08 và operational states còn chờ.
 > **Phạm vi:** G0 PM/docs/decision cho phase đầu SmartChủ. Đây không phải implementation approval và không mở gate FE, BE, integration hoặc QA.
-> **Traceability:** GLI-274; cập nhật từ snapshot `86d28400717a356bc91c3e5372ecff0dbf746729`.
+> **Traceability:** GLI-274; Auth docs đã merge tại `90ad491fab398b145c1f9973c7b15b7e07a40652`; đợt cập nhật Home/UC-04 được thực hiện trên branch `codex/smartchu-home-profile-docs`.
 
 ## 1. Canonical source và nguyên tắc
 
 - Living specs UC-01, UC-02, UC-03 là nguồn đề xuất email auth; các User Story/Requirement List/FRS có phone/SMS là baseline lịch sử, không phải contract triển khai khi xung đột.
 - Chính sách xác minh kinh doanh SmartChủ đã **Approved** là nguồn duy nhất cho trạng thái và quyền vận hành; package này không thay đổi policy đó.
 - UC-04, UC-05 và UC-08 là living specs round 2/3; baseline legacy chỉ còn là provenance.
-- Không có Figma URL/node SmartChủ canonical trong repo. Từ 2026-11-18, Auth UC-01/02/03 có editable canvas được PO review; Home, personal profile và Change Password vẫn chưa có visual reference canonical.
+- Không có Figma URL/node SmartChủ canonical trong repo. Auth UC-01/02/03 có editable canvas ngày 2026-11-18; Home và UC-04 có editable canvas ngày 2026-11-20. UC-05, UC-08 và operational states chưa có visual reference canonical.
 
 ## 2. Decision matrix - PO action required
 
@@ -19,14 +19,14 @@
 | D02 | Owner profile: danh sách field, required/optional, mutable/immutable, validation, uniqueness, ownership và API/data mapping | Registration Email -> OTP -> Personal info -> Password; display name required; phone optional/editable/non-unique; avatar display/fallback only; profile tách business domain | **APPROVED (PO round 3)** | UC-01, UC-04/05, profile bootstrap, Home | D05 chặn implementation |
 | D03 | Boundary account/profile với business verification: thời điểm thu thập profile, quyền Home và feature vận hành | Giữ policy Approved: account email-verified khác `APPROVED`; chỉ `APPROVED` tạo nhà/phòng/hợp đồng | **APPROVED Option A (PO round 1)**; UC-06/07 full scope pending separately | UC-01, Home, minimal status/CTA dependency | D05 chặn UI handoff |
 | D04 | Session/password: policy password, OTP/reset TTL/cooldown/attempts, anti-enumeration, duration/rotation, multi-device, Sign Out current/all, revoke sau reset/change, post-success route | Sign Out current; Forgot Password/Change Password all -> Sign In; keep failure throttle separate; successful Change Password cooldown = 5 minutes. | **APPROVED (PO round 3)** | UC-01/02/03/08, auth/session API, security tests | D05 and later BE implementation gap remain |
-| D05 | UI/Figma/canvas: canonical reference cho Sign Up (4 steps), Sign In, Forgot Password (3 steps), Home, UC-04/05/08 và state/loading/error | Dùng editable canvas versioned khi chưa có Figma canonical; từng nhóm màn phải có PO review rõ ràng | **PARTIALLY APPROVED:** Auth UC-01/02/03 có canvas ngày 2026-11-18; Home, UC-04/05/08 còn pending | Tất cả screen G0 | Chỉ Auth có visual reference; chưa mở implementation gate |
+| D05 | UI/Figma/canvas: canonical reference cho Sign Up (4 steps), Sign In, Forgot Password (3 steps), Home, UC-04/05/08 và state/loading/error | Dùng editable canvas versioned khi chưa có Figma canonical; từng nhóm màn phải có PO review rõ ràng | **PARTIALLY APPROVED:** Auth UC-01/02/03 có canvas ngày 2026-11-18; Home và UC-04 có canvas ngày 2026-11-20; UC-05/08 và operational states còn pending | Tất cả screen G0 | Chưa mở implementation gate |
 | D06 | Sequencing: thứ tự Story và dependency shared auth/API, Home, profile/business verification, mobile delivery | Mobile thuộc phase đầu; sau docs/UI approval thực hiện preflight EAS read-only, rồi exact merge SHA -> Mobile QA -> PO app UAT | **APPROVED (PO rounds 1-3)** | Toàn phase đầu | D05/docs UI approval còn chờ; không build trong G0 |
 
 ## 2.1. Three distinct review groups
 
 ### A. Missing information / references
 
-- **D05 design evidence:** Auth UC-01/02/03 đã có canvas canonical tại `docs/SRS/SmartChu/assets/auth/smartchu-auth-flow-canvas-2026-11-18.zip`; PNG capture của từng artboard được lưu trong `docs/SRS/SmartChu/assets/auth/canvas-2026-11-18/` để nhúng vào screen specification của living UC. FRS Markdown là mirror legacy có sai lệch/thiếu sót và không phải nơi handoff canonical. Repo vẫn không có Figma URL/node canonical cho Home, personal profile và Change Password. `screens/business-verification-states.md` chỉ là textual UI state reference cho Home/business verification.
+- **D05 design evidence:** Auth UC-01/02/03 đã có canvas canonical tại `docs/SRS/SmartChu/assets/auth/smartchu-auth-flow-canvas-2026-11-18.zip`; Home và UC-04 dùng `docs/SRS/SmartChu/assets/home-profile/smartchu-home-profile-canvas-2026-11-20.zip`. PNG capture của từng artboard được lưu cạnh living UC để Dev/QA đọc trực quan. FRS Markdown là mirror legacy có sai lệch/thiếu sót và không phải nơi handoff canonical. Repo vẫn chưa có visual canonical cho màn cập nhật UC-05, màn đổi mật khẩu UC-08 và các operational state chưa được thể hiện trên canvas.
 - **D02 profile contract:** behavior/field scope đã chốt; detailed UI validation/masking/copy waits for D05 mockup.
 - **D04 shared-auth contract:** policy đã chốt; backend Change Password vẫn là implementation gap và session duration/rotation/multi-device reference must be recorded at later BE gate.
 
@@ -35,9 +35,9 @@
 | Conflict | Canonical disposition pending PO approval | Impact |
 | --- | --- | --- |
 | UC-01/02/03 draft dùng email; User Stories, Requirement List và FRS legacy dùng phone/SMS | **D01 approved:** email là canonical; legacy được giữ làm provenance, không là implementation contract | D01, auth UI/API/test data |
-| UC-05 legacy coi phone immutable; UC-01 draft chỉ coi phone là contact data nếu được thu thập | Không suy diễn phone identity hoặc profile field trước D02 | profile schema/UI |
+| AD UC-05 ghi `Không thay đổi SĐT`; D02 đã chốt phone là contact tùy chọn, editable và non-unique | D02 là contract mới nhất; phải sửa AD/UC-05 bằng một thay đổi được PO duyệt trước FE handoff | profile schema/UI/test |
 | UC-08 legacy nêu SHA-256; current backend dùng salted adaptive `scrypt` | Không dùng rule SHA-256 legacy; storage algorithm tách riêng password-composition policy | security acceptance/BE |
-| US-02 legacy có phone OTP/lockout 72h; UC-02 draft không OTP normal sign-in | Chờ D01/D04; không tự mang lockout/OTP legacy sang email flow | sign-in UX/API |
+| US-02 legacy có phone OTP/lockout 72h; UC-02 canonical không OTP normal sign-in | D01/D04 đã chốt email/password và generic anti-enumeration; không mang lockout/OTP legacy sang email flow | sign-in UX/API |
 
 ### C. Proposed defer / out of scope
 
@@ -102,7 +102,7 @@ PO reports current `smart-platform-services` `master` hashes passwords with salt
 
 ## 2.3. D05 design/reference packet
 
-Auth reference hiện có: [`smartchu-auth-flow-canvas-2026-11-18.zip`](assets/auth/smartchu-auth-flow-canvas-2026-11-18.zip). Mapping: UC-02 dùng artboard `01`; UC-01 dùng `02–05`; UC-03 dùng `06–08`. PNG capture tương ứng được lưu cùng living spec; ZIP chỉ là editable source. Sau khi AD được xác nhận, ảnh phải nằm trong screen specification của từng UC, không đặt trong FRS mirror. Hai màn OTP dùng chung destination block `Mã xác thực đã được gửi tới` + email masked ở dòng riêng + `Đổi email`. Canvas chốt happy-path visual direction; loading/error/timeout/accessibility state vẫn phải được đặc tả khi mở FE gate.
+Auth reference hiện có: [`smartchu-auth-flow-canvas-2026-11-18.zip`](assets/auth/smartchu-auth-flow-canvas-2026-11-18.zip). Mapping: UC-02 dùng artboard `01`; UC-01 dùng `02–05`; UC-03 dùng `06–08`. Home/Profile reference: [`smartchu-home-profile-canvas-2026-11-20.zip`](assets/home-profile/smartchu-home-profile-canvas-2026-11-20.zip), gồm artboard `01 - Home` và `02 - Hồ sơ cá nhân`; ảnh capture đã được nhúng trong UC-02 và UC-04. ZIP là editable source, còn PNG trong screen specification là nguồn trực quan cho Dev/QA. Không đặt handoff canonical trong FRS mirror. Hai màn OTP dùng chung destination block `Mã xác thực đã được gửi tới` + email masked ở dòng riêng + `Đổi email`. Canvas chốt happy-path visual direction; loading/error/timeout/accessibility state vẫn phải được đặc tả khi mở FE gate.
 
 FE foundation bắt buộc khi gate được mở: dùng `@ant-design/react-native` qua public contract `src/ui`; product screen không import vendor trực tiếp và không thêm full UI library thứ hai. Dev phải xác nhận đã hiểu visual scope, component/import boundary và BE invariant trước khi code; nếu còn ambiguity phải trả lại PM/PO để chốt, không tự diễn giải.
 
@@ -112,16 +112,17 @@ FE foundation bắt buộc khi gate được mở: dùng `@ant-design/react-nati
 | Sign Up - Email OTP | wrong/expired/attempt-limit, resend cooldown/loading, resend error, app return, restart | Auth canvas artboard `03`; destination block approved | Define timer/error/disabled states without exposing sensitive data |
 | Sign Up - Personal info | validation/loading/error, back/continue behavior | Auth canvas artboard `04`; display name/optional phone approved | Define validation timing, masking and error placement at FE gate |
 | Sign Up - Password | confirm mismatch, submit/loading/error, success -> Sign In prefill | Auth canvas artboard `05`; happy path approved | Define validation/error states; success behavior follows D04 |
-| Sign In | field validation, loading, generic invalid credential, unverified-account resume, network error, Sign Out return | Auth canvas artboard `01`; happy path approved | Define generic error and loading states; Home remains a separate pending reference |
+| Sign In | field validation, loading, generic invalid credential, unverified-account resume, network error, Sign Out return | Auth canvas artboard `01`; Home/Quản lý happy path canvas `2026-11-20` | Define generic error, loading and session-return states without changing the approved Home/Quản lý layout |
 | Forgot Password - Email | validation, neutral sent response, loading/network error | Auth canvas artboard `06`; happy path approved | Define neutral operational copy without changing three-screen flow |
 | Forgot Password - OTP | wrong/expired/attempt-limit, resend cooldown/loading/error | Auth canvas artboard `07`; `Đổi email` and destination block approved | Define timer/resend/error hierarchy at FE gate |
 | Forgot Password - New Password | policy/mismatch, submit/loading/error, success -> Sign In prefill | Auth canvas artboard `08`; happy path approved | Define completion/error states; navigation follows D04 |
-| Home | verification banners/CTAs for four statuses, post-login loading/empty/error | `screens/business-verification-states.md` specifies four textual states; no Figma/node/capture | Which Home layout, loading/error/empty states and CTA destination are approved? |
-| Personal Profile view/edit | display name, read-only email, optional editable phone, avatar display/fallback vs update, loading/save/error/empty and privacy/masking | D02 approved core; no canonical reference | What validation/masking, avatar behavior and visual state set are approved? |
+| Home | verification banners/CTAs for four statuses, post-login loading/empty/error | Home happy-path canvas `2026-11-20` approved; route mapping for quick actions and operational states are not defined by the canvas | Define loading/error/empty and CTA destination at FE gate without changing the approved layout |
+| Personal Profile view | display name, read-only email, optional phone, avatar display/fallback and account actions | UC-04 canvas `2026-11-20` approved and embedded in the UC | Operational loading/error state remains to be specified at FE gate |
+| Personal Profile edit | display name, read-only email, optional editable phone, save/cancel/validation/loading/error | No UC-05 canonical canvas; AD still says phone cannot change, conflicting with approved editable-phone contract | Reconcile AD and provide UC-05 visual reference before FE handoff |
 | Business tab placeholder | navigation, future-feature placeholder, loading/error/empty and user-facing copy | SmartTrọ has only a technical `Chữ ký` placeholder pattern; no Business tab/mapping | What non-technical copy/layout is approved? Do not copy SmartTrọ literal. |
 | Change Password | current/new/confirm, validation/loading/success/error, other-device/session outcome | UC-08 legacy only; no canonical reference | What D04 revocation behavior and success route are approved? |
 
-D05 is **PARTIALLY APPROVED** for Auth UC-01/02/03 only. Home, UC-04/05/08 và operational states chưa được canvas mô tả vẫn pending; không suy diễn hoặc mở FE/UI implementation gate nếu chưa có lệnh PO riêng. Editable Auth canvas không thay BE/API/business rule.
+D05 is **PARTIALLY APPROVED** for Auth UC-01/02/03, Home và UC-04. UC-05/08 và operational states chưa được canvas mô tả vẫn pending; AD UC-05 còn conflict với quyết định phone editable. Không suy diễn hoặc mở FE/UI implementation gate nếu chưa có lệnh PO riêng. Editable canvas không thay BE/API/business rule.
 
 ## 3. Contract/acceptance scope sau khi PO chốt
 
@@ -161,7 +162,8 @@ PO chốt D01-D06 (G0)
 
 - UC-01 -> UC-02/UC-03: dùng cùng email identity và password/session contract.
 - UC-02 -> Home: cần post-login route và profile/session bootstrap; Home phải phản ánh business-verification policy.
-- UC-04/05 -> Home: D02 field/sequence/avatar behavior approved; D05 UI reference remains. Không được suy diễn field từ user story legacy.
+- UC-04 -> Home: D02 field/sequence/avatar behavior và D05 happy-path canvas đã approved; operational states vẫn cần đặc tả khi mở FE gate.
+- UC-05: D02 field contract đã approved nhưng D05 chưa có canvas và AD hiện ghi phone immutable, conflict với quyết định phone editable; phải reconcile trước FE handoff.
 - UC-06 = xem thông tin/trạng thái kinh doanh; UC-07 = cập nhật/gửi duyệt hồ sơ kinh doanh. Full UC-06/07 không thuộc feature scope phase đầu nếu chưa có decision mở rộng. Phase đầu chỉ phụ thuộc minimal business-verification status/CTA trên Home/Profile theo D03.
 - UC-10 = tạo hợp đồng điện tử; UC-18 = tạo nhà trọ; UC-22 = tạo phòng trọ. Chúng không thuộc feature scope phase đầu; chỉ được nhắc để bảo toàn backend authorization `businessVerificationStatus = APPROVED`, không mở Story/gate implementation.
 - UC-08 -> D04: canonical Change Password revokes all sessions/refresh grants and routes to Sign In, with a five-minute successful-change cooldown. Current backend behavior is a later BE gap.
@@ -174,7 +176,9 @@ PO chốt D01-D06 (G0)
 | US/UC-01 Sign Up | Conditional | D01/D02/D04 policy và Auth happy-path canvas approved; operational states + explicit FE gate remain |
 | US/UC-02 Sign In + Sign Out | Conditional | Auth happy-path canvas approved; operational states, Home route/bootstrap and shared auth reference remain |
 | US/UC-03 Forgot Password | Conditional | D01/D04 policy và Auth happy-path canvas approved; operational states + explicit FE gate remain |
-| US/UC-04/05 Personal Profile | Conditional | D02 behavior approved; D05 UI reference and implementation contract detail remain |
+| Home | Conditional | Happy-path canvas approved; route mapping cho quick actions và operational states còn phải chốt trước FE handoff |
+| UC-04 Personal Profile view | Conditional | Canonical UC/AD/canvas approved; operational states và explicit implementation gate còn lại |
+| UC-05 Personal Profile edit | Blocked by docs/design conflict | Chưa có canvas; AD phone immutable phải được reconcile với approved phone editable |
 | UC-06/07 Business verification | Minimal dependency only | Policy Approved/D03 giữ nguyên; full UC-06/07 là scope expansion pending, D05 chặn UI handoff |
 | UC-08 Change Password | Conditional | D04 behavior/cooldown approved; D05 remains; later BE gap is recorded |
 | UC-10/18/22 operational create | Out of phase-one feature scope | Không mở Story/gate; chỉ giữ backend authorization `APPROVED` theo policy |
@@ -183,13 +187,14 @@ PO chốt D01-D06 (G0)
 
 | Nguồn | Tình trạng | Canonical disposition |
 | --- | --- | --- |
-| `use-cases/README.md` | Ghi sai tên UC-01/02 là phone dù link tới living spec email | Đã sửa index để chỉ rõ email draft/chờ G0 PO decision |
+| `use-cases/README.md` | Từng ghi sai tên UC-01/02 là phone và trạng thái Draft dù docs/design đã được duyệt | Đã sửa index thành canonical email flow và ghi rõ implementation gate chưa mở |
 | `User-Stories.md`, `Requirements.md`, FRS legacy | Còn phone/SMS | Giữ nguyên provenance; các file tự ghi nhận là legacy/mirror và phải defer cho living spec approved |
 | UC-01/02/03 | D01/D04 approved; D05 Auth happy-path canvas available, operational states còn review | Không coi canvas là implementation approval; chờ explicit FE gate |
-| UC-04/05/08 | Draft living specs round 3 thay baseline legacy phone/SHA-256/cooldown | D02/D04 canonical behavior và testable AC được ghi vào living specs; D05/UI còn chờ. Legacy renter fields bị loại khỏi owner contract |
+| UC-04 | Canonical UC/AD/Home-Profile canvas thay baseline legacy renter fields | D02 behavior và D05 happy-path visual đã nhất quán; implementation gate vẫn đóng |
+| UC-05/08 | Draft living specs round 3 thay baseline legacy phone/SHA-256/cooldown | D02/D04 canonical behavior đã ghi nhận; D05 còn chờ và UC-05 có AD conflict cần reconcile |
 
 ## 7. G0 disposition and handoff
 
-**G0 = IN_REVIEW / AWAITING_PO_DECISIONS.** D01-D04 và D06 policy/sequence đã được PO chốt; D05 đã giải quyết happy-path Auth nhưng Home, UC-04/05/08 và operational states còn là blocker trước khi đánh giá G0 PASS. `CHANGE_REQUESTED` chỉ dùng sau khi PO từ chối/yêu cầu sửa proposal cụ thể. Không mở implementation gate nào.
+**G0 = IN_REVIEW / PARTIAL_DESIGN_READY.** D01-D04 và D06 policy/sequence đã được PO chốt; D05 đã giải quyết happy-path Auth, Home và UC-04. UC-05/08, operational states và conflict AD UC-05 vẫn là blocker trước khi đánh giá G0 PASS. `CHANGE_REQUESTED` chỉ dùng sau khi PO từ chối/yêu cầu sửa proposal cụ thể. Không mở implementation gate nào.
 
-**Next owner:** PO (Nghĩa Nguyễn Tuấn) quyết định D01-D06 trên GLI-274; PM cập nhật chính package/PR này khi PO yêu cầu sửa. **No polling:** chỉ xử lý event wakeup do control plane đăng ký cho PO comment; không poll trạng thái, PR hoặc hệ thống ngoài. Khi wakeup fire: PM đọc yêu cầu PO, cập nhật cùng G0/PR, rồi đăng ký wakeup kế tiếp nếu vẫn còn quyết định chờ; không tạo task G0 trùng.
+**Next owner:** PO (Nghĩa Nguyễn Tuấn) cung cấp/chốt UC-05, UC-08 và operational states còn thiếu hoặc ra lệnh mở implementation gate; PM cập nhật chính package/task hiện có khi có quyết định. **No polling:** chỉ xử lý event wakeup cho PO comment; không poll trạng thái, PR hoặc hệ thống ngoài. Khi wakeup fire: PM đọc yêu cầu PO, cập nhật cùng G0/PR và ghi next action/wakeup tiếp theo; không tạo task G0 trùng.
