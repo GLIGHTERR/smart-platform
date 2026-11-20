@@ -192,13 +192,13 @@
 | 1 | Lời chào | Nội dung | `Xin chào` và tên sản phẩm `SmartChủ` | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
 | 2 | Tổng quan vận hành | Nhóm chỉ số | Số tòa nhà, số người thuê, số phòng và số phòng trống | Không | Không | Giá trị số từ dữ liệu hệ thống | Khi có dữ liệu tương ứng. |
 | 3 | Truy cập nhanh | Nhóm action | `T.Toán`, `Báo cáo`, `Lịch xem`, `Thống kê` | Không | Không | Destination thuộc UC tương ứng, không xác định trong UC-02 | Khi action được cung cấp cho tài khoản. |
-| 4 | Điều hướng chính | Thanh điều hướng | `T.Nhà`, `T.Nhân`, `T.Chủ`, `H.Đồng`, `Q.Lý` | Không | Không | `T.Chủ` là mục đang chọn tại Trang chủ | Khi có phiên hợp lệ. |
+| 4 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Trang Chủ` là mục đang chọn tại Trang chủ | Khi có phiên hợp lệ. |
 
 #### Thao tác
 
 | Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
 | --- | --- | --- | --- | --- | --- |
-| Chọn `Q.Lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý tại tab `Cá nhân`. | Yêu cầu đăng nhập lại nếu phiên hết hạn. |
+| Chọn `Quản Lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý tại tab `Cá nhân`. | Yêu cầu đăng nhập lại nếu phiên hết hạn. |
 
 #### Trạng thái màn hình
 
@@ -218,7 +218,7 @@
 | Mã màn hình | Quản lý |
 | Tên màn hình | Quản lý |
 | Mục đích | Cung cấp khu vực quản lý tài khoản, trong đó chủ trọ có thể kết thúc phiên hiện tại. |
-| Điểm vào | Từ Trang chủ qua mục `Q.Lý`. |
+| Điểm vào | Từ Trang chủ qua mục `Quản Lý`. |
 | Điểm ra/Điều hướng | Hoàn tất đăng xuất về màn hình Đăng nhập; các action hồ sơ khác thuộc UC tương ứng. |
 | Vai trò/Quyền | Chủ trọ đã đăng nhập. |
 
@@ -231,6 +231,7 @@
 | 3 | Thông tin tài khoản | Nhóm dữ liệu | Avatar/fallback, tên hiển thị, phone contact nếu có và email read-only | Không | Không | Theo UC-04 | Khi tab `Cá nhân` được chọn. |
 | 4 | Đổi mật khẩu | Action | `Đổi mật khẩu` | Không | Không | Thuộc UC-08 | Khi có phiên hợp lệ. |
 | 5 | Đăng xuất | Nút/Action | `Đăng xuất` | Không | Không | Chỉ xử lý một lần khi đang đăng xuất | Khi có phiên hợp lệ. |
+| 6 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Quản Lý` là mục đang chọn tại màn hình Quản lý | Khi có phiên hợp lệ. |
 
 #### Thao tác
 

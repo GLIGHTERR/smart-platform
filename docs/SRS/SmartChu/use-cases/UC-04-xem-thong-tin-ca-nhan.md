@@ -102,13 +102,13 @@ Không có luồng ngoại lệ được xác định trong phạm vi Use Case n
 | 1 | Lời chào | Nội dung | `Xin chào` và tên sản phẩm `SmartChủ` | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
 | 2 | Tổng quan vận hành | Nhóm chỉ số | Số tòa nhà, số người thuê, số phòng và số phòng trống | Không | Không | Giá trị số từ dữ liệu hệ thống | Khi có dữ liệu tương ứng. |
 | 3 | Truy cập nhanh | Nhóm action | `T.Toán`, `Báo cáo`, `Lịch xem`, `Thống kê` | Không | Không | Destination thuộc UC tương ứng, không xác định trong UC-04 | Khi action được cung cấp cho tài khoản. |
-| 4 | Điều hướng chính | Thanh điều hướng | `T.Nhà`, `T.Nhân`, `T.Chủ`, `H.Đồng`, `Q.Lý` | Không | Không | `T.Chủ` là mục đang chọn tại Trang chủ | Khi có phiên hợp lệ. |
+| 4 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Trang Chủ` là mục đang chọn tại Trang chủ | Khi có phiên hợp lệ. |
 
 #### Thao tác
 
 | Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
 | --- | --- | --- | --- | --- | --- |
-| Chọn `Q.Lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý tại tab `Cá nhân`. | Chuyển về Đăng nhập nếu phiên không còn hợp lệ. |
+| Chọn `Quản Lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý tại tab `Cá nhân`. | Chuyển về Đăng nhập nếu phiên không còn hợp lệ. |
 
 #### Trạng thái màn hình
 
@@ -128,7 +128,7 @@ Không có luồng ngoại lệ được xác định trong phạm vi Use Case n
 | Mã màn hình | Quản lý — Cá nhân |
 | Tên màn hình | Quản lý thông tin cá nhân |
 | Mục đích | Hiển thị thông tin cá nhân và các lối điều hướng quản lý tài khoản. |
-| Điểm vào | Từ mục `Q.Lý` trên điều hướng chính. |
+| Điểm vào | Từ mục `Quản Lý` trên điều hướng chính. |
 | Điểm ra/Điều hướng | Chỉnh sửa tới UC-05; `Đổi mật khẩu` tới UC-08; `Đăng xuất` tiếp tục UC-02; `Kinh doanh` tới bề mặt thuộc UC riêng. |
 | Vai trò/Quyền | Chủ trọ đã đăng nhập; chỉ xem hồ sơ của chính mình. |
 
@@ -145,7 +145,7 @@ Không có luồng ngoại lệ được xác định trong phạm vi Use Case n
 | 7 | Email | Dữ liệu | Email đã xác minh và che một phần | Có | Không | Read-only trong phase đầu | Luôn hiển thị. |
 | 8 | Đổi mật khẩu | Action | `Đổi mật khẩu` | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
 | 9 | Đăng xuất | Action | `Đăng xuất` | Không | Không | Chỉ xử lý một lần cho mỗi thao tác | Khi có phiên hợp lệ. |
-| 10 | Điều hướng chính | Thanh điều hướng | `T.Nhà`, `T.Nhân`, `T.Chủ`, `H.Đồng`, `Q.Lý` | Không | Không | `Q.Lý` là mục đang chọn | Khi có phiên hợp lệ. |
+| 10 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Quản Lý` là mục đang chọn | Khi có phiên hợp lệ. |
 
 #### Thao tác
 
@@ -155,7 +155,7 @@ Không có luồng ngoại lệ được xác định trong phạm vi Use Case n
 | Chọn tab `Kinh doanh` | Phiên hợp lệ | Không | Mở bề mặt thông tin kinh doanh thuộc UC riêng. | Kết thúc UC-04 tại bề mặt future-feature của phase đầu. | Giữ tab `Cá nhân` nếu không thể điều hướng. |
 | Chọn `Đổi mật khẩu` | Phiên hợp lệ | Không | Khởi tạo UC-08. | Mở màn hình Đổi mật khẩu. | Giữ màn hình nếu không thể điều hướng. |
 | Chọn `Đăng xuất` | Phiên hợp lệ; không đang xử lý đăng xuất | Không | Tiếp tục luồng đăng xuất của UC-02. | Về Đăng nhập sau khi xóa phiên cục bộ. | UC-02 xử lý lỗi thu hồi phiên. |
-| Chọn `T.Chủ` | Phiên hợp lệ | Không | Mở Trang chủ. | Hiển thị Trang chủ. | Chuyển về Đăng nhập nếu phiên không hợp lệ. |
+| Chọn `Trang Chủ` | Phiên hợp lệ | Không | Mở Trang chủ. | Hiển thị Trang chủ. | Chuyển về Đăng nhập nếu phiên không hợp lệ. |
 
 #### Trạng thái màn hình
 
