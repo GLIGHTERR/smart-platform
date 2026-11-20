@@ -172,6 +172,8 @@
 
 ### Trang chủ — Trang chủ
 
+![SmartChủ — Trang chủ](../assets/home-profile/canvas-2026-11-20/01-home.png)
+
 #### Thông tin chung
 
 | Trường | Nội dung |
@@ -187,13 +189,16 @@
 
 | STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Quản lý | Điều hướng | Lối vào khu vực Quản lý | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
+| 1 | Lời chào | Nội dung | `Xin chào` và tên sản phẩm `SmartChủ` | Không | Không | Không áp dụng | Khi có phiên hợp lệ. |
+| 2 | Tổng quan vận hành | Nhóm chỉ số | Số tòa nhà, số người thuê, số phòng và số phòng trống | Không | Không | Giá trị số từ dữ liệu hệ thống | Khi có dữ liệu tương ứng. |
+| 3 | Truy cập nhanh | Nhóm action | `T.Toán`, `Báo cáo`, `Lịch xem`, `Thống kê` | Không | Không | Destination thuộc UC tương ứng, không xác định trong UC-02 | Khi action được cung cấp cho tài khoản. |
+| 4 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Trang Chủ` là mục đang chọn tại Trang chủ | Khi có phiên hợp lệ. |
 
 #### Thao tác
 
 | Thao tác | Điều kiện khả dụng | Xác nhận | Hệ thống xử lý | Kết quả/Điều hướng | Phản hồi lỗi |
 | --- | --- | --- | --- | --- | --- |
-| Chọn `Quản lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý. | Yêu cầu đăng nhập lại nếu phiên hết hạn. |
+| Chọn `Quản Lý` | Phiên hợp lệ | Không | Mở khu vực Quản lý. | Hiển thị màn hình Quản lý tại tab `Cá nhân`. | Yêu cầu đăng nhập lại nếu phiên hết hạn. |
 
 #### Trạng thái màn hình
 
@@ -204,22 +209,29 @@
 
 ### Quản lý — Quản lý
 
+![SmartChủ — Quản lý](../assets/home-profile/canvas-2026-11-20/02-personal-profile.png)
+
 #### Thông tin chung
 
 | Trường | Nội dung |
 | --- | --- |
 | Mã màn hình | Quản lý |
 | Tên màn hình | Quản lý |
-| Mục đích | Cho phép chủ trọ kết thúc phiên hiện tại. |
-| Điểm vào | Từ Trang chủ qua thao tác `Quản lý`. |
-| Điểm ra/Điều hướng | Hoàn tất đăng xuất về màn hình Đăng nhập. |
+| Mục đích | Cung cấp khu vực quản lý tài khoản, trong đó chủ trọ có thể kết thúc phiên hiện tại. |
+| Điểm vào | Từ Trang chủ qua mục `Quản Lý`. |
+| Điểm ra/Điều hướng | Hoàn tất đăng xuất về màn hình Đăng nhập; các action hồ sơ khác thuộc UC tương ứng. |
 | Vai trò/Quyền | Chủ trọ đã đăng nhập. |
 
 #### Thành phần giao diện
 
 | STT | Thành phần | Loại | Nội dung/Dữ liệu hiển thị | Bắt buộc | Có thể chỉnh sửa | Validation/Định dạng | Điều kiện hiển thị |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Đăng xuất | Nút/Action | `Đăng xuất` | Không | Không | Chỉ xử lý một lần khi đang đăng xuất | Khi có phiên hợp lệ. |
+| 1 | Tab Cá nhân | Tab | Thông tin personal profile | Không | Không | Tab mặc định | Luôn hiển thị trong khu vực Quản lý. |
+| 2 | Tab Kinh doanh | Tab | Lối sang bề mặt thông tin kinh doanh | Không | Không | Thuộc UC riêng | Luôn hiển thị trong khu vực Quản lý. |
+| 3 | Thông tin tài khoản | Nhóm dữ liệu | Avatar/fallback, tên hiển thị, phone contact nếu có và email read-only | Không | Không | Theo UC-04 | Khi tab `Cá nhân` được chọn. |
+| 4 | Đổi mật khẩu | Action | `Đổi mật khẩu` | Không | Không | Thuộc UC-08 | Khi có phiên hợp lệ. |
+| 5 | Đăng xuất | Nút/Action | `Đăng xuất` | Không | Không | Chỉ xử lý một lần khi đang đăng xuất | Khi có phiên hợp lệ. |
+| 6 | Điều hướng chính | Thanh điều hướng | `Tòa Nhà`, `Tin Nhắn`, `Trang Chủ`, `Hợp Đồng`, `Quản Lý` | Không | Không | `Quản Lý` là mục đang chọn tại màn hình Quản lý | Khi có phiên hợp lệ. |
 
 #### Thao tác
 
@@ -231,6 +243,6 @@
 
 | Trạng thái | Điều kiện | Hiển thị/Hành vi |
 | --- | --- | --- |
-| Sẵn sàng | Phiên hợp lệ | Action `Đăng xuất` khả dụng. |
+| Sẵn sàng | Phiên hợp lệ | Tab `Cá nhân` hiển thị mặc định và action `Đăng xuất` khả dụng. |
 | Đang đăng xuất | Đã chọn action | Khóa thao tác lặp. |
 | Hoàn tất | Credential cục bộ đã xóa | Chuyển về Đăng nhập và không cho Back vào vùng bảo vệ. |
